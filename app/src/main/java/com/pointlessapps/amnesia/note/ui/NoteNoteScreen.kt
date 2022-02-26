@@ -2,9 +2,8 @@ package com.pointlessapps.amnesia.note.ui
 
 import androidx.compose.foundation.background
 import androidx.compose.foundation.layout.*
-import androidx.compose.foundation.rememberScrollState
+import androidx.compose.foundation.lazy.LazyColumn
 import androidx.compose.foundation.shape.CircleShape
-import androidx.compose.foundation.verticalScroll
 import androidx.compose.material.IconButton
 import androidx.compose.material.MaterialTheme
 import androidx.compose.runtime.*
@@ -14,11 +13,13 @@ import androidx.compose.ui.draw.clip
 import androidx.compose.ui.res.dimensionResource
 import androidx.compose.ui.res.stringResource
 import androidx.constraintlayout.compose.ConstraintLayout
+import com.google.accompanist.insets.statusBarsPadding
 import com.pointlessapps.amnesia.R
 import com.pointlessapps.amnesia.ui.components.AmnesiaScaffoldLayout
 import com.pointlessapps.amnesia.ui.components.AmnesiaTextField
 import com.pointlessapps.amnesia.ui.components.defaultAMnesiaTextFieldModel
 import com.pointlessapps.amnesia.ui.theme.Icons
+import com.pointlessapps.amnesia.utils.add
 
 @Composable
 fun NoteNoteScreen() {
@@ -29,37 +30,43 @@ fun NoteNoteScreen() {
 		topBar = { TopBar() },
 		fab = { BottomBar() }
 	) { innerPadding ->
-		Column(
-			modifier = Modifier
-				.verticalScroll(rememberScrollState())
-				.padding(innerPadding)
-				.padding(horizontal = dimensionResource(id = R.dimen.medium_padding)),
+		LazyColumn(
+			contentPadding = innerPadding.add(
+				start = dimensionResource(id = R.dimen.medium_padding),
+				end = dimensionResource(id = R.dimen.medium_padding)
+			),
 			verticalArrangement = Arrangement.spacedBy(dimensionResource(id = R.dimen.medium_padding))
 		) {
-			AmnesiaTextField(
-				modifier = Modifier
-					.fillMaxWidth()
-					.padding(horizontal = dimensionResource(id = R.dimen.small_padding)),
-				value = title,
-				onValueChange = { title = it },
-				textFieldModel = defaultAMnesiaTextFieldModel().copy(
-					textStyle = MaterialTheme.typography.h2,
-					placeholder = stringResource(id = R.string.title)
+			item {
+				AmnesiaTextField(
+					modifier = Modifier
+						.fillMaxWidth()
+						.padding(horizontal = dimensionResource(id = R.dimen.small_padding)),
+					value = title,
+					onValueChange = { title = it },
+					textFieldModel = defaultAMnesiaTextFieldModel().copy(
+						textStyle = MaterialTheme.typography.h2,
+						placeholder = stringResource(id = R.string.title)
+					)
 				)
-			)
-			AmnesiaTextField(
-				modifier = Modifier
-					.fillMaxWidth()
-					.padding(horizontal = dimensionResource(id = R.dimen.small_padding)),
-				value = content,
-				onValueChange = { content = it },
-				textFieldModel = defaultAMnesiaTextFieldModel().copy(
-					textStyle = MaterialTheme.typography.body1,
-					placeholder = stringResource(id = R.string.content)
+			}
+			item {
+				AmnesiaTextField(
+					modifier = Modifier
+						.fillMaxWidth()
+						.padding(horizontal = dimensionResource(id = R.dimen.small_padding))
+						.fillParentMaxHeight(0.8f),
+					value = content,
+					onValueChange = { content = it },
+					textFieldModel = defaultAMnesiaTextFieldModel().copy(
+						textStyle = MaterialTheme.typography.body1,
+						placeholder = stringResource(id = R.string.content)
+					)
 				)
-			)
-
-			Spacer(modifier = Modifier.navigationBarsPadding())
+			}
+			item {
+				Spacer(modifier = Modifier.navigationBarsPadding())
+			}
 		}
 	}
 }
@@ -71,7 +78,7 @@ private fun TopBar() {
 			.wrapContentSize()
 			.fillMaxWidth()
 			.background(MaterialTheme.colors.primary.copy(alpha = 0.8f))
-			.systemBarsPadding()
+			.statusBarsPadding()
 			.padding(horizontal = dimensionResource(id = R.dimen.medium_padding))
 	) {
 		val dp16 = dimensionResource(id = R.dimen.medium_padding)
@@ -142,6 +149,8 @@ private fun BottomBar() {
 			.fillMaxWidth()
 			.padding(dimensionResource(id = R.dimen.medium_padding))
 			.padding(bottom = dimensionResource(id = R.dimen.medium_padding))
+			.navigationBarsPadding()
+			.imePadding()
 			.clip(MaterialTheme.shapes.medium)
 			.background(MaterialTheme.colors.secondary),
 		horizontalArrangement = Arrangement.SpaceEvenly,

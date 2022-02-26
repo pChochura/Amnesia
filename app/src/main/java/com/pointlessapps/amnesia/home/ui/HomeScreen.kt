@@ -1,8 +1,13 @@
 package com.pointlessapps.amnesia.home.ui
 
 import android.graphics.Color
-import androidx.compose.foundation.*
+import androidx.compose.foundation.Image
+import androidx.compose.foundation.background
+import androidx.compose.foundation.horizontalScroll
 import androidx.compose.foundation.layout.*
+import androidx.compose.foundation.lazy.LazyColumn
+import androidx.compose.foundation.lazy.items
+import androidx.compose.foundation.rememberScrollState
 import androidx.compose.foundation.shape.CircleShape
 import androidx.compose.material.IconButton
 import androidx.compose.material.MaterialTheme
@@ -17,11 +22,13 @@ import androidx.compose.ui.res.dimensionResource
 import androidx.compose.ui.res.painterResource
 import androidx.compose.ui.res.stringResource
 import androidx.constraintlayout.compose.ConstraintLayout
+import com.google.accompanist.insets.statusBarsPadding
 import com.pointlessapps.amnesia.R
 import com.pointlessapps.amnesia.model.Category
 import com.pointlessapps.amnesia.model.Note
 import com.pointlessapps.amnesia.ui.components.*
 import com.pointlessapps.amnesia.ui.theme.Icons
+import com.pointlessapps.amnesia.utils.add
 import androidx.compose.ui.graphics.Color as ComposeColor
 
 @Composable
@@ -115,7 +122,7 @@ fun HomeScreen(
 				modifier = Modifier
 					.wrapContentSize()
 					.background(MaterialTheme.colors.primary.copy(alpha = 0.8f))
-					.systemBarsPadding()
+					.statusBarsPadding()
 					.padding(horizontal = dimensionResource(id = R.dimen.medium_padding))
 			) {
 				TopBar()
@@ -151,7 +158,8 @@ fun HomeScreen(
 					.padding(
 						bottom = dimensionResource(id = R.dimen.big_padding),
 						top = dimensionResource(id = R.dimen.medium_padding)
-					),
+					)
+					.navigationBarsPadding(),
 				contentAlignment = Alignment.Center,
 			) {
 				AmnesiaButton(
@@ -174,28 +182,31 @@ fun HomeScreen(
 			)
 		}
 
-		Column(
-			modifier = Modifier
-				.verticalScroll(rememberScrollState())
-				.padding(innerPadding)
-				.padding(top = dimensionResource(id = R.dimen.small_padding))
-				.padding(horizontal = dimensionResource(id = R.dimen.medium_padding)),
+		LazyColumn(
+			contentPadding = innerPadding.add(
+				top = dimensionResource(id = R.dimen.small_padding),
+				start = dimensionResource(id = R.dimen.medium_padding),
+				end = dimensionResource(id = R.dimen.medium_padding),
+			),
 			verticalArrangement = Arrangement.spacedBy(dimensionResource(id = R.dimen.medium_padding))
 		) {
 			val (pinnedNotes, otherNotes) = notes.filter {
 				selectedCategory.text == "All" || it.categories.contains(selectedCategory)
 			}.partition { it.isPinned }
+
 			if (pinnedNotes.isNotEmpty()) {
-				Row(horizontalArrangement = Arrangement.spacedBy(dimensionResource(id = R.dimen.tiny_padding))) {
-					Icons.Pin(tint = colorResource(id = R.color.grey))
-					Text(
-						text = stringResource(id = R.string.pinned),
-						style = MaterialTheme.typography.body1.copy(
-							color = MaterialTheme.colors.secondaryVariant
+				item {
+					Row(horizontalArrangement = Arrangement.spacedBy(dimensionResource(id = R.dimen.tiny_padding))) {
+						Icons.Pin(tint = colorResource(id = R.color.grey))
+						Text(
+							text = stringResource(id = R.string.pinned),
+							style = MaterialTheme.typography.body1.copy(
+								color = MaterialTheme.colors.secondaryVariant
+							)
 						)
-					)
+					}
 				}
-				pinnedNotes.forEach { note ->
+				items(pinnedNotes) { note ->
 					AmnesiaNoteCard(
 						note = note,
 						modifier = Modifier.fillMaxWidth(),
@@ -203,25 +214,26 @@ fun HomeScreen(
 				}
 
 				if (otherNotes.isNotEmpty()) {
-					Spacer(modifier = Modifier.height(dimensionResource(id = R.dimen.size_0)))
-
-					Text(
-						text = stringResource(id = R.string.other),
-						style = MaterialTheme.typography.body1.copy(
-							color = MaterialTheme.colors.secondaryVariant
+					item {
+						Text(
+							modifier = Modifier.padding(
+								top = dimensionResource(id = R.dimen.medium_padding)
+							),
+							text = stringResource(id = R.string.other),
+							style = MaterialTheme.typography.body1.copy(
+								color = MaterialTheme.colors.secondaryVariant
+							)
 						)
-					)
+					}
 				}
 			}
 
-			otherNotes.forEach { note ->
+			items(otherNotes) { note ->
 				AmnesiaNoteCard(
 					note = note,
 					modifier = Modifier.fillMaxWidth(),
 				)
 			}
-
-			//Spacer(modifier = Modifier.navigationBarsPadding())
 		}
 	}
 }

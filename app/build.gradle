@@ -64,4 +64,5 @@ dependencies {
     implementation "com.google.accompanist:accompanist-insets:$accompanist_version"
 
     implementation implementation(project(':dash_border'))
+    implementation implementation(project(':tooltip'))
 }

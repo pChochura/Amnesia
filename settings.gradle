@@ -13,5 +13,7 @@ dependencyResolutionManagement {
     }
 }
 rootProject.name = "Amnesia"
+
 include ':app'
 include ':dash_border'
+include ':tooltip'

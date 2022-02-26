@@ -1,0 +1,7 @@
+<resources>
+	<string name="app_name">Amnesia</string>
+	<string name="new_note">New note</string>
+	<string name="dot" translatable="false">•</string>
+	<string name="pinned">Pinned</string>
+	<string name="other">Other</string>
+</resources>

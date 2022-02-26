@@ -11,7 +11,6 @@ import androidx.compose.material.Surface
 import androidx.compose.runtime.Composable
 import androidx.compose.runtime.CompositionLocalProvider
 import androidx.compose.ui.Modifier
-import androidx.compose.ui.res.colorResource
 import androidx.core.view.WindowCompat
 import androidx.navigation.NavHostController
 import androidx.navigation.compose.NavHost
@@ -19,7 +18,7 @@ import androidx.navigation.compose.composable
 import androidx.navigation.compose.rememberNavController
 import com.google.accompanist.insets.ProvideWindowInsets
 import com.pointlessapps.amnesia.home.ui.HomeScreen
-import com.pointlessapps.amnesia.note.ui.NoteNoteScreen
+import com.pointlessapps.amnesia.note.ui.NoteScreen
 import com.pointlessapps.amnesia.theme.HOME_ROUTE
 import com.pointlessapps.amnesia.theme.NEW_NOTE_ROUTE
 import com.pointlessapps.amnesia.ui.theme.AmnesiaTheme
@@ -68,7 +67,7 @@ class MainActivity : ComponentActivity() {
 			)
 		}
 		composable(NEW_NOTE_ROUTE) {
-			NoteNoteScreen()
+			NoteScreen()
 		}
 	}
 }

@@ -6,15 +6,17 @@ import androidx.compose.foundation.text.BasicTextField
 import androidx.compose.foundation.text.KeyboardOptions
 import androidx.compose.material.MaterialTheme
 import androidx.compose.material.Text
-import androidx.compose.runtime.Composable
+import androidx.compose.runtime.*
 import androidx.compose.ui.Modifier
 import androidx.compose.ui.graphics.Color
 import androidx.compose.ui.graphics.SolidColor
 import androidx.compose.ui.text.TextStyle
 import androidx.compose.ui.text.input.KeyboardCapitalization
+import androidx.compose.ui.text.input.TextFieldValue
 import androidx.compose.ui.text.input.VisualTransformation
 import com.pointlessapps.amnesia.utils.EMPTY_STRING
 
+@Suppress("unused")
 @Composable
 fun AmnesiaTextField(
 	value: String,
@@ -22,8 +24,31 @@ fun AmnesiaTextField(
 	modifier: Modifier = Modifier,
 	textFieldModel: AmnesiaTextFieldModel = defaultAMnesiaTextFieldModel()
 ) {
+	var textFieldValueState by remember { mutableStateOf(TextFieldValue(text = value)) }
+	val textFieldValue = textFieldValueState.copy(text = value)
+
+	AmnesiaTextField(
+		value = textFieldValue,
+		onValueChange = {
+			textFieldValueState = it
+			if (value != it.text) {
+				onValueChange(it.text)
+			}
+		},
+		modifier = modifier,
+		textFieldModel = textFieldModel
+	)
+}
+
+@Composable
+fun AmnesiaTextField(
+	value: TextFieldValue,
+	onValueChange: (TextFieldValue) -> Unit,
+	modifier: Modifier = Modifier,
+	textFieldModel: AmnesiaTextFieldModel = defaultAMnesiaTextFieldModel()
+) {
 	Box(modifier = modifier) {
-		if (value.isEmpty()) {
+		if (value.text.isEmpty()) {
 			Text(
 				modifier = Modifier.fillMaxSize(),
 				text = textFieldModel.placeholder,

@@ -1,6 +1,5 @@
 package com.pointlessapps.amnesia.home.ui
 
-import android.graphics.Color
 import androidx.compose.foundation.Image
 import androidx.compose.foundation.background
 import androidx.compose.foundation.horizontalScroll
@@ -11,11 +10,13 @@ import androidx.compose.foundation.rememberScrollState
 import androidx.compose.foundation.shape.CircleShape
 import androidx.compose.material.MaterialTheme
 import androidx.compose.material.Text
-import androidx.compose.runtime.*
+import androidx.compose.runtime.Composable
+import androidx.compose.runtime.SideEffect
 import androidx.compose.ui.Alignment
 import androidx.compose.ui.Modifier
 import androidx.compose.ui.draw.clip
 import androidx.compose.ui.layout.ContentScale
+import androidx.compose.ui.platform.LocalFocusManager
 import androidx.compose.ui.res.colorResource
 import androidx.compose.ui.res.dimensionResource
 import androidx.compose.ui.res.painterResource
@@ -23,100 +24,23 @@ import androidx.compose.ui.res.stringResource
 import androidx.constraintlayout.compose.ConstraintLayout
 import com.google.accompanist.insets.statusBarsPadding
 import com.pointlessapps.amnesia.R
-import com.pointlessapps.amnesia.model.Category
 import com.pointlessapps.amnesia.model.Note
 import com.pointlessapps.amnesia.ui.components.*
 import com.pointlessapps.amnesia.ui.theme.Icons
 import com.pointlessapps.amnesia.utils.add
+import org.koin.androidx.compose.getViewModel
 import androidx.compose.ui.graphics.Color as ComposeColor
 
 @Composable
 fun HomeScreen(
+	viewModel: HomeViewModel = getViewModel(),
 	onNavigateToNoteClicked: (Note?) -> Unit
 ) {
-	val categories = remember {
-		listOf(
-			Category("All", Color.parseColor("#FBCCCC")),
-			Category("Notes", Color.parseColor("#CCFBD9")),
-			Category("Ideas", Color.parseColor("#D0CCFB")),
-			Category("Reminders", Color.parseColor("#FAFBCC")),
-			Category("Reminders", Color.parseColor("#FAFBCC")),
-			Category("Reminders", Color.parseColor("#FAFBCC")),
-			Category("Reminders", Color.parseColor("#FAFBCC")),
-		)
+	val focusManager = LocalFocusManager.current
+
+	SideEffect {
+		focusManager.clearFocus()
 	}
-	val notes = remember {
-		listOf(
-			Note(
-				title = "Aplikacja notatnik",
-				content = "Some stuff, some other stuff, some more stuff...",
-				createdAt = "12.02.2022",
-				updatedAt = "yesterday",
-				categories = categories.subList(1, 2).toSet(),
-				isPinned = false
-			),
-			Note(
-				title = null,
-				content = "Content with:\n" +
-						"unordered list\n" +
-						"multilevel\n" +
-						"nice\n" +
-						"\n" +
-						"ordered list\n" +
-						"multilevel\n" +
-						"nice\n" +
-						"\n" +
-						"bold, italic, underline, with different sizes and colorful",
-				createdAt = "01.02.2022",
-				updatedAt = "03.02.2022",
-				categories = categories.subList(2, 3).toSet(),
-				isPinned = false
-			),
-			Note(
-				title = null,
-				content = "Content with:\n" +
-						"unordered list\n" +
-						"multilevel\n" +
-						"nice\n" +
-						"\n" +
-						"ordered list\n" +
-						"multilevel\n" +
-						"nice\n" +
-						"\n" +
-						"bold, italic, underline, with different sizes and colorful",
-				createdAt = "01.02.2022",
-				updatedAt = "03.02.2022",
-				categories = emptySet(),
-				isPinned = false
-			),
-			Note(
-				title = null,
-				content = "Content with:\n" +
-						"unordered list\n" +
-						"multilevel\n" +
-						"nice\n" +
-						"\n" +
-						"ordered list\n" +
-						"multilevel\n" +
-						"nice\n" +
-						"\n" +
-						"bold, italic, underline, with different sizes and colorful",
-				createdAt = "01.02.2022",
-				updatedAt = "03.02.2022",
-				categories = categories.subList(2, 3).toSet(),
-				isPinned = false
-			),
-			Note(
-				title = null,
-				content = "Some stuff, some other stuff, some more stuff...",
-				createdAt = "12.02.2022",
-				updatedAt = "12.02.2022",
-				categories = categories.subList(1, 3).toSet(),
-				isPinned = true
-			)
-		)
-	}
-	var selectedCategory by remember { mutableStateOf(categories.first()) }
 
 	AmnesiaScaffoldLayout(
 		topBar = {
@@ -127,32 +51,7 @@ fun HomeScreen(
 					.statusBarsPadding()
 			) {
 				TopBar()
-				Row(
-					modifier = Modifier
-						.fillMaxWidth()
-						.horizontalScroll(rememberScrollState())
-						.padding(
-							vertical = dimensionResource(id = R.dimen.small_padding),
-							horizontal = dimensionResource(id = R.dimen.medium_padding)
-						),
-					horizontalArrangement = Arrangement.spacedBy(dimensionResource(id = R.dimen.small_padding))
-				) {
-					categories.forEach { category ->
-						AmnesiaChip(
-							text = category.text,
-							chipModel = defaultAmnesiaChipModel().run {
-								copy(
-									backgroundColor = ComposeColor(category.color),
-									textStyle = MaterialTheme.typography.h3.copy(
-										color = textStyle.color
-									)
-								)
-							},
-							colored = selectedCategory == category,
-							onClick = { selectedCategory = category }
-						)
-					}
-				}
+				CategoriesRow(viewModel)
 			}
 		},
 		fab = {
@@ -194,14 +93,18 @@ fun HomeScreen(
 			),
 			verticalArrangement = Arrangement.spacedBy(dimensionResource(id = R.dimen.medium_padding))
 		) {
-			val (pinnedNotes, otherNotes) = notes.filter {
-				selectedCategory.text == "All" || it.categories.contains(selectedCategory)
-			}.partition { it.isPinned }
+			val (pinnedNotes, otherNotes) = viewModel.partitionNotesByPinned()
 
 			if (pinnedNotes.isNotEmpty()) {
 				item {
-					Row(horizontalArrangement = Arrangement.spacedBy(dimensionResource(id = R.dimen.tiny_padding))) {
-						Icons.Pin(tint = colorResource(id = R.color.grey))
+					Row(
+						verticalAlignment = Alignment.Bottom,
+						horizontalArrangement = Arrangement.spacedBy(dimensionResource(id = R.dimen.tiny_padding))
+					) {
+						Icons.Pin(
+							modifier = Modifier.size(dimensionResource(id = R.dimen.small_icon_size)),
+							tint = colorResource(id = R.color.grey)
+						)
 						Text(
 							text = stringResource(id = R.string.pinned),
 							style = MaterialTheme.typography.body1.copy(
@@ -297,6 +200,36 @@ private fun TopBar() {
 					tint = MaterialTheme.colors.onSecondary
 				)
 			}
+		}
+	}
+}
+
+@Composable
+private fun CategoriesRow(viewModel: HomeViewModel) {
+	Row(
+		modifier = Modifier
+			.fillMaxWidth()
+			.horizontalScroll(rememberScrollState())
+			.padding(
+				vertical = dimensionResource(id = R.dimen.small_padding),
+				horizontal = dimensionResource(id = R.dimen.medium_padding)
+			),
+		horizontalArrangement = Arrangement.spacedBy(dimensionResource(id = R.dimen.small_padding))
+	) {
+		viewModel.state.categories.forEach { category ->
+			AmnesiaChip(
+				text = category.text,
+				chipModel = defaultAmnesiaChipModel().run {
+					copy(
+						backgroundColor = ComposeColor(category.color),
+						textStyle = MaterialTheme.typography.h3.copy(
+							color = textStyle.color
+						)
+					)
+				},
+				colored = viewModel.state.selectedCategory === category,
+				onClick = { viewModel.onCategorySelected(category) }
+			)
 		}
 	}
 }

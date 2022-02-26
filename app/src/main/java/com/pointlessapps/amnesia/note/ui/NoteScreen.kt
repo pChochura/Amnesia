@@ -8,14 +8,16 @@ import androidx.compose.foundation.lazy.LazyColumn
 import androidx.compose.foundation.shape.CircleShape
 import androidx.compose.material.IconButton
 import androidx.compose.material.MaterialTheme
-import androidx.compose.runtime.*
+import androidx.compose.runtime.Composable
+import androidx.compose.runtime.LaunchedEffect
+import androidx.compose.runtime.remember
 import androidx.compose.ui.Alignment
 import androidx.compose.ui.ExperimentalComposeUiApi
 import androidx.compose.ui.Modifier
 import androidx.compose.ui.draw.clip
 import androidx.compose.ui.focus.FocusRequester
 import androidx.compose.ui.focus.focusRequester
-import androidx.compose.ui.platform.LocalSoftwareKeyboardController
+import androidx.compose.ui.platform.LocalTextInputService
 import androidx.compose.ui.res.dimensionResource
 import androidx.compose.ui.res.stringResource
 import androidx.constraintlayout.compose.ConstraintLayout
@@ -27,15 +29,19 @@ import com.pointlessapps.amnesia.ui.components.AmnesiaTooltipWrapper
 import com.pointlessapps.amnesia.ui.components.defaultAMnesiaTextFieldModel
 import com.pointlessapps.amnesia.ui.theme.Icons
 import com.pointlessapps.amnesia.utils.add
+import org.koin.androidx.compose.getViewModel
 
 @OptIn(ExperimentalComposeUiApi::class)
 @Composable
-fun NoteNoteScreen() {
-	var title by remember { mutableStateOf("") }
-	var content by remember { mutableStateOf("") }
-
+fun NoteScreen(
+	viewModel: NoteViewModel = getViewModel()
+) {
 	val focusRequester = remember { FocusRequester() }
-	val keyboardController = LocalSoftwareKeyboardController.current
+	val keyboardController = LocalTextInputService.current
+
+	LaunchedEffect(Unit) {
+		focusRequester.requestFocus()
+	}
 
 	AmnesiaScaffoldLayout(
 		topBar = { TopBar() },
@@ -49,7 +55,7 @@ fun NoteNoteScreen() {
 					indication = null
 				) {
 					focusRequester.requestFocus()
-					keyboardController?.show()
+					keyboardController?.showSoftwareKeyboard()
 				}
 		) {
 			LazyColumn(
@@ -65,8 +71,8 @@ fun NoteNoteScreen() {
 						modifier = Modifier
 							.fillMaxWidth()
 							.padding(horizontal = dimensionResource(id = R.dimen.small_padding)),
-						value = title,
-						onValueChange = { title = it },
+						value = viewModel.state.title,
+						onValueChange = viewModel::onTitleChanged,
 						textFieldModel = defaultAMnesiaTextFieldModel().copy(
 							textStyle = MaterialTheme.typography.h2,
 							placeholder = stringResource(id = R.string.title)
@@ -79,8 +85,8 @@ fun NoteNoteScreen() {
 							.fillMaxWidth()
 							.padding(horizontal = dimensionResource(id = R.dimen.small_padding))
 							.focusRequester(focusRequester),
-						value = content,
-						onValueChange = { content = it },
+						value = viewModel.state.content,
+						onValueChange = viewModel::onContentChanged,
 						textFieldModel = defaultAMnesiaTextFieldModel().copy(
 							textStyle = MaterialTheme.typography.body1,
 							placeholder = stringResource(id = R.string.content)

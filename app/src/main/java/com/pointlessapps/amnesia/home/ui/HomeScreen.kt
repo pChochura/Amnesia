@@ -25,7 +25,9 @@ import com.pointlessapps.amnesia.ui.theme.Icons
 import androidx.compose.ui.graphics.Color as ComposeColor
 
 @Composable
-fun HomeScreen() {
+fun HomeScreen(
+	onNavigateToNoteClicked: (Note?) -> Unit
+) {
 	val categories = remember {
 		listOf(
 			Category("All", Color.parseColor("#FBCCCC")),
@@ -75,7 +77,7 @@ fun HomeScreen() {
 						"bold, italic, underline, with different sizes and colorful",
 				createdAt = "01.02.2022",
 				updatedAt = "03.02.2022",
-				categories = categories.subList(2, 3).toSet(),
+				categories = emptySet(),
 				isPinned = false
 			),
 			Note(
@@ -120,7 +122,7 @@ fun HomeScreen() {
 				Row(
 					modifier = Modifier
 						.fillMaxWidth()
-						.padding(horizontal = dimensionResource(id = R.dimen.small_padding))
+						.padding(dimensionResource(id = R.dimen.small_padding))
 						.horizontalScroll(rememberScrollState()),
 					horizontalArrangement = Arrangement.spacedBy(dimensionResource(id = R.dimen.small_padding))
 				) {
@@ -147,14 +149,14 @@ fun HomeScreen() {
 				modifier = Modifier
 					.fillMaxWidth()
 					.padding(
-						bottom = dimensionResource(id = R.dimen.huge_padding),
+						bottom = dimensionResource(id = R.dimen.big_padding),
 						top = dimensionResource(id = R.dimen.medium_padding)
 					),
 				contentAlignment = Alignment.Center,
 			) {
 				AmnesiaButton(
 					text = stringResource(R.string.new_note),
-					onClick = { /*TODO*/ }
+					onClick = { onNavigateToNoteClicked(null) }
 				)
 			}
 		}
@@ -176,6 +178,7 @@ fun HomeScreen() {
 			modifier = Modifier
 				.verticalScroll(rememberScrollState())
 				.padding(innerPadding)
+				.padding(top = dimensionResource(id = R.dimen.small_padding))
 				.padding(horizontal = dimensionResource(id = R.dimen.medium_padding)),
 			verticalArrangement = Arrangement.spacedBy(dimensionResource(id = R.dimen.medium_padding))
 		) {
@@ -199,14 +202,16 @@ fun HomeScreen() {
 					)
 				}
 
-				Spacer(modifier = Modifier.height(dimensionResource(id = R.dimen.size_0)))
+				if (otherNotes.isNotEmpty()) {
+					Spacer(modifier = Modifier.height(dimensionResource(id = R.dimen.size_0)))
 
-				Text(
-					text = stringResource(id = R.string.other),
-					style = MaterialTheme.typography.body1.copy(
-						color = MaterialTheme.colors.secondaryVariant
+					Text(
+						text = stringResource(id = R.string.other),
+						style = MaterialTheme.typography.body1.copy(
+							color = MaterialTheme.colors.secondaryVariant
+						)
 					)
-				)
+				}
 			}
 
 			otherNotes.forEach { note ->
@@ -215,6 +220,8 @@ fun HomeScreen() {
 					modifier = Modifier.fillMaxWidth(),
 				)
 			}
+
+			//Spacer(modifier = Modifier.navigationBarsPadding())
 		}
 	}
 }

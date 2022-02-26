@@ -4,4 +4,6 @@
 	<string name="dot" translatable="false">•</string>
 	<string name="pinned">Pinned</string>
 	<string name="other">Other</string>
+	<string name="title">Title</string>
+	<string name="content">Content</string>
 </resources>

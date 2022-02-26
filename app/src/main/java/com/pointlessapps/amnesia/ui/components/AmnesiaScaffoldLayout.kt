@@ -1,7 +1,10 @@
 package com.pointlessapps.amnesia.ui.components
 
 import androidx.compose.foundation.layout.PaddingValues
+import androidx.compose.foundation.layout.imePadding
+import androidx.compose.foundation.layout.navigationBarsPadding
 import androidx.compose.runtime.Composable
+import androidx.compose.ui.Modifier
 import androidx.compose.ui.layout.SubcomposeLayout
 
 @Composable
@@ -10,7 +13,7 @@ fun AmnesiaScaffoldLayout(
 	fab: @Composable () -> Unit = {},
 	content: @Composable (PaddingValues) -> Unit
 ) {
-	SubcomposeLayout { constraints ->
+	SubcomposeLayout(modifier = Modifier.imePadding().navigationBarsPadding()) { constraints ->
 		val layoutWidth = constraints.maxWidth
 		val layoutHeight = constraints.maxHeight
 
@@ -28,13 +31,15 @@ fun AmnesiaScaffoldLayout(
 					measurable.measure(looseConstraints).takeIf { it.height != 0 && it.width != 0 }
 				}
 
-			val fabHeight = fabPlaceables.maxOf { it.height }
+			val fabHeight = fabPlaceables.maxByOrNull { it.height }?.height ?: 0
 
 			val bodyContentPlaceables = subcompose(AmnesiaScaffoldLayoutContent.Content) {
-				content(PaddingValues(
-					top = topBarHeight.toDp(),
-					bottom = fabHeight.toDp(),
-				))
+				content(
+					PaddingValues(
+						top = topBarHeight.toDp(),
+						bottom = fabHeight.toDp(),
+					)
+				)
 			}.map { it.measure(looseConstraints.copy(maxHeight = layoutHeight)) }
 
 			bodyContentPlaceables.forEach { it.place(0, 0) }

@@ -9,7 +9,6 @@ import androidx.compose.foundation.lazy.LazyColumn
 import androidx.compose.foundation.lazy.items
 import androidx.compose.foundation.rememberScrollState
 import androidx.compose.foundation.shape.CircleShape
-import androidx.compose.material.IconButton
 import androidx.compose.material.MaterialTheme
 import androidx.compose.material.Text
 import androidx.compose.runtime.*
@@ -40,6 +39,9 @@ fun HomeScreen(
 			Category("All", Color.parseColor("#FBCCCC")),
 			Category("Notes", Color.parseColor("#CCFBD9")),
 			Category("Ideas", Color.parseColor("#D0CCFB")),
+			Category("Reminders", Color.parseColor("#FAFBCC")),
+			Category("Reminders", Color.parseColor("#FAFBCC")),
+			Category("Reminders", Color.parseColor("#FAFBCC")),
 			Category("Reminders", Color.parseColor("#FAFBCC")),
 		)
 	}
@@ -123,14 +125,16 @@ fun HomeScreen(
 					.wrapContentSize()
 					.background(MaterialTheme.colors.primary.copy(alpha = 0.8f))
 					.statusBarsPadding()
-					.padding(horizontal = dimensionResource(id = R.dimen.medium_padding))
 			) {
 				TopBar()
 				Row(
 					modifier = Modifier
 						.fillMaxWidth()
-						.padding(dimensionResource(id = R.dimen.small_padding))
-						.horizontalScroll(rememberScrollState()),
+						.horizontalScroll(rememberScrollState())
+						.padding(
+							vertical = dimensionResource(id = R.dimen.small_padding),
+							horizontal = dimensionResource(id = R.dimen.medium_padding)
+						),
 					horizontalArrangement = Arrangement.spacedBy(dimensionResource(id = R.dimen.small_padding))
 				) {
 					categories.forEach { category ->
@@ -240,18 +244,25 @@ fun HomeScreen(
 
 @Composable
 private fun TopBar() {
-	ConstraintLayout(modifier = Modifier.fillMaxWidth()) {
+	ConstraintLayout(
+		modifier = Modifier
+			.fillMaxWidth()
+			.padding(horizontal = dimensionResource(id = R.dimen.medium_padding))
+	) {
 		val (menuButton, titleText, profileButton) = createRefs()
 
-		IconButton(
-			onClick = { /*TODO*/ },
+		AmnesiaTooltipWrapper(
 			modifier = Modifier.constrainAs(menuButton) {
 				centerVerticallyTo(parent)
 				start.linkTo(parent.start)
-			}
+			},
+			tooltip = stringResource(R.string.menu),
+			onClick = { /*TODO*/ }
 		) {
 			Icons.Menu(
-				modifier = Modifier.size(dimensionResource(id = R.dimen.icon_size)),
+				modifier = Modifier
+					.padding(dimensionResource(id = R.dimen.tiny_padding))
+					.size(dimensionResource(id = R.dimen.icon_size)),
 				tint = MaterialTheme.colors.secondary
 			)
 		}
@@ -266,21 +277,26 @@ private fun TopBar() {
 			}
 		)
 
-		IconButton(
-			onClick = { /*TODO*/ },
-			modifier = Modifier
-				.clip(CircleShape)
-				.size(dimensionResource(id = R.dimen.icon_button_size))
-				.background(MaterialTheme.colors.secondary)
-				.constrainAs(profileButton) {
-					centerVerticallyTo(parent)
-					end.linkTo(parent.end)
-				},
+		AmnesiaTooltipWrapper(
+			modifier = Modifier.constrainAs(profileButton) {
+				centerVerticallyTo(parent)
+				end.linkTo(parent.end)
+			},
+			tooltip = stringResource(R.string.profile),
+			onClick = { /*TODO*/ }
 		) {
-			Icons.Profile(
-				modifier = Modifier.size(dimensionResource(id = R.dimen.icon_size)),
-				tint = MaterialTheme.colors.onSecondary
-			)
+			Box(
+				modifier = Modifier
+					.clip(CircleShape)
+					.size(dimensionResource(id = R.dimen.icon_button_size))
+					.background(MaterialTheme.colors.secondary),
+				contentAlignment = Alignment.Center
+			) {
+				Icons.Profile(
+					modifier = Modifier.size(dimensionResource(id = R.dimen.icon_size)),
+					tint = MaterialTheme.colors.onSecondary
+				)
+			}
 		}
 	}
 }

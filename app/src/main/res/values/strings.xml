@@ -6,4 +6,9 @@
 	<string name="other">Other</string>
 	<string name="title">Title</string>
 	<string name="content">Content</string>
+	<string name="menu">Menu</string>
+	<string name="profile">Profile</string>
+	<string name="undo">Undo</string>
+	<string name="redo">Redo</string>
+	<string name="done">Done</string>
 </resources>

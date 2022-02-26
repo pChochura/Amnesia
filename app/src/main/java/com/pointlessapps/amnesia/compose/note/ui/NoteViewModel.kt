@@ -1,10 +1,12 @@
-package com.pointlessapps.amnesia.note.ui
+package com.pointlessapps.amnesia.compose.note.ui
 
+import android.graphics.Color
 import androidx.compose.runtime.getValue
 import androidx.compose.runtime.mutableStateOf
 import androidx.compose.runtime.setValue
 import androidx.compose.ui.text.input.TextFieldValue
 import androidx.lifecycle.ViewModel
+import com.pointlessapps.amnesia.model.Category
 
 class NoteViewModel : ViewModel() {
 
@@ -22,9 +24,22 @@ class NoteViewModel : ViewModel() {
 			content = value
 		)
 	}
+
+	fun onCategoryRemoved(value: Category) {
+		state = state.copy(
+			categories = state.categories.filterNot { it === value }
+		)
+	}
+
+	fun onCategoryAdded(value: Category = Category("Test category", Color.parseColor("#FBCCCC"))) {
+		state = state.copy(
+			categories = listOf(*state.categories.toTypedArray(), value)
+		)
+	}
 }
 
 data class State(
 	val title: TextFieldValue = TextFieldValue(),
-	val content: TextFieldValue = TextFieldValue()
+	val content: TextFieldValue = TextFieldValue(),
+	val categories: List<Category> = emptyList(),
 )

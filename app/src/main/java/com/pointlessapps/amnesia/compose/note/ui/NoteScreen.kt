@@ -1,37 +1,37 @@
-package com.pointlessapps.amnesia.note.ui
+package com.pointlessapps.amnesia.compose.note.ui
 
+import androidx.compose.foundation.ExperimentalFoundationApi
 import androidx.compose.foundation.background
 import androidx.compose.foundation.clickable
 import androidx.compose.foundation.interaction.MutableInteractionSource
 import androidx.compose.foundation.layout.*
 import androidx.compose.foundation.lazy.LazyColumn
+import androidx.compose.foundation.lazy.LazyRow
+import androidx.compose.foundation.lazy.items
 import androidx.compose.foundation.shape.CircleShape
-import androidx.compose.material.IconButton
 import androidx.compose.material.MaterialTheme
 import androidx.compose.runtime.Composable
 import androidx.compose.runtime.LaunchedEffect
 import androidx.compose.runtime.remember
 import androidx.compose.ui.Alignment
-import androidx.compose.ui.ExperimentalComposeUiApi
 import androidx.compose.ui.Modifier
 import androidx.compose.ui.draw.clip
 import androidx.compose.ui.focus.FocusRequester
 import androidx.compose.ui.focus.focusRequester
+import androidx.compose.ui.graphics.Color
 import androidx.compose.ui.platform.LocalTextInputService
 import androidx.compose.ui.res.dimensionResource
 import androidx.compose.ui.res.stringResource
 import androidx.constraintlayout.compose.ConstraintLayout
 import com.google.accompanist.insets.statusBarsPadding
 import com.pointlessapps.amnesia.R
-import com.pointlessapps.amnesia.ui.components.AmnesiaScaffoldLayout
-import com.pointlessapps.amnesia.ui.components.AmnesiaTextField
-import com.pointlessapps.amnesia.ui.components.AmnesiaTooltipWrapper
-import com.pointlessapps.amnesia.ui.components.defaultAMnesiaTextFieldModel
-import com.pointlessapps.amnesia.ui.theme.Icons
-import com.pointlessapps.amnesia.utils.add
+import com.pointlessapps.amnesia.compose.ui.components.*
+import com.pointlessapps.amnesia.compose.ui.theme.Icons
+import com.pointlessapps.amnesia.compose.utils.RANDOM_UUID
+import com.pointlessapps.amnesia.compose.utils.add
 import org.koin.androidx.compose.getViewModel
 
-@OptIn(ExperimentalComposeUiApi::class)
+@OptIn(ExperimentalFoundationApi::class)
 @Composable
 fun NoteScreen(
 	viewModel: NoteViewModel = getViewModel()
@@ -61,16 +61,14 @@ fun NoteScreen(
 			LazyColumn(
 				contentPadding = innerPadding.add(
 					top = dimensionResource(id = R.dimen.small_padding),
-					start = dimensionResource(id = R.dimen.small_padding),
-					end = dimensionResource(id = R.dimen.small_padding)
+					start = dimensionResource(id = R.dimen.medium_padding),
+					end = dimensionResource(id = R.dimen.medium_padding)
 				),
 				verticalArrangement = Arrangement.spacedBy(dimensionResource(id = R.dimen.medium_padding))
 			) {
 				item {
 					AmnesiaTextField(
-						modifier = Modifier
-							.fillMaxWidth()
-							.padding(horizontal = dimensionResource(id = R.dimen.small_padding)),
+						modifier = Modifier.fillMaxWidth(),
 						value = viewModel.state.title,
 						onValueChange = viewModel::onTitleChanged,
 						textFieldModel = defaultAMnesiaTextFieldModel().copy(
@@ -80,10 +78,42 @@ fun NoteScreen(
 					)
 				}
 				item {
+					LazyRow(
+						horizontalArrangement = Arrangement.spacedBy(dimensionResource(id = R.dimen.small_padding))
+					) {
+						items(viewModel.state.categories, key = { it.id }) { category ->
+							AmnesiaChip(
+								modifier = Modifier.animateItemPlacement(),
+								text = category.text,
+								chipModel = defaultAmnesiaChipModel().copy(
+									backgroundColor = Color(category.color)
+								),
+								onClick = {
+									/* TODO display popup to remove category */
+									viewModel.onCategoryRemoved(category)
+								}
+							)
+						}
+						item(key = RANDOM_UUID) {
+							AmnesiaChip(
+								modifier = Modifier.animateItemPlacement(),
+								text = stringResource(id = R.string.add_tag),
+								chipModel = defaultAmnesiaChipModel().copy(
+									borderColor = MaterialTheme.colors.primaryVariant
+								),
+								colored = false,
+								onClick = {
+									/* TODO display popup to add category */
+									viewModel.onCategoryAdded()
+								}
+							)
+						}
+					}
+				}
+				item {
 					AmnesiaTextField(
 						modifier = Modifier
 							.fillMaxWidth()
-							.padding(horizontal = dimensionResource(id = R.dimen.small_padding))
 							.focusRequester(focusRequester),
 						value = viewModel.state.content,
 						onValueChange = viewModel::onContentChanged,
@@ -162,6 +192,9 @@ private fun TopBar() {
 
 		AmnesiaTooltipWrapper(
 			modifier = Modifier
+				.clip(CircleShape)
+				.size(dimensionResource(id = R.dimen.icon_button_size))
+				.background(MaterialTheme.colors.secondary)
 				.constrainAs(doneButton) {
 					centerVerticallyTo(parent)
 					end.linkTo(parent.end)
@@ -169,18 +202,10 @@ private fun TopBar() {
 			tooltip = stringResource(R.string.done),
 			onClick = { /*TODO*/ }
 		) {
-			Box(
-				modifier = Modifier
-					.clip(CircleShape)
-					.size(dimensionResource(id = R.dimen.icon_button_size))
-					.background(MaterialTheme.colors.secondary),
-				contentAlignment = Alignment.Center
-			) {
-				Icons.Done(
-					modifier = Modifier.size(dimensionResource(id = R.dimen.icon_size)),
-					tint = MaterialTheme.colors.onSecondary
-				)
-			}
+			Icons.Done(
+				modifier = Modifier.size(dimensionResource(id = R.dimen.icon_size)),
+				tint = MaterialTheme.colors.onSecondary
+			)
 		}
 	}
 }
@@ -195,49 +220,85 @@ private fun BottomBar() {
 			.navigationBarsPadding()
 			.imePadding()
 			.clip(MaterialTheme.shapes.medium)
-			.background(MaterialTheme.colors.secondary),
+			.background(MaterialTheme.colors.secondary)
+			.padding(vertical = dimensionResource(id = R.dimen.small_padding)),
 		horizontalArrangement = Arrangement.SpaceEvenly,
 		verticalAlignment = Alignment.CenterVertically
 	) {
-		IconButton(onClick = { /*TODO*/ }) {
+		AmnesiaTooltipWrapper(
+			tooltip = stringResource(R.string.bold),
+			onClick = { /*TODO*/ }
+		) {
 			Icons.Bold(
-				modifier = Modifier.size(dimensionResource(id = R.dimen.icon_size)),
+				modifier = Modifier
+					.padding(dimensionResource(id = R.dimen.tiny_padding))
+					.size(dimensionResource(id = R.dimen.icon_size)),
 				tint = MaterialTheme.colors.onSecondary
 			)
 		}
-		IconButton(onClick = { /*TODO*/ }) {
+		AmnesiaTooltipWrapper(
+			tooltip = stringResource(R.string.underline),
+			onClick = { /*TODO*/ }
+		) {
 			Icons.Underline(
-				modifier = Modifier.size(dimensionResource(id = R.dimen.icon_size)),
+				modifier = Modifier
+					.padding(dimensionResource(id = R.dimen.tiny_padding))
+					.size(dimensionResource(id = R.dimen.icon_size)),
 				tint = MaterialTheme.colors.onSecondary
 			)
 		}
-		IconButton(onClick = { /*TODO*/ }) {
+		AmnesiaTooltipWrapper(
+			tooltip = stringResource(R.string.italic),
+			onClick = { /*TODO*/ }
+		) {
 			Icons.Italic(
-				modifier = Modifier.size(dimensionResource(id = R.dimen.icon_size)),
+				modifier = Modifier
+					.padding(dimensionResource(id = R.dimen.tiny_padding))
+					.size(dimensionResource(id = R.dimen.icon_size)),
 				tint = MaterialTheme.colors.onSecondary
 			)
 		}
-		IconButton(onClick = { /*TODO*/ }) {
+		AmnesiaTooltipWrapper(
+			tooltip = stringResource(R.string.unordered_list),
+			onClick = { /*TODO*/ }
+		) {
 			Icons.UnorderedList(
-				modifier = Modifier.size(dimensionResource(id = R.dimen.icon_size)),
+				modifier = Modifier
+					.padding(dimensionResource(id = R.dimen.tiny_padding))
+					.size(dimensionResource(id = R.dimen.icon_size)),
 				tint = MaterialTheme.colors.onSecondary
 			)
 		}
-		IconButton(onClick = { /*TODO*/ }) {
+		AmnesiaTooltipWrapper(
+			tooltip = stringResource(R.string.ordered_list),
+			onClick = { /*TODO*/ }
+		) {
 			Icons.OrderedList(
-				modifier = Modifier.size(dimensionResource(id = R.dimen.icon_size)),
+				modifier = Modifier
+					.padding(dimensionResource(id = R.dimen.tiny_padding))
+					.size(dimensionResource(id = R.dimen.icon_size)),
 				tint = MaterialTheme.colors.onSecondary
 			)
 		}
-		IconButton(onClick = { /*TODO*/ }) {
+		AmnesiaTooltipWrapper(
+			tooltip = stringResource(R.string.text_size),
+			onClick = { /*TODO*/ }
+		) {
 			Icons.TextSize(
-				modifier = Modifier.size(dimensionResource(id = R.dimen.icon_size)),
+				modifier = Modifier
+					.padding(dimensionResource(id = R.dimen.tiny_padding))
+					.size(dimensionResource(id = R.dimen.icon_size)),
 				tint = MaterialTheme.colors.onSecondary
 			)
 		}
-		IconButton(onClick = { /*TODO*/ }) {
+		AmnesiaTooltipWrapper(
+			tooltip = stringResource(R.string.text_color),
+			onClick = { /*TODO*/ }
+		) {
 			Icons.Circle(
-				modifier = Modifier.size(dimensionResource(id = R.dimen.icon_size)),
+				modifier = Modifier
+					.padding(dimensionResource(id = R.dimen.tiny_padding))
+					.size(dimensionResource(id = R.dimen.icon_size)),
 				tint = MaterialTheme.colors.onSecondary
 			)
 		}

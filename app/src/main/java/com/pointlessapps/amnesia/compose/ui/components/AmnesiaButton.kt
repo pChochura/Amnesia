@@ -1,7 +1,6 @@
-package com.pointlessapps.amnesia.ui.components
+package com.pointlessapps.amnesia.compose.ui.components
 
 import androidx.compose.foundation.layout.PaddingValues
-import androidx.compose.foundation.layout.fillMaxSize
 import androidx.compose.material.Button
 import androidx.compose.material.ButtonDefaults.buttonColors
 import androidx.compose.material.MaterialTheme

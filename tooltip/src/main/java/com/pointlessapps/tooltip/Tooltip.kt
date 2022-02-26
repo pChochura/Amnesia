@@ -142,7 +142,7 @@ private fun TooltipContent(
 }
 
 private val TooltipRoundedCorners = 4.dp
-private val TooltipElevation = 16.dp
+private val TooltipElevation = 4.dp
 private val TooltipPadding = 16.dp
 
 private val TooltipPopupProperties = PopupProperties(focusable = true)

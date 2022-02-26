@@ -1,9 +1,10 @@
-package com.pointlessapps.amnesia.ui.components
+package com.pointlessapps.amnesia.compose.ui.components
 
 import androidx.compose.foundation.ExperimentalFoundationApi
 import androidx.compose.foundation.combinedClickable
 import androidx.compose.foundation.interaction.MutableInteractionSource
 import androidx.compose.foundation.layout.Box
+import androidx.compose.foundation.layout.BoxScope
 import androidx.compose.foundation.layout.padding
 import androidx.compose.material.MaterialTheme
 import androidx.compose.material.Text
@@ -11,6 +12,7 @@ import androidx.compose.material.ripple.rememberRipple
 import androidx.compose.runtime.Composable
 import androidx.compose.runtime.mutableStateOf
 import androidx.compose.runtime.remember
+import androidx.compose.ui.Alignment
 import androidx.compose.ui.Modifier
 import androidx.compose.ui.graphics.Color
 import androidx.compose.ui.graphics.Shape
@@ -28,9 +30,12 @@ fun AmnesiaTooltipWrapper(
 	tooltipModel: AmnesiaTooltipModel = defaultAmnesiaTooltipModel(),
 	tooltip: String,
 	onClick: () -> Unit,
-	content: @Composable () -> Unit
+	content: @Composable BoxScope.() -> Unit
 ) {
-	Box(modifier = modifier) {
+	Box(
+		modifier = modifier,
+		contentAlignment = Alignment.Center
+	) {
 		val showTooltip = remember { mutableStateOf(false) }
 		Box(
 			modifier = Modifier
@@ -42,6 +47,7 @@ fun AmnesiaTooltipWrapper(
 					onClick = onClick,
 					onLongClick = { showTooltip.value = true },
 				),
+			contentAlignment = Alignment.Center
 		) {
 			content()
 		}

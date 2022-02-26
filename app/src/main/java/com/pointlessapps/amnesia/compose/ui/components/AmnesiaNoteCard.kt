@@ -1,4 +1,4 @@
-package com.pointlessapps.amnesia.ui.components
+package com.pointlessapps.amnesia.compose.ui.components
 
 import androidx.compose.foundation.background
 import androidx.compose.foundation.clickable

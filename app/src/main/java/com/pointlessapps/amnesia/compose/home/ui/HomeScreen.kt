@@ -1,4 +1,4 @@
-package com.pointlessapps.amnesia.home.ui
+package com.pointlessapps.amnesia.compose.home.ui
 
 import androidx.compose.foundation.Image
 import androidx.compose.foundation.background
@@ -24,10 +24,10 @@ import androidx.compose.ui.res.stringResource
 import androidx.constraintlayout.compose.ConstraintLayout
 import com.google.accompanist.insets.statusBarsPadding
 import com.pointlessapps.amnesia.R
+import com.pointlessapps.amnesia.compose.ui.components.*
+import com.pointlessapps.amnesia.compose.ui.theme.Icons
+import com.pointlessapps.amnesia.compose.utils.add
 import com.pointlessapps.amnesia.model.Note
-import com.pointlessapps.amnesia.ui.components.*
-import com.pointlessapps.amnesia.ui.theme.Icons
-import com.pointlessapps.amnesia.utils.add
 import org.koin.androidx.compose.getViewModel
 import androidx.compose.ui.graphics.Color as ComposeColor
 
@@ -181,25 +181,21 @@ private fun TopBar() {
 		)
 
 		AmnesiaTooltipWrapper(
-			modifier = Modifier.constrainAs(profileButton) {
-				centerVerticallyTo(parent)
-				end.linkTo(parent.end)
-			},
+			modifier = Modifier
+				.clip(CircleShape)
+				.size(dimensionResource(id = R.dimen.icon_button_size))
+				.background(MaterialTheme.colors.secondary)
+				.constrainAs(profileButton) {
+					centerVerticallyTo(parent)
+					end.linkTo(parent.end)
+				},
 			tooltip = stringResource(R.string.profile),
 			onClick = { /*TODO*/ }
 		) {
-			Box(
-				modifier = Modifier
-					.clip(CircleShape)
-					.size(dimensionResource(id = R.dimen.icon_button_size))
-					.background(MaterialTheme.colors.secondary),
-				contentAlignment = Alignment.Center
-			) {
-				Icons.Profile(
-					modifier = Modifier.size(dimensionResource(id = R.dimen.icon_size)),
-					tint = MaterialTheme.colors.onSecondary
-				)
-			}
+			Icons.Profile(
+				modifier = Modifier.size(dimensionResource(id = R.dimen.icon_size)),
+				tint = MaterialTheme.colors.onSecondary
+			)
 		}
 	}
 }

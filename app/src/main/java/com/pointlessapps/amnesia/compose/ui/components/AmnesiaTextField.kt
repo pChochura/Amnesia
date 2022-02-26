@@ -1,4 +1,4 @@
-package com.pointlessapps.amnesia.ui.components
+package com.pointlessapps.amnesia.compose.ui.components
 
 import androidx.compose.foundation.layout.Box
 import androidx.compose.foundation.layout.fillMaxSize
@@ -14,7 +14,7 @@ import androidx.compose.ui.text.TextStyle
 import androidx.compose.ui.text.input.KeyboardCapitalization
 import androidx.compose.ui.text.input.TextFieldValue
 import androidx.compose.ui.text.input.VisualTransformation
-import com.pointlessapps.amnesia.utils.EMPTY_STRING
+import com.pointlessapps.amnesia.compose.utils.EMPTY_STRING
 
 @Suppress("unused")
 @Composable

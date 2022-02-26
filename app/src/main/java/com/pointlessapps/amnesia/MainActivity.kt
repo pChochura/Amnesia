@@ -17,11 +17,11 @@ import androidx.navigation.compose.NavHost
 import androidx.navigation.compose.composable
 import androidx.navigation.compose.rememberNavController
 import com.google.accompanist.insets.ProvideWindowInsets
-import com.pointlessapps.amnesia.home.ui.HomeScreen
-import com.pointlessapps.amnesia.note.ui.NoteScreen
-import com.pointlessapps.amnesia.theme.HOME_ROUTE
-import com.pointlessapps.amnesia.theme.NEW_NOTE_ROUTE
-import com.pointlessapps.amnesia.ui.theme.AmnesiaTheme
+import com.pointlessapps.amnesia.compose.home.ui.HomeScreen
+import com.pointlessapps.amnesia.compose.note.ui.NoteScreen
+import com.pointlessapps.amnesia.compose.ui.theme.HOME_ROUTE
+import com.pointlessapps.amnesia.compose.ui.theme.NEW_NOTE_ROUTE
+import com.pointlessapps.amnesia.compose.ui.theme.AmnesiaTheme
 
 class MainActivity : ComponentActivity() {
 

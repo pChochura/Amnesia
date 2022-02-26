@@ -11,4 +11,12 @@
 	<string name="undo">Undo</string>
 	<string name="redo">Redo</string>
 	<string name="done">Done</string>
+	<string name="add_tag">Add tag</string>
+	<string name="bold">Bold</string>
+	<string name="text_color">Text color</string>
+	<string name="text_size">Text size</string>
+	<string name="ordered_list">Ordered list</string>
+	<string name="unordered_list">Unordered list</string>
+	<string name="italic">Italic</string>
+	<string name="underline">Underline</string>
 </resources>

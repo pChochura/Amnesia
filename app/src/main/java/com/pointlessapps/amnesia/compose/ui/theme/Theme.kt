@@ -1,4 +1,4 @@
-package com.pointlessapps.amnesia.ui.theme
+package com.pointlessapps.amnesia.compose.ui.theme
 
 import androidx.compose.foundation.isSystemInDarkTheme
 import androidx.compose.foundation.shape.RoundedCornerShape

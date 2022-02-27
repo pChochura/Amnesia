@@ -19,6 +19,7 @@ abstract class RichTextValue {
 	abstract val value: TextFieldValue
 
 	abstract fun insertStyle(style: Style): RichTextValue
+	abstract fun clearStyle(style: Style): RichTextValue
 
 	internal abstract fun updateValueAndStyles(value: TextFieldValue)
 
@@ -60,25 +61,27 @@ internal class RichTextValueImpl(override var value: TextFieldValue) : RichTextV
 	override val currentStyles: Set<Style>
 		get() = value.annotatedString.spanStyles.filter {
 			val styleRange = TextRange(it.start, it.end)
-			value.selection.intersects(styleRange)
+			(value.composition ?: value.selection).intersects(styleRange)
 		}.map { Style.fromTag(it.tag) }.toSet()
 
-	private fun getCurrentRange(style: Style?): List<AnnotatedString.Range<SpanStyle>> {
+	private fun getCurrentStyles(style: Style?): List<AnnotatedString.Range<SpanStyle>> {
 		return value.annotatedString.spanStyles.filter {
 			val styleRange = TextRange(it.start, it.end)
-			value.selection.intersects(styleRange)
+			(value.composition ?: value.selection).intersects(styleRange)
 		}.filter { style == null || it.tag == style.tag() }
 	}
 
-	private fun removeStyleFromSelection(style: Style): Boolean {
-		if (style != ClearFormat && getCurrentRange(style).isEmpty()) {
+	private fun removeStyleFromSelection(
+		stylesFromSelection: List<AnnotatedString.Range<SpanStyle>>
+	): Boolean {
+		if (stylesFromSelection.isEmpty()) {
 			return false
 		}
 
 		val start = value.composition?.start ?: value.selection.start
 		val end = value.composition?.end ?: value.selection.end
 		val updatedStyles = mutableListOf<AnnotatedString.Range<SpanStyle>>()
-		getCurrentRange(style.takeUnless { it == ClearFormat }).forEach {
+		stylesFromSelection.forEach {
 			if (it.start < start && it.end > end) {
 				// Split into two styles
 				val styleBeforeSelection = it.copy(end = start)
@@ -111,11 +114,7 @@ internal class RichTextValueImpl(override var value: TextFieldValue) : RichTextV
 		}
 
 		// Remove the styles that intersects with the selection and add the updated ones
-		val spanStyles = value.annotatedString.spanStyles.filterNot {
-			val styleRange = TextRange(it.start, it.end)
-			(value.composition ?: value.selection).intersects(styleRange) &&
-					(style == ClearFormat || it.tag == style.tag())
-		} + updatedStyles
+		val spanStyles = value.annotatedString.spanStyles - stylesFromSelection + updatedStyles
 
 		set(
 			annotatedString = value.annotatedString.copy(
@@ -124,7 +123,7 @@ internal class RichTextValueImpl(override var value: TextFieldValue) : RichTextV
 			)
 		)
 
-		return true
+		return updatedStyles.size != stylesFromSelection.size
 	}
 
 	private fun collapseStyles(spanStyles: List<AnnotatedString.Range<SpanStyle>>): List<AnnotatedString.Range<SpanStyle>> {
@@ -176,7 +175,7 @@ internal class RichTextValueImpl(override var value: TextFieldValue) : RichTextV
 	}
 
 	override fun insertStyle(style: Style): RichTextValue {
-		if (removeStyleFromSelection(style)) {
+		if (removeStyleFromSelection(getCurrentStyles(style.takeUnless { it == ClearFormat }))) {
 			return this
 		}
 
@@ -191,7 +190,12 @@ internal class RichTextValueImpl(override var value: TextFieldValue) : RichTextV
 			UnorderedList -> TODO()
 			OrderedList -> TODO()
 			is TextColor -> SpanStyle(color = style.color)
-			is TextSize -> SpanStyle(fontSize = TextUnit(style.fraction, TextUnitType.Em))
+			is TextSize -> SpanStyle(
+				fontSize = TextUnit(
+					requireNotNull(style.fraction),
+					TextUnitType.Em
+				)
+			)
 			ClearFormat -> null // Nothing to do here
 		} ?: return this
 
@@ -208,6 +212,17 @@ internal class RichTextValueImpl(override var value: TextFieldValue) : RichTextV
 				spanStyles = collapseStyles(spanStyles),
 			)
 		)
+
+		return this
+	}
+
+	override fun clearStyle(style: Style): RichTextValue {
+		val currentStylesByType = value.annotatedString.spanStyles.filter {
+			val styleRange = TextRange(it.start, it.end)
+			(value.composition ?: value.selection).intersects(styleRange)
+		}.filter { it.tag.startsWith(style.tag(simple = true)) }
+
+		removeStyleFromSelection(currentStylesByType)
 
 		return this
 	}

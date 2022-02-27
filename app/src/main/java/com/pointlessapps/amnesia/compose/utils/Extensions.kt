@@ -4,10 +4,12 @@ import androidx.compose.foundation.layout.PaddingValues
 import androidx.compose.foundation.layout.calculateEndPadding
 import androidx.compose.foundation.layout.calculateStartPadding
 import androidx.compose.runtime.Composable
+import androidx.compose.ui.platform.LocalDensity
 import androidx.compose.ui.platform.LocalLayoutDirection
 import androidx.compose.ui.unit.Dp
 import androidx.compose.ui.unit.LayoutDirection
 import androidx.compose.ui.unit.dp
+import kotlin.math.roundToInt
 
 @Composable
 fun PaddingValues.add(
@@ -57,3 +59,19 @@ fun PaddingValues.vertical() = PaddingValues(
 	top = top(),
 	bottom = bottom()
 )
+
+fun Float.toPercent(): String = "${(this * 100).roundToInt()}%"
+
+@Composable
+fun Dp.roundToPx(): Int = LocalDensity.current.run {
+	this@roundToPx.roundToPx()
+}
+
+@Composable
+fun Dp.toPx(): Float = LocalDensity.current.run {
+	this@toPx.toPx()
+}
+
+fun Float.increment(value: Float) = ((this + value) * 10).roundToInt() / 10f
+
+fun Float.decrement(value: Float) = ((this - value) * 10).roundToInt() / 10f

@@ -123,7 +123,7 @@ private fun TooltipContent(
 	) { if (it) 1f else 0f }
 
 	Card(
-		backgroundColor = backgroundColor.copy(alpha = 0.75f),
+		backgroundColor = backgroundColor,
 		contentColor = MaterialTheme.colors.contentColorFor(backgroundColor)
 			.takeOrElse { backgroundColor.onColor() },
 		modifier = Modifier.alpha(alpha),
@@ -145,7 +145,7 @@ private val TooltipRoundedCorners = 4.dp
 private val TooltipElevation = 4.dp
 private val TooltipPadding = 16.dp
 
-private val TooltipPopupProperties = PopupProperties(focusable = true)
+private val TooltipPopupProperties = PopupProperties()
 private val TooltipOffset = DpOffset(0.dp, 0.dp)
 
 // Tooltip open/close animation duration.

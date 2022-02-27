@@ -20,4 +20,6 @@
 	<string name="italic">Italic</string>
 	<string name="underline">Underline</string>
 	<string name="clear_format">Clear format</string>
+	<string name="plus_10_percent">Plus 10%</string>
+	<string name="minus_10_percent">Minus 10%</string>
 </resources>

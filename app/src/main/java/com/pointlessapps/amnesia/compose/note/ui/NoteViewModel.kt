@@ -45,6 +45,12 @@ class NoteViewModel : ViewModel() {
 			content = state.content.insertStyle(style)
 		)
 	}
+
+	fun clearStyle(style: Style) {
+		state = state.copy(
+			content = state.content.clearStyle(style)
+		)
+	}
 }
 
 data class State(

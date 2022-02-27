@@ -1,8 +1,6 @@
 package com.pointlessapps.amnesia.compose.note.ui
 
-import androidx.compose.foundation.ExperimentalFoundationApi
-import androidx.compose.foundation.background
-import androidx.compose.foundation.clickable
+import androidx.compose.foundation.*
 import androidx.compose.foundation.interaction.MutableInteractionSource
 import androidx.compose.foundation.layout.*
 import androidx.compose.foundation.lazy.LazyColumn
@@ -10,10 +8,7 @@ import androidx.compose.foundation.lazy.LazyRow
 import androidx.compose.foundation.lazy.items
 import androidx.compose.foundation.shape.CircleShape
 import androidx.compose.material.MaterialTheme
-import androidx.compose.runtime.Composable
-import androidx.compose.runtime.LaunchedEffect
-import androidx.compose.runtime.mutableStateOf
-import androidx.compose.runtime.remember
+import androidx.compose.runtime.*
 import androidx.compose.ui.Alignment
 import androidx.compose.ui.Modifier
 import androidx.compose.ui.draw.clip
@@ -30,10 +25,13 @@ import com.pointlessapps.amnesia.compose.ui.components.*
 import com.pointlessapps.amnesia.compose.ui.theme.Icons
 import com.pointlessapps.amnesia.compose.utils.RANDOM_UUID
 import com.pointlessapps.amnesia.compose.utils.add
+import com.pointlessapps.amnesia.compose.utils.decrement
+import com.pointlessapps.amnesia.compose.utils.increment
 import com.pointlessapps.rt_editor.model.Style
 import com.pointlessapps.rt_editor.ui.RichTextEditor
 import com.pointlessapps.rt_editor.ui.defaultRTTextFieldModel
 import org.koin.androidx.compose.getViewModel
+import kotlin.math.roundToInt
 
 @OptIn(ExperimentalFoundationApi::class)
 @Composable
@@ -217,9 +215,7 @@ private fun TopBar() {
 }
 
 @Composable
-private fun BottomBar(
-	viewModel: NoteViewModel
-) {
+private fun BottomBar(viewModel: NoteViewModel) {
 	Row(
 		modifier = Modifier
 			.fillMaxWidth()
@@ -229,8 +225,12 @@ private fun BottomBar(
 			.imePadding()
 			.clip(MaterialTheme.shapes.medium)
 			.background(MaterialTheme.colors.secondary)
-			.padding(vertical = dimensionResource(id = R.dimen.small_padding)),
-		horizontalArrangement = Arrangement.SpaceEvenly,
+			.horizontalScroll(rememberScrollState())
+			.padding(dimensionResource(id = R.dimen.small_padding)),
+		horizontalArrangement = Arrangement.spacedBy(
+			dimensionResource(id = R.dimen.small_padding),
+			Alignment.CenterHorizontally
+		),
 		verticalAlignment = Alignment.CenterVertically
 	) {
 		AmnesiaTooltipWrapper(
@@ -288,16 +288,52 @@ private fun BottomBar(
 				tint = MaterialTheme.colors.onSecondary
 			)
 		}
-		AmnesiaTooltipWrapper(
-			tooltip = stringResource(R.string.text_size),
-			onClick = { viewModel.insertStyle(Style.TextSize(1.5f)) }
-		) {
-			Icons.TextSize(
-				modifier = Modifier
-					.padding(dimensionResource(id = R.dimen.tiny_padding))
-					.size(dimensionResource(id = R.dimen.icon_size)),
-				tint = MaterialTheme.colors.onSecondary
-			)
+		Box {
+			var showTextSizePicker by remember { mutableStateOf(false) }
+			var currentValue by remember { mutableStateOf(Style.TextSize.DEFAULT_VALUE) }
+			AmnesiaTooltipWrapper(
+				tooltip = stringResource(R.string.text_size),
+				onClick = {
+					currentValue =
+						viewModel.state.content.currentStyles
+							.filterIsInstance<Style.TextSize>()
+							.firstOrNull()
+							?.fraction ?: Style.TextSize.DEFAULT_VALUE
+					showTextSizePicker = true
+				}
+			) {
+				Icons.TextSize(
+					modifier = Modifier
+						.padding(dimensionResource(id = R.dimen.tiny_padding))
+						.size(dimensionResource(id = R.dimen.icon_size)),
+					tint = MaterialTheme.colors.onSecondary
+				)
+			}
+
+			if (showTextSizePicker) {
+				TextSizePicker(
+					currentValue = currentValue,
+					onDismissListener = { showTextSizePicker = false },
+					onMinusClicked = onMinusClicked@{
+						if (currentValue <= Style.TextSize.MIN_VALUE) {
+							return@onMinusClicked
+						}
+
+						viewModel.clearStyle(Style.TextSize(null))
+						currentValue = currentValue.decrement(Style.TextSize.INCREMENT)
+						viewModel.insertStyle(Style.TextSize(currentValue))
+					},
+					onPlusClicked = onPlusClicked@{
+						if (currentValue >= Style.TextSize.MAX_VALUE) {
+							return@onPlusClicked
+						}
+
+						viewModel.clearStyle(Style.TextSize(null))
+						currentValue = currentValue.increment(Style.TextSize.INCREMENT)
+						viewModel.insertStyle(Style.TextSize(currentValue))
+					}
+				)
+			}
 		}
 		AmnesiaTooltipWrapper(
 			tooltip = stringResource(R.string.text_color),

@@ -11,7 +11,13 @@ sealed interface Style {
 	object OrderedList : Style
 	object ClearFormat : Style
 	class TextColor(val color: Color) : Style {
-		override fun tag() = "${javaClass.simpleName}/${color.value}"
+		override fun tag(simple: Boolean) = if (simple) {
+			super.tag(simple)
+		} else {
+			"${javaClass.simpleName}/${color.value}"
+		}
+
+		override fun toString() = "${javaClass.simpleName}(${color.value})"
 
 		companion object {
 			fun fromTag(tag: String): TextColor {
@@ -21,18 +27,35 @@ sealed interface Style {
 		}
 	}
 
-	class TextSize(@FloatRange(from = 1.0, to = 2.0) val fraction: Float) : Style {
-		override fun tag() = "${javaClass.simpleName}/${fraction}"
+	class TextSize(@FloatRange(from = MIN_VALUE, to = MAX_VALUE) fraction: Float? = null) : Style {
+		@FloatRange(from = MIN_VALUE, to = MAX_VALUE)
+		var fraction: Float? = fraction?.coerceIn(
+			minimumValue = MIN_VALUE.toFloat(),
+			maximumValue = MAX_VALUE.toFloat()
+		)
+
+		override fun tag(simple: Boolean) = if (simple) {
+			super.tag(simple)
+		} else {
+			"${javaClass.simpleName}/${fraction}"
+		}
+
+		override fun toString() = "${javaClass.simpleName}($fraction)"
 
 		companion object {
+			const val DEFAULT_VALUE = 1f
+			const val MIN_VALUE = 0.5
+			const val MAX_VALUE = 2.0
+			const val INCREMENT = 0.1f
+
 			fun fromTag(tag: String): TextSize {
-				val value = tag.substringAfter("${TextColor::class.simpleName}/")
+				val value = tag.substringAfter("${TextSize::class.simpleName}/")
 				return TextSize(value.toFloatOrNull() ?: 1f)
 			}
 		}
 	}
 
-	fun tag(): String = javaClass.simpleName
+	fun tag(simple: Boolean = false): String = javaClass.simpleName
 
 	companion object {
 		fun fromTag(tag: String): Style {

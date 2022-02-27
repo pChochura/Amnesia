@@ -34,6 +34,10 @@ object Icons {
 		Get(iconRes = R.drawable.icon_done, modifier, tint)
 
 	@Composable
+	fun FormatClear(modifier: Modifier = Modifier, tint: Color = Color.White) =
+		Get(iconRes = R.drawable.icon_format_clear, modifier, tint)
+
+	@Composable
 	fun Italic(modifier: Modifier = Modifier, tint: Color = Color.White) =
 		Get(iconRes = R.drawable.icon_italic, modifier, tint)
 

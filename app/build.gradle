@@ -66,4 +66,5 @@ dependencies {
 
     implementation implementation(project(':dash_border'))
     implementation implementation(project(':tooltip'))
+    implementation implementation(project(':rt_editor'))
 }

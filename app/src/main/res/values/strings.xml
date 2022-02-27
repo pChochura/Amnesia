@@ -19,4 +19,5 @@
 	<string name="unordered_list">Unordered list</string>
 	<string name="italic">Italic</string>
 	<string name="underline">Underline</string>
+	<string name="clear_format">Clear format</string>
 </resources>

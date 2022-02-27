@@ -17,3 +17,4 @@ rootProject.name = "Amnesia"
 include ':app'
 include ':dash_border'
 include ':tooltip'
+include ':rt_editor'

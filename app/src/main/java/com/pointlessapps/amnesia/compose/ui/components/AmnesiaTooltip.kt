@@ -28,6 +28,7 @@ import com.pointlessapps.tooltip.Tooltip
 fun AmnesiaTooltipWrapper(
 	modifier: Modifier = Modifier,
 	tooltipModel: AmnesiaTooltipModel = defaultAmnesiaTooltipModel(),
+	enabled: Boolean = true,
 	tooltip: String,
 	onClick: () -> Unit,
 	content: @Composable BoxScope.() -> Unit
@@ -40,6 +41,7 @@ fun AmnesiaTooltipWrapper(
 		Box(
 			modifier = Modifier
 				.combinedClickable(
+					enabled = enabled,
 					interactionSource = remember { MutableInteractionSource() },
 					indication = rememberRipple(bounded = false),
 					onClickLabel = tooltip,

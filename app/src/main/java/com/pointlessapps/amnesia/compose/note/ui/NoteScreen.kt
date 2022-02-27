@@ -12,6 +12,7 @@ import androidx.compose.foundation.shape.CircleShape
 import androidx.compose.material.MaterialTheme
 import androidx.compose.runtime.Composable
 import androidx.compose.runtime.LaunchedEffect
+import androidx.compose.runtime.mutableStateOf
 import androidx.compose.runtime.remember
 import androidx.compose.ui.Alignment
 import androidx.compose.ui.Modifier
@@ -29,6 +30,9 @@ import com.pointlessapps.amnesia.compose.ui.components.*
 import com.pointlessapps.amnesia.compose.ui.theme.Icons
 import com.pointlessapps.amnesia.compose.utils.RANDOM_UUID
 import com.pointlessapps.amnesia.compose.utils.add
+import com.pointlessapps.rt_editor.model.Style
+import com.pointlessapps.rt_editor.ui.RichTextEditor
+import com.pointlessapps.rt_editor.ui.defaultRTTextFieldModel
 import org.koin.androidx.compose.getViewModel
 
 @OptIn(ExperimentalFoundationApi::class)
@@ -45,7 +49,7 @@ fun NoteScreen(
 
 	AmnesiaScaffoldLayout(
 		topBar = { TopBar() },
-		fab = { BottomBar() }
+		fab = { BottomBar(viewModel) }
 	) { innerPadding ->
 		Box(
 			modifier = Modifier
@@ -71,7 +75,7 @@ fun NoteScreen(
 						modifier = Modifier.fillMaxWidth(),
 						value = viewModel.state.title,
 						onValueChange = viewModel::onTitleChanged,
-						textFieldModel = defaultAMnesiaTextFieldModel().copy(
+						textFieldModel = defaultAmnesiaTextFieldModel().copy(
 							textStyle = MaterialTheme.typography.h2,
 							placeholder = stringResource(id = R.string.title)
 						)
@@ -111,13 +115,13 @@ fun NoteScreen(
 					}
 				}
 				item {
-					AmnesiaTextField(
+					RichTextEditor(
 						modifier = Modifier
 							.fillMaxWidth()
 							.focusRequester(focusRequester),
 						value = viewModel.state.content,
 						onValueChange = viewModel::onContentChanged,
-						textFieldModel = defaultAMnesiaTextFieldModel().copy(
+						textFieldModel = defaultRTTextFieldModel().copy(
 							textStyle = MaterialTheme.typography.body1,
 							placeholder = stringResource(id = R.string.content)
 						)
@@ -163,6 +167,7 @@ private fun TopBar() {
 				centerVerticallyTo(parent)
 				end.linkTo(redoButton.start, margin = dp8)
 			},
+			enabled = false,
 			tooltip = stringResource(R.string.undo),
 			onClick = { /*TODO*/ }
 		) {
@@ -170,7 +175,7 @@ private fun TopBar() {
 				modifier = Modifier
 					.padding(dimensionResource(id = R.dimen.tiny_padding))
 					.size(dimensionResource(id = R.dimen.icon_size)),
-				tint = MaterialTheme.colors.secondary
+				tint = MaterialTheme.colors.primaryVariant
 			)
 		}
 
@@ -179,6 +184,7 @@ private fun TopBar() {
 				centerVerticallyTo(parent)
 				end.linkTo(doneButton.start, margin = dp16)
 			},
+			enabled = false,
 			tooltip = stringResource(R.string.redo),
 			onClick = { /*TODO*/ }
 		) {
@@ -186,7 +192,7 @@ private fun TopBar() {
 				modifier = Modifier
 					.padding(dimensionResource(id = R.dimen.tiny_padding))
 					.size(dimensionResource(id = R.dimen.icon_size)),
-				tint = MaterialTheme.colors.secondary
+				tint = MaterialTheme.colors.primaryVariant
 			)
 		}
 
@@ -211,7 +217,9 @@ private fun TopBar() {
 }
 
 @Composable
-private fun BottomBar() {
+private fun BottomBar(
+	viewModel: NoteViewModel
+) {
 	Row(
 		modifier = Modifier
 			.fillMaxWidth()
@@ -227,7 +235,7 @@ private fun BottomBar() {
 	) {
 		AmnesiaTooltipWrapper(
 			tooltip = stringResource(R.string.bold),
-			onClick = { /*TODO*/ }
+			onClick = { viewModel.insertStyle(Style.Bold) }
 		) {
 			Icons.Bold(
 				modifier = Modifier
@@ -238,7 +246,7 @@ private fun BottomBar() {
 		}
 		AmnesiaTooltipWrapper(
 			tooltip = stringResource(R.string.underline),
-			onClick = { /*TODO*/ }
+			onClick = { viewModel.insertStyle(Style.Underline) }
 		) {
 			Icons.Underline(
 				modifier = Modifier
@@ -249,7 +257,7 @@ private fun BottomBar() {
 		}
 		AmnesiaTooltipWrapper(
 			tooltip = stringResource(R.string.italic),
-			onClick = { /*TODO*/ }
+			onClick = { viewModel.insertStyle(Style.Italic) }
 		) {
 			Icons.Italic(
 				modifier = Modifier
@@ -260,7 +268,7 @@ private fun BottomBar() {
 		}
 		AmnesiaTooltipWrapper(
 			tooltip = stringResource(R.string.unordered_list),
-			onClick = { /*TODO*/ }
+			onClick = { viewModel.insertStyle(Style.UnorderedList) }
 		) {
 			Icons.UnorderedList(
 				modifier = Modifier
@@ -271,7 +279,7 @@ private fun BottomBar() {
 		}
 		AmnesiaTooltipWrapper(
 			tooltip = stringResource(R.string.ordered_list),
-			onClick = { /*TODO*/ }
+			onClick = { viewModel.insertStyle(Style.OrderedList) }
 		) {
 			Icons.OrderedList(
 				modifier = Modifier
@@ -282,7 +290,7 @@ private fun BottomBar() {
 		}
 		AmnesiaTooltipWrapper(
 			tooltip = stringResource(R.string.text_size),
-			onClick = { /*TODO*/ }
+			onClick = { viewModel.insertStyle(Style.TextSize(1.5f)) }
 		) {
 			Icons.TextSize(
 				modifier = Modifier
@@ -293,9 +301,20 @@ private fun BottomBar() {
 		}
 		AmnesiaTooltipWrapper(
 			tooltip = stringResource(R.string.text_color),
-			onClick = { /*TODO*/ }
+			onClick = { viewModel.insertStyle(Style.TextColor(Color.Cyan)) }
 		) {
 			Icons.Circle(
+				modifier = Modifier
+					.padding(dimensionResource(id = R.dimen.tiny_padding))
+					.size(dimensionResource(id = R.dimen.icon_size)),
+				tint = MaterialTheme.colors.onSecondary
+			)
+		}
+		AmnesiaTooltipWrapper(
+			tooltip = stringResource(R.string.clear_format),
+			onClick = { viewModel.insertStyle(Style.ClearFormat) }
+		) {
+			Icons.FormatClear(
 				modifier = Modifier
 					.padding(dimensionResource(id = R.dimen.tiny_padding))
 					.size(dimensionResource(id = R.dimen.icon_size)),

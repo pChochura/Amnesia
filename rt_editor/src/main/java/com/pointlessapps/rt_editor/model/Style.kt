@@ -7,7 +7,9 @@ sealed interface Style {
 	object Bold : Style
 	object Underline : Style
 	object Italic : Style
-	object UnorderedList : Style
+	object UnorderedList : Style {
+		const val BULLET_CHARACTER = " ●\t"
+	}
 	object OrderedList : Style
 	object ClearFormat : Style
 	class TextColor(val color: Color) : Style {

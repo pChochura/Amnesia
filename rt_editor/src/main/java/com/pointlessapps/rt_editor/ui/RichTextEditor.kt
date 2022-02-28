@@ -11,9 +11,9 @@ fun RichTextEditor(
 	modifier: Modifier = Modifier,
 	textFieldModel: RTTextFieldModel = defaultRTTextFieldModel()
 ) {
-	RTTextField(
+	RichTextField(
 		modifier = modifier,
-		value = value.value,
+		value = value.prepared(),
 		onValueChange = {
 			value.updateValueAndStyles(it)
 			onValueChange(value)

@@ -18,7 +18,7 @@ import androidx.compose.ui.text.input.VisualTransformation
 private const val EMPTY_STRING = ""
 
 @Composable
-internal fun RTTextField(
+internal fun RichTextField(
 	value: TextFieldValue,
 	onValueChange: (TextFieldValue) -> Unit,
 	modifier: Modifier = Modifier,

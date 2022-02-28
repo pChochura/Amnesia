@@ -13,3 +13,25 @@ internal fun AnnotatedString.copy(
 	spanStyles = spanStyles,
 	paragraphStyles = paragraphStyles
 )
+
+internal fun Int.coerceStartOfParagraph(text: String): Int {
+	val previousNewLineCharacterIndex = text.substring(0, this)
+		.lastIndexOf(System.lineSeparator())
+
+	if (previousNewLineCharacterIndex == -1) {
+		return 0
+	}
+
+	return previousNewLineCharacterIndex + System.lineSeparator().length
+}
+
+internal fun Int.coerceEndOfParagraph(text: String): Int {
+	val nextNewLineCharacterIndex = text.substring(this)
+		.indexOf(System.lineSeparator())
+
+	if (nextNewLineCharacterIndex == -1) {
+		return text.lastIndex
+	}
+
+	return this + nextNewLineCharacterIndex - System.lineSeparator().length + 1
+}

@@ -10,7 +10,7 @@ import com.pointlessapps.amnesia.R
 
 object Icons {
 	@Composable
-	private fun Get(
+	fun Get(
 		@DrawableRes iconRes: Int,
 		modifier: Modifier = Modifier,
 		tint: Color = Color.White

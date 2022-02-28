@@ -1,6 +1,13 @@
 package com.pointlessapps.amnesia.compose.note.ui
 
-import androidx.compose.foundation.*
+import androidx.annotation.DrawableRes
+import androidx.annotation.StringRes
+import androidx.compose.animation.AnimatedVisibility
+import androidx.compose.animation.fadeIn
+import androidx.compose.animation.fadeOut
+import androidx.compose.foundation.ExperimentalFoundationApi
+import androidx.compose.foundation.background
+import androidx.compose.foundation.clickable
 import androidx.compose.foundation.interaction.MutableInteractionSource
 import androidx.compose.foundation.layout.*
 import androidx.compose.foundation.lazy.LazyColumn
@@ -14,6 +21,7 @@ import androidx.compose.ui.Modifier
 import androidx.compose.ui.draw.clip
 import androidx.compose.ui.focus.FocusRequester
 import androidx.compose.ui.focus.focusRequester
+import androidx.compose.ui.focus.onFocusChanged
 import androidx.compose.ui.graphics.Color
 import androidx.compose.ui.platform.LocalTextInputService
 import androidx.compose.ui.res.dimensionResource
@@ -31,13 +39,13 @@ import com.pointlessapps.rt_editor.model.Style
 import com.pointlessapps.rt_editor.ui.RichTextEditor
 import com.pointlessapps.rt_editor.ui.defaultRTTextFieldModel
 import org.koin.androidx.compose.getViewModel
-import kotlin.math.roundToInt
 
 @OptIn(ExperimentalFoundationApi::class)
 @Composable
 fun NoteScreen(
 	viewModel: NoteViewModel = getViewModel()
 ) {
+	var showBottomBar by remember { mutableStateOf(false) }
 	val focusRequester = remember { FocusRequester() }
 	val keyboardController = LocalTextInputService.current
 
@@ -47,7 +55,11 @@ fun NoteScreen(
 
 	AmnesiaScaffoldLayout(
 		topBar = { TopBar() },
-		fab = { BottomBar(viewModel) }
+		fab = {
+			AnimatedVisibility(showBottomBar, enter = fadeIn(), exit = fadeOut()) {
+				BottomBar(viewModel)
+			}
+		}
 	) { innerPadding ->
 		Box(
 			modifier = Modifier
@@ -116,7 +128,8 @@ fun NoteScreen(
 					RichTextEditor(
 						modifier = Modifier
 							.fillMaxWidth()
-							.focusRequester(focusRequester),
+							.focusRequester(focusRequester)
+							.onFocusChanged { showBottomBar = it.isFocused },
 						value = viewModel.state.content,
 						onValueChange = viewModel::onContentChanged,
 						textFieldModel = defaultRTTextFieldModel().copy(
@@ -216,7 +229,7 @@ private fun TopBar() {
 
 @Composable
 private fun BottomBar(viewModel: NoteViewModel) {
-	Row(
+	LazyRow(
 		modifier = Modifier
 			.fillMaxWidth()
 			.padding(dimensionResource(id = R.dimen.medium_padding))
@@ -224,76 +237,52 @@ private fun BottomBar(viewModel: NoteViewModel) {
 			.navigationBarsPadding()
 			.imePadding()
 			.clip(MaterialTheme.shapes.medium)
-			.background(MaterialTheme.colors.secondary)
-			.horizontalScroll(rememberScrollState())
-			.padding(dimensionResource(id = R.dimen.small_padding)),
+			.background(MaterialTheme.colors.secondary),
+		contentPadding = PaddingValues(dimensionResource(id = R.dimen.small_padding)),
 		horizontalArrangement = Arrangement.spacedBy(
 			dimensionResource(id = R.dimen.small_padding),
 			Alignment.CenterHorizontally
 		),
 		verticalAlignment = Alignment.CenterVertically
 	) {
-		AmnesiaTooltipWrapper(
-			tooltip = stringResource(R.string.bold),
-			onClick = { viewModel.insertStyle(Style.Bold) }
-		) {
-			Icons.Bold(
-				modifier = Modifier
-					.padding(dimensionResource(id = R.dimen.tiny_padding))
-					.size(dimensionResource(id = R.dimen.icon_size)),
-				tint = MaterialTheme.colors.onSecondary
-			)
+		item {
+			BottomBarIcon(
+				tooltip = R.string.bold,
+				icon = R.drawable.icon_bold
+			) { viewModel.insertStyle(Style.Bold) }
 		}
-		AmnesiaTooltipWrapper(
-			tooltip = stringResource(R.string.underline),
-			onClick = { viewModel.insertStyle(Style.Underline) }
-		) {
-			Icons.Underline(
-				modifier = Modifier
-					.padding(dimensionResource(id = R.dimen.tiny_padding))
-					.size(dimensionResource(id = R.dimen.icon_size)),
-				tint = MaterialTheme.colors.onSecondary
-			)
+		item {
+			BottomBarIcon(
+				tooltip = R.string.underline,
+				icon = R.drawable.icon_underline
+			) { viewModel.insertStyle(Style.Underline) }
 		}
-		AmnesiaTooltipWrapper(
-			tooltip = stringResource(R.string.italic),
-			onClick = { viewModel.insertStyle(Style.Italic) }
-		) {
-			Icons.Italic(
-				modifier = Modifier
-					.padding(dimensionResource(id = R.dimen.tiny_padding))
-					.size(dimensionResource(id = R.dimen.icon_size)),
-				tint = MaterialTheme.colors.onSecondary
-			)
+		item {
+			BottomBarIcon(
+				tooltip = R.string.italic,
+				icon = R.drawable.icon_italic
+			) { viewModel.insertStyle(Style.Italic) }
 		}
-		AmnesiaTooltipWrapper(
-			tooltip = stringResource(R.string.unordered_list),
-			onClick = { viewModel.insertStyle(Style.UnorderedList) }
-		) {
-			Icons.UnorderedList(
-				modifier = Modifier
-					.padding(dimensionResource(id = R.dimen.tiny_padding))
-					.size(dimensionResource(id = R.dimen.icon_size)),
-				tint = MaterialTheme.colors.onSecondary
-			)
+		item {
+			BottomBarIcon(
+				tooltip = R.string.unordered_list,
+				icon = R.drawable.icon_unordered_list
+			) { viewModel.insertStyle(Style.UnorderedList) }
 		}
-		AmnesiaTooltipWrapper(
-			tooltip = stringResource(R.string.ordered_list),
-			onClick = { viewModel.insertStyle(Style.OrderedList) }
-		) {
-			Icons.OrderedList(
-				modifier = Modifier
-					.padding(dimensionResource(id = R.dimen.tiny_padding))
-					.size(dimensionResource(id = R.dimen.icon_size)),
-				tint = MaterialTheme.colors.onSecondary
-			)
+		item {
+			BottomBarIcon(
+				tooltip = R.string.ordered_list,
+				icon = R.drawable.icon_ordered_list
+			) { viewModel.insertStyle(Style.OrderedList) }
 		}
-		Box {
-			var showTextSizePicker by remember { mutableStateOf(false) }
-			var currentValue by remember { mutableStateOf(Style.TextSize.DEFAULT_VALUE) }
-			AmnesiaTooltipWrapper(
-				tooltip = stringResource(R.string.text_size),
-				onClick = {
+		item {
+			Box {
+				var showTextSizePicker by remember { mutableStateOf(false) }
+				var currentValue by remember { mutableStateOf(Style.TextSize.DEFAULT_VALUE) }
+				BottomBarIcon(
+					tooltip = R.string.text_size,
+					icon = R.drawable.icon_text_size
+				) {
 					currentValue =
 						viewModel.state.content.currentStyles
 							.filterIsInstance<Style.TextSize>()
@@ -301,61 +290,60 @@ private fun BottomBar(viewModel: NoteViewModel) {
 							?.fraction ?: Style.TextSize.DEFAULT_VALUE
 					showTextSizePicker = true
 				}
-			) {
-				Icons.TextSize(
-					modifier = Modifier
-						.padding(dimensionResource(id = R.dimen.tiny_padding))
-						.size(dimensionResource(id = R.dimen.icon_size)),
-					tint = MaterialTheme.colors.onSecondary
-				)
-			}
 
-			if (showTextSizePicker) {
-				TextSizePicker(
-					currentValue = currentValue,
-					onDismissListener = { showTextSizePicker = false },
-					onMinusClicked = onMinusClicked@{
-						if (currentValue <= Style.TextSize.MIN_VALUE) {
-							return@onMinusClicked
+				if (showTextSizePicker) {
+					TextSizePicker(
+						currentValue = currentValue,
+						onDismissListener = { showTextSizePicker = false },
+						onMinusClicked = onMinusClicked@{
+							if (currentValue <= Style.TextSize.MIN_VALUE) {
+								return@onMinusClicked
+							}
+
+							viewModel.clearStyle(Style.TextSize(null))
+							currentValue = currentValue.decrement(Style.TextSize.INCREMENT)
+							viewModel.insertStyle(Style.TextSize(currentValue))
+						},
+						onPlusClicked = onPlusClicked@{
+							if (currentValue >= Style.TextSize.MAX_VALUE) {
+								return@onPlusClicked
+							}
+
+							viewModel.clearStyle(Style.TextSize(null))
+							currentValue = currentValue.increment(Style.TextSize.INCREMENT)
+							viewModel.insertStyle(Style.TextSize(currentValue))
 						}
-
-						viewModel.clearStyle(Style.TextSize(null))
-						currentValue = currentValue.decrement(Style.TextSize.INCREMENT)
-						viewModel.insertStyle(Style.TextSize(currentValue))
-					},
-					onPlusClicked = onPlusClicked@{
-						if (currentValue >= Style.TextSize.MAX_VALUE) {
-							return@onPlusClicked
-						}
-
-						viewModel.clearStyle(Style.TextSize(null))
-						currentValue = currentValue.increment(Style.TextSize.INCREMENT)
-						viewModel.insertStyle(Style.TextSize(currentValue))
-					}
-				)
+					)
+				}
 			}
 		}
-		AmnesiaTooltipWrapper(
-			tooltip = stringResource(R.string.text_color),
-			onClick = { viewModel.insertStyle(Style.TextColor(Color.Cyan)) }
-		) {
-			Icons.Circle(
-				modifier = Modifier
-					.padding(dimensionResource(id = R.dimen.tiny_padding))
-					.size(dimensionResource(id = R.dimen.icon_size)),
-				tint = MaterialTheme.colors.onSecondary
-			)
+		item {
+			BottomBarIcon(
+				tooltip = R.string.text_color,
+				icon = R.drawable.icon_circle
+			) { viewModel.insertStyle(Style.TextColor(Color.Cyan)) }
 		}
-		AmnesiaTooltipWrapper(
-			tooltip = stringResource(R.string.clear_format),
-			onClick = { viewModel.insertStyle(Style.ClearFormat) }
-		) {
-			Icons.FormatClear(
-				modifier = Modifier
-					.padding(dimensionResource(id = R.dimen.tiny_padding))
-					.size(dimensionResource(id = R.dimen.icon_size)),
-				tint = MaterialTheme.colors.onSecondary
-			)
+		item {
+			BottomBarIcon(
+				tooltip = R.string.clear_format,
+				icon = R.drawable.icon_format_clear
+			) { viewModel.insertStyle(Style.ClearFormat) }
 		}
+	}
+}
+
+@Composable
+fun BottomBarIcon(@StringRes tooltip: Int, @DrawableRes icon: Int, onClick: () -> Unit) {
+	AmnesiaTooltipWrapper(
+		tooltip = stringResource(tooltip),
+		onClick = onClick
+	) {
+		Icons.Get(
+			iconRes = icon,
+			modifier = Modifier
+				.padding(dimensionResource(id = R.dimen.tiny_padding))
+				.size(dimensionResource(id = R.dimen.icon_size)),
+			tint = MaterialTheme.colors.onSecondary
+		)
 	}
 }

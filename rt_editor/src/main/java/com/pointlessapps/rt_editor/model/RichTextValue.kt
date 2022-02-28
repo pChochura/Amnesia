@@ -1,17 +1,29 @@
 package com.pointlessapps.rt_editor.model
 
 import androidx.compose.ui.text.AnnotatedString
+import androidx.compose.ui.text.ParagraphStyle
 import androidx.compose.ui.text.SpanStyle
 import androidx.compose.ui.text.TextRange
 import androidx.compose.ui.text.font.FontStyle
 import androidx.compose.ui.text.font.FontWeight
 import androidx.compose.ui.text.input.TextFieldValue
 import androidx.compose.ui.text.style.TextDecoration
+import androidx.compose.ui.text.style.TextIndent
 import androidx.compose.ui.unit.ExperimentalUnitApi
 import androidx.compose.ui.unit.TextUnit
 import androidx.compose.ui.unit.TextUnitType
+import androidx.compose.ui.unit.em
 import com.pointlessapps.rt_editor.model.Style.*
+import com.pointlessapps.rt_editor.utils.coerceEndOfParagraph
+import com.pointlessapps.rt_editor.utils.coerceStartOfParagraph
 import com.pointlessapps.rt_editor.utils.copy
+
+internal typealias StyleRange<T> = AnnotatedString.Range<T>
+internal typealias SpanRange = AnnotatedString.Range<SpanStyle>
+internal typealias ParagraphRange = AnnotatedString.Range<ParagraphStyle>
+internal typealias StyleList<T> = List<StyleRange<T>>
+typealias SpanStyleList = List<SpanRange>
+typealias ParagraphStyleList = List<ParagraphRange>
 
 abstract class RichTextValue {
 
@@ -22,29 +34,20 @@ abstract class RichTextValue {
 	abstract fun clearStyle(style: Style): RichTextValue
 
 	internal abstract fun updateValueAndStyles(value: TextFieldValue)
+	internal abstract fun prepared(): TextFieldValue
 
 	override fun toString() = value.toString()
 
 	companion object {
-		fun get(): RichTextValue = RichTextValueImpl(
-			TextFieldValue(
-				text = """
-				Lorem ipsum dolor sit amet, consectetur adipiscing elit. Fusce fermentum velit eget metus dictum, 
-				vitae semper purus pharetra. Phasellus vitae mauris quis dolor euismod euismod. Aliquam facilisis, 
-				lectus nec aliquam mollis, velit purus lacinia sem, quis maximus dolor tortor id velit. Vestibulum 
-				ante ipsum primis in faucibus orci luctus et ultrices posuere cubilia curae; Sed congue, neque eu 
-				aliquam aliquet, nisi velit malesuada leo, sed viverra velit nisl vitae dui. Donec blandit mauris sit 
-				amet sem tempor, non mollis libero interdum. Aliquam eu nibh urna. Praesent quis sapien nec neque 
-				pretium pretium. Nunc erat metus, lacinia non ligula sit amet, convallis porta erat. Nullam ultrices 
-				ullamcorper neque id egestas. Quisque sit amet tempus quam. Donec sodales, ante nec mattis
-			""".trimIndent()
-			)
-		)
+		fun get(): RichTextValue = RichTextValueImpl(TextFieldValue())
 	}
 }
 
 @OptIn(ExperimentalUnitApi::class)
 internal class RichTextValueImpl(override var value: TextFieldValue) : RichTextValue() {
+
+	private val currentSelection: TextRange
+		get() = value.composition ?: value.selection
 
 	private fun set(
 		annotatedString: AnnotatedString = value.annotatedString,
@@ -58,30 +61,34 @@ internal class RichTextValueImpl(override var value: TextFieldValue) : RichTextV
 		)
 	}
 
-	override val currentStyles: Set<Style>
-		get() = value.annotatedString.spanStyles.filter {
-			val styleRange = TextRange(it.start, it.end)
-			(value.composition ?: value.selection).intersects(styleRange)
-		}.map { Style.fromTag(it.tag) }.toSet()
-
-	private fun getCurrentStyles(style: Style?): List<AnnotatedString.Range<SpanStyle>> {
-		return value.annotatedString.spanStyles.filter {
-			val styleRange = TextRange(it.start, it.end)
-			(value.composition ?: value.selection).intersects(styleRange)
-		}.filter { style == null || it.tag == style.tag() }
+	private fun <T> filterCurrentStyles(styles: StyleList<T>) = styles.filter {
+		currentSelection.intersects(TextRange(it.start, it.end))
 	}
 
-	private fun removeStyleFromSelection(
-		stylesFromSelection: List<AnnotatedString.Range<SpanStyle>>
+	override val currentStyles: Set<Style>
+		get() = filterCurrentStyles(value.annotatedString.spanStyles)
+			.map { Style.fromTag(it.tag) }.toSet()
+
+	private fun getCurrentSpanStyles(style: Style?) =
+		filterCurrentStyles(value.annotatedString.spanStyles)
+			.filter { style == null || it.tag == style.tag() }
+
+	private fun getCurrentParagraphStyles(style: Style?) =
+		filterCurrentStyles(value.annotatedString.paragraphStyles)
+			.filter { style == null || it.tag == style.tag() }
+
+	private fun <T> removeStyleFromSelection(
+		styles: StyleList<T>,
+		onUpdatedCallback: (stylesFromSelection: StyleList<T>, updatedStyles: StyleList<T>) -> Unit
 	): Boolean {
-		if (stylesFromSelection.isEmpty()) {
+		if (styles.isEmpty()) {
 			return false
 		}
 
-		val start = value.composition?.start ?: value.selection.start
-		val end = value.composition?.end ?: value.selection.end
-		val updatedStyles = mutableListOf<AnnotatedString.Range<SpanStyle>>()
-		stylesFromSelection.forEach {
+		val start = currentSelection.start
+		val end = currentSelection.end
+		val updatedStyles = mutableListOf<StyleRange<T>>()
+		styles.forEach {
 			if (it.start < start && it.end > end) {
 				// Split into two styles
 				val styleBeforeSelection = it.copy(end = start)
@@ -114,20 +121,41 @@ internal class RichTextValueImpl(override var value: TextFieldValue) : RichTextV
 		}
 
 		// Remove the styles that intersects with the selection and add the updated ones
-		val spanStyles = value.annotatedString.spanStyles - stylesFromSelection + updatedStyles
+		onUpdatedCallback(styles, updatedStyles)
 
-		set(
-			annotatedString = value.annotatedString.copy(
-				text = value.text,
-				spanStyles = spanStyles,
-			)
-		)
-
-		return updatedStyles.size != stylesFromSelection.size
+		return updatedStyles.size != styles.size
 	}
 
-	private fun collapseStyles(spanStyles: List<AnnotatedString.Range<SpanStyle>>): List<AnnotatedString.Range<SpanStyle>> {
-		val updatedStyles = mutableListOf<AnnotatedString.Range<SpanStyle>>()
+	private fun removeStyles(
+		spanStyles: SpanStyleList,
+		paragraphStyles: ParagraphStyleList
+	): Boolean {
+		val removedSpanStyle = removeStyleFromSelection(styles = spanStyles,
+			onUpdatedCallback = { stylesFromSelection, updatedStyles ->
+				set(
+					annotatedString = value.annotatedString.copy(
+						spanStyles = value.annotatedString.spanStyles -
+								stylesFromSelection + updatedStyles,
+					)
+				)
+			}
+		)
+		val removedParagraphStyle = removeStyleFromSelection(styles = paragraphStyles,
+			onUpdatedCallback = { stylesFromSelection, updatedStyles ->
+				set(
+					annotatedString = value.annotatedString.copy(
+						paragraphStyles = value.annotatedString.paragraphStyles -
+								stylesFromSelection + updatedStyles,
+					)
+				)
+			}
+		)
+
+		return removedSpanStyle || removedParagraphStyle
+	}
+
+	private fun <T> collapseStyles(spanStyles: StyleList<T>): StyleList<T> {
+		val updatedStyles = mutableListOf<StyleRange<T>>()
 		val startRangeMap = mutableMapOf<Int, Int>()
 		val endRangeMap = mutableMapOf<Int, Int>()
 		val removedIndex = mutableSetOf<Int>()
@@ -175,11 +203,12 @@ internal class RichTextValueImpl(override var value: TextFieldValue) : RichTextV
 	}
 
 	override fun insertStyle(style: Style): RichTextValue {
-		if (removeStyleFromSelection(getCurrentStyles(style.takeUnless { it == ClearFormat }))) {
-			return this
-		}
+		val removedStyles = removeStyles(
+			getCurrentSpanStyles(style.takeUnless { it == ClearFormat }),
+			getCurrentParagraphStyles(style.takeUnless { it == ClearFormat })
+		)
 
-		if (value.composition == null && value.selection.collapsed) {
+		if (removedStyles || (value.composition == null && value.selection.collapsed)) {
 			return this
 		}
 
@@ -187,8 +216,6 @@ internal class RichTextValueImpl(override var value: TextFieldValue) : RichTextV
 			Bold -> SpanStyle(fontWeight = FontWeight.Bold)
 			Underline -> SpanStyle(textDecoration = TextDecoration.Underline)
 			Italic -> SpanStyle(fontStyle = FontStyle.Italic)
-			UnorderedList -> TODO()
-			OrderedList -> TODO()
 			is TextColor -> SpanStyle(color = style.color)
 			is TextSize -> SpanStyle(
 				fontSize = TextUnit(
@@ -196,20 +223,40 @@ internal class RichTextValueImpl(override var value: TextFieldValue) : RichTextV
 					TextUnitType.Em
 				)
 			)
-			ClearFormat -> null // Nothing to do here
-		} ?: return this
+			else -> null
+		}
 
-		val spanStyles = value.annotatedString.spanStyles + AnnotatedString.Range(
-			item = spanStyle,
-			start = value.composition?.start ?: value.selection.start,
-			end = value.composition?.end ?: value.selection.end,
-			tag = style.tag()
-		)
+		val paragraphStyle = when (style) {
+			UnorderedList -> ParagraphStyle(textIndent = TextIndent(restLine = 1.em))
+			OrderedList -> TODO()
+			else -> null
+		}
+
+		val spanStyles = when {
+			spanStyle != null -> value.annotatedString.spanStyles + SpanRange(
+				item = spanStyle,
+				start = currentSelection.start,
+				end = currentSelection.end,
+				tag = style.tag()
+			)
+			else -> value.annotatedString.spanStyles
+		}
+
+		val paragraphStyles = when {
+			paragraphStyle != null -> value.annotatedString.paragraphStyles + ParagraphRange(
+				item = paragraphStyle,
+				start = currentSelection.start.coerceStartOfParagraph(value.text),
+				end = currentSelection.end.coerceEndOfParagraph(value.text),
+				tag = style.tag()
+			)
+			else -> value.annotatedString.paragraphStyles
+		}
 
 		set(
 			annotatedString = value.annotatedString.copy(
 				text = value.text,
 				spanStyles = collapseStyles(spanStyles),
+				paragraphStyles = collapseStyles(paragraphStyles)
 			)
 		)
 
@@ -217,12 +264,12 @@ internal class RichTextValueImpl(override var value: TextFieldValue) : RichTextV
 	}
 
 	override fun clearStyle(style: Style): RichTextValue {
-		val currentStylesByType = value.annotatedString.spanStyles.filter {
-			val styleRange = TextRange(it.start, it.end)
-			(value.composition ?: value.selection).intersects(styleRange)
-		}.filter { it.tag.startsWith(style.tag(simple = true)) }
+		val spanStylesByType = filterCurrentStyles(value.annotatedString.spanStyles)
+			.filter { it.tag.startsWith(style.tag(simple = true)) }
+		val paragraphStylesByType = filterCurrentStyles(value.annotatedString.paragraphStyles)
+			.filter { it.tag.startsWith(style.tag(simple = true)) }
 
-		removeStyleFromSelection(currentStylesByType)
+		removeStyles(spanStylesByType, paragraphStylesByType)
 
 		return this
 	}
@@ -230,7 +277,7 @@ internal class RichTextValueImpl(override var value: TextFieldValue) : RichTextV
 	private fun updatedStyles(
 		previousValue: TextFieldValue,
 		currentValue: TextFieldValue
-	): List<AnnotatedString.Range<SpanStyle>> {
+	): SpanStyleList {
 		val lengthDifference = currentValue.text.length - previousValue.text.length
 		if (lengthDifference == 0) {
 			// Text was not changed at all; leave styles untouched
@@ -254,16 +301,88 @@ internal class RichTextValueImpl(override var value: TextFieldValue) : RichTextV
 	}
 
 	override fun updateValueAndStyles(value: TextFieldValue) {
+		var updatedValueText = value.text
+		val unorderedListParagraphStyles = this.value.annotatedString.paragraphStyles.filter {
+			it.tag == UnorderedList.tag()
+		}
+
+		// FIXME: whole section, lol
+		val updatedParagraphStyles = mutableListOf<ParagraphRange>()
+		if (unorderedListParagraphStyles.isNotEmpty()) {
+			unorderedListParagraphStyles.forEach {
+				val correspondingText = value.text.substring(it.start, it.end)
+				val lines = correspondingText.split(System.lineSeparator())
+				val updatedLines = lines.map { line ->
+					return@map if (line.startsWith(UnorderedList.BULLET_CHARACTER)) {
+						line.substringAfter(UnorderedList.BULLET_CHARACTER)
+					} else {
+						line
+					}
+				}
+
+				updatedValueText = value.text.substring(0, it.start) + updatedLines.joinToString(
+					System.lineSeparator()
+				) + value.text.substring(it.end)
+
+				updatedParagraphStyles.add(
+					it.copy(end = it.end - updatedLines.size * UnorderedList.BULLET_CHARACTER.length)
+				)
+			}
+		}
+
 		set(
 			annotatedString = this.value.annotatedString.copy(
-				text = value.text,
+				text = updatedValueText,
 				spanStyles = updatedStyles(
 					previousValue = this.value,
-					currentValue = value
-				)
+					currentValue = value.copy(
+						text = updatedValueText
+					)
+				),
+				paragraphStyles = value.annotatedString.paragraphStyles -
+						unorderedListParagraphStyles + updatedParagraphStyles
 			),
 			selection = value.selection,
 			composition = value.composition
 		)
+	}
+
+	override fun prepared(): TextFieldValue {
+		val unorderedListParagraphStyles = value.annotatedString.paragraphStyles.filter {
+			it.tag == UnorderedList.tag()
+		}
+
+		if (unorderedListParagraphStyles.isEmpty()) {
+			return value
+		}
+
+		// FIXME: whole section, lol
+		val updatedParagraphStyles = mutableListOf<ParagraphRange>()
+		var updatedValueText = value.text
+		unorderedListParagraphStyles.forEach {
+			val correspondingText = value.text.substring(it.start, it.end + 1)
+			val lines = correspondingText.split(System.lineSeparator())
+			val updatedLines = lines.map { line ->
+				"${UnorderedList.BULLET_CHARACTER}$line"
+			}
+
+			updatedValueText = value.text.substring(0, it.start) + updatedLines.joinToString(
+				System.lineSeparator()
+			) + value.text.substring(it.end + 1)
+
+			updatedParagraphStyles.add(
+				it.copy(end = it.end + updatedLines.size * UnorderedList.BULLET_CHARACTER.length)
+			)
+		}
+
+		set(
+			annotatedString = value.annotatedString.copy(
+				text = updatedValueText,
+				paragraphStyles = value.annotatedString.paragraphStyles -
+						unorderedListParagraphStyles + updatedParagraphStyles
+			)
+		)
+
+		return value
 	}
 }

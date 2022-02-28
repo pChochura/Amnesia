@@ -85,22 +85,30 @@ internal class RichTextValueImpl(override var value: TextFieldValue) : RichTextV
 			return false
 		}
 
+		var updated = false
 		val start = currentSelection.start
 		val end = currentSelection.end
 		val updatedStyles = mutableListOf<StyleRange<T>>()
 		styles.forEach {
-			if (it.start < start && it.end > end) {
+			if (it.start <= start && it.end >= end) {
 				// Split into two styles
+				updated = true
+
 				val styleBeforeSelection = it.copy(end = start)
 				val styleAfterSelection = it.copy(start = end)
-				updatedStyles.add(styleBeforeSelection)
-				updatedStyles.add(styleAfterSelection)
+				if (styleBeforeSelection.start < styleBeforeSelection.end) {
+					updatedStyles.add(styleBeforeSelection)
+				}
+				if (styleAfterSelection.start < styleAfterSelection.end) {
+					updatedStyles.add(styleAfterSelection)
+				}
 
 				return@forEach
 			}
 
 			if (it.start >= start && it.end <= end) {
 				// Remove this style completely
+				updated = true
 
 				return@forEach
 			}
@@ -108,6 +116,7 @@ internal class RichTextValueImpl(override var value: TextFieldValue) : RichTextV
 			if (it.start >= start) {
 				// Move style before the selection
 				updatedStyles.add(it.copy(start = end))
+				updated = true
 
 				return@forEach
 			}
@@ -115,6 +124,7 @@ internal class RichTextValueImpl(override var value: TextFieldValue) : RichTextV
 			if (it.end <= end) {
 				// Move style after the selection
 				updatedStyles.add(it.copy(end = start))
+				updated = true
 
 				return@forEach
 			}
@@ -123,7 +133,7 @@ internal class RichTextValueImpl(override var value: TextFieldValue) : RichTextV
 		// Remove the styles that intersects with the selection and add the updated ones
 		onUpdatedCallback(styles, updatedStyles)
 
-		return updatedStyles.size != styles.size
+		return updated
 	}
 
 	private fun removeStyles(
@@ -251,6 +261,8 @@ internal class RichTextValueImpl(override var value: TextFieldValue) : RichTextV
 			)
 			else -> value.annotatedString.paragraphStyles
 		}
+
+		println("LOG!, added: $spanStyle, $paragraphStyle")
 
 		set(
 			annotatedString = value.annotatedString.copy(

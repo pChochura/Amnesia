@@ -43,7 +43,10 @@ fun AmnesiaTooltipWrapper(
 				.combinedClickable(
 					enabled = enabled,
 					interactionSource = remember { MutableInteractionSource() },
-					indication = rememberRipple(bounded = false),
+					indication = rememberRipple(
+						bounded = false,
+						color = tooltipModel.buttonRippleColor
+					),
 					onClickLabel = tooltip,
 					role = Role.Button,
 					onClick = onClick,
@@ -73,6 +76,7 @@ fun AmnesiaTooltipWrapper(
 
 @Composable
 fun defaultAmnesiaTooltipModel() = AmnesiaTooltipModel(
+	buttonRippleColor = Color.Unspecified,
 	backgroundColor = MaterialTheme.colors.secondary,
 	textStyle = MaterialTheme.typography.button.copy(
 		color = MaterialTheme.colors.onSecondary
@@ -83,6 +87,7 @@ fun defaultAmnesiaTooltipModel() = AmnesiaTooltipModel(
 )
 
 data class AmnesiaTooltipModel(
+	val buttonRippleColor: Color,
 	val backgroundColor: Color,
 	val textStyle: TextStyle,
 	val shape: Shape,

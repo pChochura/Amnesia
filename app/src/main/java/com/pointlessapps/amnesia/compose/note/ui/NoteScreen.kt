@@ -248,31 +248,36 @@ private fun BottomBar(viewModel: NoteViewModel) {
 		item {
 			BottomBarIcon(
 				tooltip = R.string.bold,
-				icon = R.drawable.icon_bold
+				icon = R.drawable.icon_bold,
+				selected = viewModel.state.content.currentStyles.contains(Style.Bold)
 			) { viewModel.insertStyle(Style.Bold) }
 		}
 		item {
 			BottomBarIcon(
 				tooltip = R.string.underline,
-				icon = R.drawable.icon_underline
+				icon = R.drawable.icon_underline,
+				selected = viewModel.state.content.currentStyles.contains(Style.Underline)
 			) { viewModel.insertStyle(Style.Underline) }
 		}
 		item {
 			BottomBarIcon(
 				tooltip = R.string.italic,
-				icon = R.drawable.icon_italic
+				icon = R.drawable.icon_italic,
+				selected = viewModel.state.content.currentStyles.contains(Style.Italic)
 			) { viewModel.insertStyle(Style.Italic) }
 		}
 		item {
 			BottomBarIcon(
 				tooltip = R.string.unordered_list,
-				icon = R.drawable.icon_unordered_list
+				icon = R.drawable.icon_unordered_list,
+				selected = viewModel.state.content.currentStyles.contains(Style.UnorderedList)
 			) { viewModel.insertStyle(Style.UnorderedList) }
 		}
 		item {
 			BottomBarIcon(
 				tooltip = R.string.ordered_list,
-				icon = R.drawable.icon_ordered_list
+				icon = R.drawable.icon_ordered_list,
+				selected = viewModel.state.content.currentStyles.contains(Style.OrderedList)
 			) { viewModel.insertStyle(Style.OrderedList) }
 		}
 		item {
@@ -281,7 +286,9 @@ private fun BottomBar(viewModel: NoteViewModel) {
 				var currentValue by remember { mutableStateOf(Style.TextSize.DEFAULT_VALUE) }
 				BottomBarIcon(
 					tooltip = R.string.text_size,
-					icon = R.drawable.icon_text_size
+					icon = R.drawable.icon_text_size,
+					selected = viewModel.state.content.currentStyles
+						.filterIsInstance<Style.TextSize>().isNotEmpty()
 				) {
 					currentValue =
 						viewModel.state.content.currentStyles
@@ -302,7 +309,9 @@ private fun BottomBar(viewModel: NoteViewModel) {
 
 							viewModel.clearStyle(Style.TextSize(null))
 							currentValue = currentValue.decrement(Style.TextSize.INCREMENT)
-							viewModel.insertStyle(Style.TextSize(currentValue))
+							if (currentValue != Style.TextSize.DEFAULT_VALUE) {
+								viewModel.insertStyle(Style.TextSize(currentValue))
+							}
 						},
 						onPlusClicked = onPlusClicked@{
 							if (currentValue >= Style.TextSize.MAX_VALUE) {
@@ -311,7 +320,9 @@ private fun BottomBar(viewModel: NoteViewModel) {
 
 							viewModel.clearStyle(Style.TextSize(null))
 							currentValue = currentValue.increment(Style.TextSize.INCREMENT)
-							viewModel.insertStyle(Style.TextSize(currentValue))
+							if (currentValue != Style.TextSize.DEFAULT_VALUE) {
+								viewModel.insertStyle(Style.TextSize(currentValue))
+							}
 						}
 					)
 				}
@@ -320,30 +331,45 @@ private fun BottomBar(viewModel: NoteViewModel) {
 		item {
 			BottomBarIcon(
 				tooltip = R.string.text_color,
-				icon = R.drawable.icon_circle
+				icon = R.drawable.icon_circle,
+				selected = viewModel.state.content.currentStyles
+					.filterIsInstance<Style.TextColor>().isNotEmpty()
 			) { viewModel.insertStyle(Style.TextColor(Color.Cyan)) }
 		}
 		item {
 			BottomBarIcon(
 				tooltip = R.string.clear_format,
-				icon = R.drawable.icon_format_clear
+				icon = R.drawable.icon_format_clear,
+				selected = true
 			) { viewModel.insertStyle(Style.ClearFormat) }
 		}
 	}
 }
 
 @Composable
-fun BottomBarIcon(@StringRes tooltip: Int, @DrawableRes icon: Int, onClick: () -> Unit) {
+fun BottomBarIcon(
+	@StringRes tooltip: Int,
+	@DrawableRes icon: Int,
+	selected: Boolean,
+	onClick: () -> Unit
+) {
 	AmnesiaTooltipWrapper(
 		tooltip = stringResource(tooltip),
-		onClick = onClick
+		onClick = onClick,
+		tooltipModel = defaultAmnesiaTooltipModel().copy(
+			buttonRippleColor = MaterialTheme.colors.secondaryVariant
+		)
 	) {
 		Icons.Get(
 			iconRes = icon,
 			modifier = Modifier
 				.padding(dimensionResource(id = R.dimen.tiny_padding))
 				.size(dimensionResource(id = R.dimen.icon_size)),
-			tint = MaterialTheme.colors.onSecondary
+			tint = if (selected) {
+				MaterialTheme.colors.primary
+			} else {
+				MaterialTheme.colors.secondaryVariant
+			}
 		)
 	}
 }

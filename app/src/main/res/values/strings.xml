@@ -22,4 +22,8 @@
 	<string name="clear_format">Clear format</string>
 	<string name="plus_10_percent">Plus 10%</string>
 	<string name="minus_10_percent">Minus 10%</string>
+	<string name="align_left">Align left</string>
+	<string name="align_right">Align right</string>
+	<string name="align_center">Align center</string>
+	<string name="strikethrough">Strikethrough</string>
 </resources>

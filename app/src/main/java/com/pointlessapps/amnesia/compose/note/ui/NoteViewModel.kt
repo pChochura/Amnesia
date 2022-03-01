@@ -46,9 +46,9 @@ class NoteViewModel : ViewModel() {
 		)
 	}
 
-	fun clearStyle(style: Style) {
+	fun clearStyles(vararg style: Style) {
 		state = state.copy(
-			content = state.content.clearStyle(style)
+			content = state.content.clearStyles(*style)
 		)
 	}
 }

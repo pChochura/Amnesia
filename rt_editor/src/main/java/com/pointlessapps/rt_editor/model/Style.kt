@@ -12,14 +12,14 @@ sealed interface Style {
 	}
 	object OrderedList : Style
 	object ClearFormat : Style
-	class TextColor(val color: Color) : Style {
+	class TextColor(val color: Color? = null) : Style {
 		override fun tag(simple: Boolean) = if (simple) {
 			super.tag(simple)
 		} else {
-			"${javaClass.simpleName}/${color.value}"
+			"${javaClass.simpleName}/${color?.value}"
 		}
 
-		override fun toString() = "${javaClass.simpleName}(${color.value})"
+		override fun toString() = "${javaClass.simpleName}(${color?.value})"
 
 		companion object {
 			fun fromTag(tag: String): TextColor {
@@ -56,6 +56,11 @@ sealed interface Style {
 			}
 		}
 	}
+
+	object AlignLeft : Style
+	object AlignCenter : Style
+	object AlignRight : Style
+	object Strikethrough : Style
 
 	fun tag(simple: Boolean = false): String = javaClass.simpleName
 

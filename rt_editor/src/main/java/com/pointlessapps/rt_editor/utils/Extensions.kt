@@ -3,6 +3,7 @@ package com.pointlessapps.rt_editor.utils
 import androidx.compose.ui.text.AnnotatedString
 import androidx.compose.ui.text.ParagraphStyle
 import androidx.compose.ui.text.SpanStyle
+import androidx.compose.ui.text.TextRange
 
 internal fun AnnotatedString.copy(
 	text: String = this.text,
@@ -35,3 +36,12 @@ internal fun Int.coerceEndOfParagraph(text: String): Int {
 
 	return this + nextNewLineCharacterIndex - System.lineSeparator().length + 1
 }
+
+internal fun TextRange.coerceNotReversed() = if (start < end) {
+	this
+} else {
+	TextRange(end, start)
+}
+
+internal fun String.startsWith(prefixes: Set<String>) =
+	prefixes.any { this.startsWith(it) }

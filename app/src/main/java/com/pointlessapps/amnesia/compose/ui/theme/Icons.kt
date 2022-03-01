@@ -22,6 +22,18 @@ object Icons {
 	)
 
 	@Composable
+	fun AlignCenter(modifier: Modifier = Modifier, tint: Color = Color.White) =
+		Get(iconRes = R.drawable.icon_align_center, modifier, tint)
+
+	@Composable
+	fun AlignLeft(modifier: Modifier = Modifier, tint: Color = Color.White) =
+		Get(iconRes = R.drawable.icon_align_left, modifier, tint)
+
+	@Composable
+	fun AlignRight(modifier: Modifier = Modifier, tint: Color = Color.White) =
+		Get(iconRes = R.drawable.icon_align_right, modifier, tint)
+
+	@Composable
 	fun Bold(modifier: Modifier = Modifier, tint: Color = Color.White) =
 		Get(iconRes = R.drawable.icon_bold, modifier, tint)
 
@@ -68,6 +80,10 @@ object Icons {
 	@Composable
 	fun Redo(modifier: Modifier = Modifier, tint: Color = Color.White) =
 		Get(iconRes = R.drawable.icon_redo, modifier, tint)
+
+	@Composable
+	fun Strikethrough(modifier: Modifier = Modifier, tint: Color = Color.White) =
+		Get(iconRes = R.drawable.icon_strikethrough, modifier, tint)
 
 	@Composable
 	fun TextSize(modifier: Modifier = Modifier, tint: Color = Color.White) =

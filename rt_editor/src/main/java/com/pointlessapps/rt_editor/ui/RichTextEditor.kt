@@ -1,6 +1,6 @@
 package com.pointlessapps.rt_editor.ui
 
-import androidx.compose.runtime.Composable
+import androidx.compose.runtime.*
 import androidx.compose.ui.Modifier
 import com.pointlessapps.rt_editor.model.RichTextValue
 
@@ -13,10 +13,11 @@ fun RichTextEditor(
 ) {
 	RichTextField(
 		modifier = modifier,
-		value = value.prepared(),
+		value = value.value,
 		onValueChange = {
-			value.updateValueAndStyles(it)
-			onValueChange(value)
+			if (value.updatedValueAndStyles(it)) {
+				onValueChange(value)
+			}
 		},
 		textFieldModel = textFieldModel
 	)

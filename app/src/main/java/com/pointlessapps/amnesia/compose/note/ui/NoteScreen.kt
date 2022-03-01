@@ -268,17 +268,10 @@ private fun BottomBar(viewModel: NoteViewModel) {
 		}
 		item {
 			BottomBarIcon(
-				tooltip = R.string.unordered_list,
-				icon = R.drawable.icon_unordered_list,
-				selected = viewModel.state.content.currentStyles.contains(Style.UnorderedList)
-			) { viewModel.insertStyle(Style.UnorderedList) }
-		}
-		item {
-			BottomBarIcon(
-				tooltip = R.string.ordered_list,
-				icon = R.drawable.icon_ordered_list,
-				selected = viewModel.state.content.currentStyles.contains(Style.OrderedList)
-			) { viewModel.insertStyle(Style.OrderedList) }
+				tooltip = R.string.strikethrough,
+				icon = R.drawable.icon_strikethrough,
+				selected = viewModel.state.content.currentStyles.contains(Style.Strikethrough)
+			) { viewModel.insertStyle(Style.Strikethrough) }
 		}
 		item {
 			Box {
@@ -307,7 +300,7 @@ private fun BottomBar(viewModel: NoteViewModel) {
 								return@onMinusClicked
 							}
 
-							viewModel.clearStyle(Style.TextSize(null))
+							viewModel.clearStyles(Style.TextSize())
 							currentValue = currentValue.decrement(Style.TextSize.INCREMENT)
 							if (currentValue != Style.TextSize.DEFAULT_VALUE) {
 								viewModel.insertStyle(Style.TextSize(currentValue))
@@ -318,7 +311,7 @@ private fun BottomBar(viewModel: NoteViewModel) {
 								return@onPlusClicked
 							}
 
-							viewModel.clearStyle(Style.TextSize(null))
+							viewModel.clearStyles(Style.TextSize())
 							currentValue = currentValue.increment(Style.TextSize.INCREMENT)
 							if (currentValue != Style.TextSize.DEFAULT_VALUE) {
 								viewModel.insertStyle(Style.TextSize(currentValue))
@@ -329,12 +322,27 @@ private fun BottomBar(viewModel: NoteViewModel) {
 			}
 		}
 		item {
-			BottomBarIcon(
-				tooltip = R.string.text_color,
-				icon = R.drawable.icon_circle,
-				selected = viewModel.state.content.currentStyles
-					.filterIsInstance<Style.TextColor>().isNotEmpty()
-			) { viewModel.insertStyle(Style.TextColor(Color.Cyan)) }
+			Box {
+				var showTextColorPicker by remember { mutableStateOf(false) }
+				BottomBarIcon(
+					tooltip = R.string.text_color,
+					icon = R.drawable.icon_circle,
+					selected = viewModel.state.content.currentStyles
+						.filterIsInstance<Style.TextColor>().isNotEmpty()
+				) {
+					showTextColorPicker = true
+				}
+
+				if (showTextColorPicker) {
+					TextColorPicker(
+						onDismissListener = { showTextColorPicker = false },
+						onColorClicked = {
+							viewModel.clearStyles(Style.TextColor(null))
+							viewModel.insertStyle(Style.TextColor(it))
+						}
+					)
+				}
+			}
 		}
 		item {
 			BottomBarIcon(

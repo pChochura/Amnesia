@@ -3,14 +3,10 @@ package com.pointlessapps.rt_editor.model
 import androidx.compose.ui.text.ParagraphStyle
 import androidx.compose.ui.text.SpanStyle
 import androidx.compose.ui.text.TextRange
-import androidx.compose.ui.text.font.FontStyle
-import androidx.compose.ui.text.font.FontWeight
 import androidx.compose.ui.text.input.TextFieldValue
-import androidx.compose.ui.text.style.TextDecoration
 import androidx.compose.ui.unit.ExperimentalUnitApi
-import androidx.compose.ui.unit.TextUnit
-import androidx.compose.ui.unit.TextUnitType
-import com.pointlessapps.rt_editor.model.Style.*
+import com.pointlessapps.rt_editor.mappers.StyleMapper
+import com.pointlessapps.rt_editor.model.Style.ClearFormat
 import com.pointlessapps.rt_editor.utils.*
 
 internal typealias StyleRange<T> = AnnotatedStringBuilder.MutableRange<T>
@@ -20,11 +16,16 @@ internal typealias StyleList<T> = List<StyleRange<T>>
 
 abstract class RichTextValue {
 
+	abstract val isUndoAvailable: Boolean
+	abstract val isRedoAvailable: Boolean
 	abstract val currentStyles: Set<Style>
 	internal abstract val value: TextFieldValue
 
 	abstract fun insertStyle(style: Style): RichTextValue
 	abstract fun clearStyles(vararg styles: Style): RichTextValue
+
+	abstract fun undo(): RichTextValue
+	abstract fun redo(): RichTextValue
 
 	internal abstract fun updatedValueAndStyles(value: TextFieldValue): Boolean
 
@@ -36,9 +37,22 @@ abstract class RichTextValue {
 @OptIn(ExperimentalUnitApi::class)
 internal class RichTextValueImpl : RichTextValue() {
 
+	private val styleMapper = StyleMapper()
+
 	private val annotatedStringBuilder = AnnotatedStringBuilder()
 	private var selection: TextRange = TextRange.Zero
 	private var composition: TextRange? = null
+
+	private var historyOffset: Int = 0
+	private val historySnapshots = mutableListOf(
+		RichTextValueSnapshot.fromAnnotatedStringBuilder(annotatedStringBuilder)
+	)
+
+	override val isUndoAvailable: Boolean
+		get() = historySnapshots.isNotEmpty() && historyOffset < historySnapshots.lastIndex
+
+	override val isRedoAvailable: Boolean
+		get() = historyOffset > 0
 
 	override val value: TextFieldValue
 		get() = TextFieldValue(
@@ -49,6 +63,28 @@ internal class RichTextValueImpl : RichTextValue() {
 
 	private val currentSelection: TextRange
 		get() = (composition ?: selection).coerceNotReversed()
+
+	private fun updateHistory() {
+		// If offset in the history is not 0 clear possible "redo" states
+		repeat(historyOffset) {
+			historySnapshots.removeLastOrNull()
+		}
+		historyOffset = 0
+
+		historySnapshots.add(
+			RichTextValueSnapshot.fromAnnotatedStringBuilder(
+				annotatedStringBuilder
+			)
+		)
+	}
+
+	private fun restoreFromHistory() {
+		val currentSnapshot = historySnapshots.elementAtOrNull(
+			historySnapshots.lastIndex - historyOffset
+		) ?: return
+
+		annotatedStringBuilder.update(currentSnapshot.toAnnotatedStringBuilder())
+	}
 
 	private fun <T> filterCurrentStyles(styles: StyleList<T>) = styles.filter {
 		currentSelection.intersects(TextRange(it.start, it.end))
@@ -143,20 +179,7 @@ internal class RichTextValueImpl : RichTextValue() {
 			return this
 		}
 
-		val spanStyle = when (style) {
-			Bold -> SpanStyle(fontWeight = FontWeight.Bold)
-			Underline -> SpanStyle(textDecoration = TextDecoration.Underline)
-			Italic -> SpanStyle(fontStyle = FontStyle.Italic)
-			Strikethrough -> SpanStyle(textDecoration = TextDecoration.LineThrough)
-			is TextColor -> SpanStyle(color = requireNotNull(style.color))
-			is TextSize -> SpanStyle(
-				fontSize = TextUnit(
-					requireNotNull(style.fraction),
-					TextUnitType.Em
-				)
-			)
-			else -> null
-		}?.let {
+		val spanStyle = styleMapper.toSpanStyle(style)?.let {
 			SpanRange(
 				item = it,
 				start = currentSelection.start,
@@ -165,14 +188,7 @@ internal class RichTextValueImpl : RichTextValue() {
 			)
 		}
 
-		val paragraphStyle = when (style) {
-			AlignLeft -> ParagraphStyle() // TODO()
-			AlignCenter -> TODO()
-			AlignRight -> TODO()
-			UnorderedList -> TODO()
-			OrderedList -> TODO()
-			else -> null
-		}?.let {
+		val paragraphStyle = styleMapper.toParagraphStyle(style)?.let {
 			ParagraphRange(
 				item = it,
 				start = currentSelection.start.coerceStartOfParagraph(annotatedStringBuilder.text),
@@ -183,6 +199,8 @@ internal class RichTextValueImpl : RichTextValue() {
 
 		spanStyle?.let { annotatedStringBuilder.addSpans(it) }
 		paragraphStyle?.let { annotatedStringBuilder.addParagraphs(it) }
+
+		updateHistory()
 
 		return this
 	}
@@ -200,6 +218,20 @@ internal class RichTextValueImpl : RichTextValue() {
 		return this
 	}
 
+	override fun undo(): RichTextValue {
+		historyOffset += 1
+		restoreFromHistory()
+
+		return this
+	}
+
+	override fun redo(): RichTextValue {
+		historyOffset -= 1
+		restoreFromHistory()
+
+		return this
+	}
+
 	override fun updatedValueAndStyles(value: TextFieldValue): Boolean {
 		val updatedStyles = annotatedStringBuilder.updateStyles(
 			previousSelection = selection,
@@ -212,6 +244,14 @@ internal class RichTextValueImpl : RichTextValue() {
 			annotatedStringBuilder.text = value.text
 			selection = value.selection
 			composition = value.composition
+
+			historySnapshots.elementAtOrNull(
+				historySnapshots.lastIndex - historyOffset
+			)?.also {
+				if (value.text.length - it.text.length >= 5) {
+					updateHistory()
+				}
+			}
 
 			return true
 		}

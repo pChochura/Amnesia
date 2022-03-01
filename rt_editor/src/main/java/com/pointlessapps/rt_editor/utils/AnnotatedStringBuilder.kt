@@ -46,11 +46,40 @@ internal class AnnotatedStringBuilder {
 		}
 	}
 
-	fun toAnnotatedString() = AnnotatedString(
-		text = text,
-		spanStyles = spanStyles.map { it.toRange() },
-		paragraphStyles = paragraphStyles.map { it.toRange() }
-	)
+	fun updateStyles(previousSelection: TextRange, currentValue: String): Boolean {
+		val lengthDifference = currentValue.length - text.length
+		if (lengthDifference == 0) {
+			// Text was not changed at all; leave styles untouched
+			return false
+		}
+
+		var updated = false
+		val prevEnd = previousSelection.end
+		_spanStyles.forEach { style ->
+			val updateStart = style.start > prevEnd
+			val updateEnd = style.end > prevEnd
+
+			if (updateStart || updateEnd) {
+				style.start = if (updateStart) style.start + lengthDifference else style.start
+				style.end = if (updateEnd) style.end + lengthDifference else style.end
+
+				updated = true
+			}
+		}
+		_paragraphStyles.forEach { style ->
+			val updateStart = style.start > prevEnd
+			val updateEnd = style.end > prevEnd
+
+			if (updateStart || updateEnd) {
+				style.start = if (updateStart) style.start + lengthDifference else style.start
+				style.end = if (updateEnd) style.end + lengthDifference else style.end
+
+				updated = true
+			}
+		}
+
+		return updated
+	}
 
 	private fun <T> collapseStyles(styles: MutableList<MutableRange<T>>) {
 		val startRangeMap = mutableMapOf<Int, Int>()
@@ -100,39 +129,18 @@ internal class AnnotatedStringBuilder {
 		removedIndex.reversed().forEach { styles.removeAt(it) }
 	}
 
-	internal fun updateStyles(previousSelection: TextRange, currentValue: String): Boolean {
-		val lengthDifference = currentValue.length - text.length
-		if (lengthDifference == 0) {
-			// Text was not changed at all; leave styles untouched
-			return false
-		}
+	fun toAnnotatedString() = AnnotatedString(
+		text = text,
+		spanStyles = spanStyles.map { it.toRange() },
+		paragraphStyles = paragraphStyles.map { it.toRange() }
+	)
 
-		var updated = false
-		val prevEnd = previousSelection.end
-		_spanStyles.forEach { style ->
-			val updateStart = style.start > prevEnd
-			val updateEnd = style.end > prevEnd
-
-			if (updateStart || updateEnd) {
-				style.start = if (updateStart) style.start + lengthDifference else style.start
-				style.end = if (updateEnd) style.end + lengthDifference else style.end
-
-				updated = true
-			}
-		}
-		_paragraphStyles.forEach { style ->
-			val updateStart = style.start > prevEnd
-			val updateEnd = style.end > prevEnd
-
-			if (updateStart || updateEnd) {
-				style.start = if (updateStart) style.start + lengthDifference else style.start
-				style.end = if (updateEnd) style.end + lengthDifference else style.end
-
-				updated = true
-			}
-		}
-
-		return updated
+	fun update(annotatedStringBuilder: AnnotatedStringBuilder) {
+		text = annotatedStringBuilder.text
+		_spanStyles.clear()
+		_spanStyles.addAll(annotatedStringBuilder._spanStyles)
+		_paragraphStyles.clear()
+		_paragraphStyles.addAll(annotatedStringBuilder._paragraphStyles)
 	}
 
 	internal data class MutableRange<T>(

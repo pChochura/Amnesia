@@ -54,7 +54,7 @@ fun NoteScreen(
 	}
 
 	AmnesiaScaffoldLayout(
-		topBar = { TopBar() },
+		topBar = { TopBar(viewModel) },
 		fab = {
 			AnimatedVisibility(showBottomBar, enter = fadeIn(), exit = fadeOut()) {
 				BottomBar(viewModel)
@@ -144,7 +144,7 @@ fun NoteScreen(
 }
 
 @Composable
-private fun TopBar() {
+private fun TopBar(viewModel: NoteViewModel) {
 	ConstraintLayout(
 		modifier = Modifier
 			.wrapContentSize()
@@ -178,15 +178,19 @@ private fun TopBar() {
 				centerVerticallyTo(parent)
 				end.linkTo(redoButton.start, margin = dp8)
 			},
-			enabled = false,
+			enabled = viewModel.state.content.isUndoAvailable,
 			tooltip = stringResource(R.string.undo),
-			onClick = { /*TODO*/ }
+			onClick = viewModel::onUndoClicked
 		) {
 			Icons.Undo(
 				modifier = Modifier
 					.padding(dimensionResource(id = R.dimen.tiny_padding))
 					.size(dimensionResource(id = R.dimen.icon_size)),
-				tint = MaterialTheme.colors.primaryVariant
+				tint = if (viewModel.state.content.isUndoAvailable) {
+					MaterialTheme.colors.secondary
+				} else {
+					MaterialTheme.colors.primaryVariant
+				}
 			)
 		}
 
@@ -195,15 +199,19 @@ private fun TopBar() {
 				centerVerticallyTo(parent)
 				end.linkTo(doneButton.start, margin = dp16)
 			},
-			enabled = false,
+			enabled = viewModel.state.content.isRedoAvailable,
 			tooltip = stringResource(R.string.redo),
-			onClick = { /*TODO*/ }
+			onClick = viewModel::onRedoClicked
 		) {
 			Icons.Redo(
 				modifier = Modifier
 					.padding(dimensionResource(id = R.dimen.tiny_padding))
 					.size(dimensionResource(id = R.dimen.icon_size)),
-				tint = MaterialTheme.colors.primaryVariant
+				tint = if (viewModel.state.content.isRedoAvailable) {
+					MaterialTheme.colors.secondary
+				} else {
+					MaterialTheme.colors.primaryVariant
+				}
 			)
 		}
 

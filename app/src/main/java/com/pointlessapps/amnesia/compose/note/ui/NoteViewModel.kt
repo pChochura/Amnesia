@@ -51,6 +51,18 @@ class NoteViewModel : ViewModel() {
 			content = state.content.clearStyles(*style)
 		)
 	}
+
+	fun onUndoClicked() {
+		state = state.copy(
+			content = state.content.undo()
+		)
+	}
+
+	fun onRedoClicked() {
+		state = state.copy(
+			content = state.content.redo()
+		)
+	}
 }
 
 data class State(

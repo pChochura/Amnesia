@@ -30,6 +30,9 @@ abstract class RichTextValue {
 	internal abstract fun updatedValueAndStyles(value: TextFieldValue): Boolean
 
 	companion object {
+		// Indicates minimum length difference to add a new snapshot to the history stack
+		internal const val MIN_LENGTH_DIFFERENCE = 10
+
 		fun get(): RichTextValue = RichTextValueImpl()
 	}
 }
@@ -45,8 +48,15 @@ internal class RichTextValueImpl : RichTextValue() {
 
 	private var historyOffset: Int = 0
 	private val historySnapshots = mutableListOf(
-		RichTextValueSnapshot.fromAnnotatedStringBuilder(annotatedStringBuilder)
+		RichTextValueSnapshot.fromAnnotatedStringBuilder(
+			annotatedStringBuilder,
+			selectionPosition = selection.start
+		)
 	)
+	private val currentSnapshot: RichTextValueSnapshot?
+		get() = historySnapshots.elementAtOrNull(
+			historySnapshots.lastIndex - historyOffset
+		)
 
 	override val isUndoAvailable: Boolean
 		get() = historySnapshots.isNotEmpty() && historyOffset < historySnapshots.lastIndex
@@ -64,26 +74,39 @@ internal class RichTextValueImpl : RichTextValue() {
 	private val currentSelection: TextRange
 		get() = (composition ?: selection).coerceNotReversed()
 
-	private fun updateHistory() {
+	private fun clearRedoStack() {
 		// If offset in the history is not 0 clear possible "redo" states
 		repeat(historyOffset) {
 			historySnapshots.removeLastOrNull()
 		}
 		historyOffset = 0
+	}
+
+	private fun updateHistoryIfNecessary() {
+		currentSnapshot?.run {
+			if (!this.equalsStructurally(annotatedStringBuilder)) {
+				updateHistory()
+			}
+		}
+	}
+
+	private fun updateHistory() {
+		clearRedoStack()
 
 		historySnapshots.add(
 			RichTextValueSnapshot.fromAnnotatedStringBuilder(
-				annotatedStringBuilder
+				annotatedStringBuilder,
+				selectionPosition = selection.start
 			)
 		)
 	}
 
 	private fun restoreFromHistory() {
-		val currentSnapshot = historySnapshots.elementAtOrNull(
-			historySnapshots.lastIndex - historyOffset
-		) ?: return
-
-		annotatedStringBuilder.update(currentSnapshot.toAnnotatedStringBuilder())
+		currentSnapshot?.run {
+			annotatedStringBuilder.update(toAnnotatedStringBuilder())
+			selection = TextRange(selectionPosition)
+			composition = null
+		}
 	}
 
 	private fun <T> filterCurrentStyles(styles: StyleList<T>) = styles.filter {
@@ -179,6 +202,8 @@ internal class RichTextValueImpl : RichTextValue() {
 			return this
 		}
 
+		updateHistoryIfNecessary()
+
 		val spanStyle = styleMapper.toSpanStyle(style)?.let {
 			SpanRange(
 				item = it,
@@ -219,6 +244,7 @@ internal class RichTextValueImpl : RichTextValue() {
 	}
 
 	override fun undo(): RichTextValue {
+		updateHistoryIfNecessary()
 		historyOffset += 1
 		restoreFromHistory()
 
@@ -245,11 +271,11 @@ internal class RichTextValueImpl : RichTextValue() {
 			selection = value.selection
 			composition = value.composition
 
-			historySnapshots.elementAtOrNull(
-				historySnapshots.lastIndex - historyOffset
-			)?.also {
-				if (value.text.length - it.text.length >= 5) {
+			currentSnapshot?.run {
+				if (value.text.length - text.length >= MIN_LENGTH_DIFFERENCE) {
 					updateHistory()
+				} else if (value.text != text) {
+					clearRedoStack()
 				}
 			}
 

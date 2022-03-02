@@ -6,7 +6,8 @@ import com.pointlessapps.rt_editor.model.Style
 internal class RichTextValueSnapshot private constructor(
 	val text: String,
 	val spanStyles: List<RichTextValueSpanSnapshot>,
-	val paragraphStyles: List<RichTextValueSpanSnapshot>
+	val paragraphStyles: List<RichTextValueSpanSnapshot>,
+	val selectionPosition: Int,
 ) {
 
 	fun toAnnotatedStringBuilder(): AnnotatedStringBuilder {
@@ -29,6 +30,32 @@ internal class RichTextValueSnapshot private constructor(
 		}
 	}
 
+	fun equalsStructurally(annotatedStringBuilder: AnnotatedStringBuilder): Boolean {
+		if (text != annotatedStringBuilder.text) {
+			return false
+		}
+
+		if (!spanStyles.toTypedArray().contentEquals(
+				annotatedStringBuilder.spanStyles.map {
+					it.toRichTextValueSpanSnapshot()
+				}.toTypedArray()
+			)
+		) {
+			return false
+		}
+
+		if (!paragraphStyles.toTypedArray().contentEquals(
+				annotatedStringBuilder.paragraphStyles.map {
+					it.toRichTextValueSpanSnapshot()
+				}.toTypedArray()
+			)
+		) {
+			return false
+		}
+
+		return true
+	}
+
 	internal data class RichTextValueSpanSnapshot(
 		val start: Int,
 		val end: Int,
@@ -37,25 +64,22 @@ internal class RichTextValueSnapshot private constructor(
 
 	companion object {
 		fun fromAnnotatedStringBuilder(
-			annotatedStringBuilder: AnnotatedStringBuilder
+			annotatedStringBuilder: AnnotatedStringBuilder,
+			selectionPosition: Int
 		): RichTextValueSnapshot {
 			return RichTextValueSnapshot(
 				text = annotatedStringBuilder.text,
 				spanStyles = annotatedStringBuilder.spanStyles.map {
-					RichTextValueSpanSnapshot(
-						start = it.start,
-						end = it.end,
-						tag = it.tag
-					)
+					it.toRichTextValueSpanSnapshot()
 				},
 				paragraphStyles = annotatedStringBuilder.paragraphStyles.map {
-					RichTextValueSpanSnapshot(
-						start = it.start,
-						end = it.end,
-						tag = it.tag
-					)
-				}
+					it.toRichTextValueSpanSnapshot()
+				},
+				selectionPosition = selectionPosition
 			)
 		}
 	}
 }
+
+private fun <T> AnnotatedStringBuilder.MutableRange<T>.toRichTextValueSpanSnapshot() =
+	RichTextValueSnapshot.RichTextValueSpanSnapshot(start = start, end = end, tag = tag)

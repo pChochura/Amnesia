@@ -30,32 +30,6 @@ internal class RichTextValueSnapshot private constructor(
 		}
 	}
 
-	fun equalsStructurally(annotatedStringBuilder: AnnotatedStringBuilder): Boolean {
-		if (text != annotatedStringBuilder.text) {
-			return false
-		}
-
-		if (!spanStyles.toTypedArray().contentEquals(
-				annotatedStringBuilder.spanStyles.map {
-					it.toRichTextValueSpanSnapshot()
-				}.toTypedArray()
-			)
-		) {
-			return false
-		}
-
-		if (!paragraphStyles.toTypedArray().contentEquals(
-				annotatedStringBuilder.paragraphStyles.map {
-					it.toRichTextValueSpanSnapshot()
-				}.toTypedArray()
-			)
-		) {
-			return false
-		}
-
-		return true
-	}
-
 	internal data class RichTextValueSpanSnapshot(
 		val start: Int,
 		val end: Int,

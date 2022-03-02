@@ -84,7 +84,8 @@ internal class RichTextValueImpl : RichTextValue() {
 
 	private fun updateHistoryIfNecessary() {
 		currentSnapshot?.run {
-			if (!this.equalsStructurally(annotatedStringBuilder)) {
+			// Add a snapshot when the style is added, but not enough text was changed to be saved
+			if (text != annotatedStringBuilder.text) {
 				updateHistory()
 			}
 		}

@@ -24,7 +24,7 @@ sealed interface Style {
 		companion object {
 			fun fromTag(tag: String): TextColor {
 				val value = tag.substringAfter("${TextColor::class.simpleName}/")
-				return TextColor(Color(value.toLongOrNull() ?: 0))
+				return TextColor(Color(value.toULongOrNull() ?: 0UL))
 			}
 		}
 	}

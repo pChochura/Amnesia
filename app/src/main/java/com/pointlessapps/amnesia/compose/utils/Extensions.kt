@@ -4,11 +4,14 @@ import androidx.compose.foundation.layout.PaddingValues
 import androidx.compose.foundation.layout.calculateEndPadding
 import androidx.compose.foundation.layout.calculateStartPadding
 import androidx.compose.runtime.Composable
+import androidx.compose.ui.geometry.Size
+import androidx.compose.ui.graphics.Color
 import androidx.compose.ui.platform.LocalDensity
 import androidx.compose.ui.platform.LocalLayoutDirection
 import androidx.compose.ui.unit.Dp
 import androidx.compose.ui.unit.LayoutDirection
 import androidx.compose.ui.unit.dp
+import androidx.core.graphics.ColorUtils
 import kotlin.math.roundToInt
 
 @Composable
@@ -75,3 +78,9 @@ fun Dp.toPx(): Float = LocalDensity.current.run {
 fun Float.increment(value: Float) = ((this + value) * 10).roundToInt() / 10f
 
 fun Float.decrement(value: Float) = ((this - value) * 10).roundToInt() / 10f
+
+fun Float.hueToColor(saturation: Float = 1f, value: Float = 0.5f): Color = Color(
+	ColorUtils.HSLToColor(floatArrayOf(this, saturation, value))
+)
+
+fun Size.inset(amount: Float) = Size(width - amount, height - amount)

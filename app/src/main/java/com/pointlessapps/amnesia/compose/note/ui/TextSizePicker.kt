@@ -23,10 +23,11 @@ import com.pointlessapps.amnesia.compose.ui.theme.Icons
 import com.pointlessapps.amnesia.compose.utils.AbovePositionProvider
 import com.pointlessapps.amnesia.compose.utils.roundToPx
 import com.pointlessapps.amnesia.compose.utils.toPercent
+import com.pointlessapps.rt_editor.model.Style
 
 @Composable
 fun TextSizePicker(
-	@FloatRange(from = 1.0, to = 2.0) currentValue: Float,
+	@FloatRange(from = Style.TextSize.MIN_VALUE, to = Style.TextSize.MAX_VALUE) currentValue: Float,
 	onDismissListener: () -> Unit,
 	onMinusClicked: () -> Unit,
 	onPlusClicked: () -> Unit
@@ -57,7 +58,11 @@ fun TextSizePicker(
 						onClick = onMinusClicked,
 						role = Role.Button,
 					),
-				tint = MaterialTheme.colors.onSecondary
+				tint = if (currentValue > Style.TextSize.MIN_VALUE) {
+					MaterialTheme.colors.onSecondary
+				} else {
+					MaterialTheme.colors.secondaryVariant
+				}
 			)
 			Text(
 				text = currentValue.toPercent(),
@@ -73,7 +78,11 @@ fun TextSizePicker(
 						onClick = onPlusClicked,
 						role = Role.Button,
 					),
-				tint = MaterialTheme.colors.onSecondary
+				tint = if (currentValue < Style.TextSize.MAX_VALUE) {
+					MaterialTheme.colors.onSecondary
+				} else {
+					MaterialTheme.colors.secondaryVariant
+				}
 			)
 		}
 	}

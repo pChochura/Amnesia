@@ -1,16 +1,18 @@
 package com.pointlessapps.amnesia.compose.note.ui
 
+import androidx.compose.foundation.Canvas
 import androidx.compose.foundation.background
 import androidx.compose.foundation.clickable
-import androidx.compose.foundation.layout.Arrangement
-import androidx.compose.foundation.layout.Row
-import androidx.compose.foundation.layout.padding
-import androidx.compose.foundation.layout.size
+import androidx.compose.foundation.layout.*
 import androidx.compose.material.MaterialTheme
-import androidx.compose.runtime.Composable
+import androidx.compose.runtime.*
 import androidx.compose.ui.Alignment
 import androidx.compose.ui.Modifier
 import androidx.compose.ui.draw.clip
+import androidx.compose.ui.geometry.CornerRadius
+import androidx.compose.ui.geometry.Offset
+import androidx.compose.ui.geometry.Size
+import androidx.compose.ui.graphics.Brush
 import androidx.compose.ui.graphics.Color
 import androidx.compose.ui.res.dimensionResource
 import androidx.compose.ui.semantics.Role
@@ -19,14 +21,20 @@ import androidx.compose.ui.window.Popup
 import androidx.compose.ui.window.PopupProperties
 import com.pointlessapps.amnesia.R
 import com.pointlessapps.amnesia.compose.ui.theme.Icons
-import com.pointlessapps.amnesia.compose.utils.AbovePositionProvider
-import com.pointlessapps.amnesia.compose.utils.roundToPx
+import com.pointlessapps.amnesia.compose.utils.*
+
+private const val MAX_HUE_VALUE = 360
 
 @Composable
 fun TextColorPicker(
+	recentColors: List<Color>,
 	onDismissListener: () -> Unit,
 	onColorClicked: (Color) -> Unit,
+	onAddToRecents: (Color) -> Unit
 ) {
+	var currentColor by remember { mutableStateOf(Color.Black) }
+	var showColorSlider by remember { mutableStateOf(false) }
+
 	Popup(
 		onDismissRequest = onDismissListener,
 		popupPositionProvider = AbovePositionProvider(
@@ -45,46 +53,119 @@ fun TextColorPicker(
 			verticalAlignment = Alignment.CenterVertically,
 			horizontalArrangement = Arrangement.spacedBy(dimensionResource(id = R.dimen.small_padding))
 		) {
-			Icons.Circle(
-				modifier = Modifier
-					.padding(dimensionResource(id = R.dimen.tiny_padding))
-					.size(dimensionResource(id = R.dimen.icon_size))
-					.clickable(
-						onClick = { onColorClicked(Color.Cyan) },
-						role = Role.Button,
-					),
-				tint = Color.Cyan
+			if (showColorSlider) {
+				ColorSlider {
+					currentColor = it
+					onColorClicked(it)
+				}
+				Icons.Done(
+					modifier = Modifier
+						.padding(dimensionResource(id = R.dimen.tiny_padding))
+						.size(dimensionResource(id = R.dimen.icon_size))
+						.clickable(
+							onClick = {
+								showColorSlider = false
+								onAddToRecents(currentColor)
+							},
+							role = Role.Button,
+						),
+					tint = MaterialTheme.colors.onSecondary
+				)
+			} else {
+				recentColors.forEach {
+					Icons.Circle(
+						modifier = Modifier
+							.padding(dimensionResource(id = R.dimen.tiny_padding))
+							.size(dimensionResource(id = R.dimen.icon_size))
+							.clickable(
+								onClick = { onColorClicked(it) },
+								role = Role.Button,
+							),
+						tint = it
+					)
+				}
+				Icons.Plus(
+					modifier = Modifier
+						.padding(dimensionResource(id = R.dimen.tiny_padding))
+						.size(dimensionResource(id = R.dimen.icon_size))
+						.clickable(
+							onClick = { showColorSlider = true },
+							role = Role.Button,
+						),
+					tint = MaterialTheme.colors.onSecondary
+				)
+			}
+		}
+	}
+}
+
+@Composable
+private fun ColorSlider(onValueChangeListener: (Color) -> Unit) {
+	var currentColorHue by remember { mutableStateOf(0f) }
+	val rainbowBrush = remember { Brush.horizontalGradient(getRainbowColors()) }
+	val cornerRadius = dimensionResource(id = R.dimen.rounded_corners).toPx()
+	val indicatorWidth = dimensionResource(id = R.dimen.size_10).toPx()
+	val indicatorBorderWidth = dimensionResource(id = R.dimen.size_4).toPx()
+	BoxWithConstraints(
+		modifier = Modifier
+			.width(dimensionResource(id = R.dimen.size_200))
+			.height(dimensionResource(id = R.dimen.icon_button_size))
+	) {
+		Canvas(modifier = Modifier
+			.fillMaxSize()
+			.onMove(
+				onMoved = { (x, _) ->
+					currentColorHue = (x / maxWidth.toPx() * MAX_HUE_VALUE)
+						.coerceIn(0f, MAX_HUE_VALUE.toFloat())
+				},
+				onUp = { onValueChangeListener(currentColorHue.hueToColor()) }
 			)
-			Icons.Circle(
-				modifier = Modifier
-					.padding(dimensionResource(id = R.dimen.tiny_padding))
-					.size(dimensionResource(id = R.dimen.icon_size))
-					.clickable(
-						onClick = { onColorClicked(Color.Magenta) },
-						role = Role.Button,
-					),
-				tint = Color.Magenta
+		) {
+			drawRoundRect(
+				brush = rainbowBrush,
+				cornerRadius = CornerRadius(cornerRadius)
 			)
-			Icons.Circle(
-				modifier = Modifier
-					.padding(dimensionResource(id = R.dimen.tiny_padding))
-					.size(dimensionResource(id = R.dimen.icon_size))
-					.clickable(
-						onClick = { onColorClicked(Color.Red) },
-						role = Role.Button,
-					),
-				tint = Color.Red
+			drawRoundRect(
+				topLeft = Offset(
+					x = (currentColorHue / MAX_HUE_VALUE * maxWidth.toPx())
+						.coerceAtMost(maxWidth.toPx() - indicatorWidth),
+					y = 0f
+				),
+				size = Size(
+					width = indicatorWidth,
+					height = maxHeight.toPx()
+				),
+				color = Color.White,
+				cornerRadius = CornerRadius(cornerRadius)
 			)
-			Icons.Plus(
-				modifier = Modifier
-					.padding(dimensionResource(id = R.dimen.tiny_padding))
-					.size(dimensionResource(id = R.dimen.icon_size))
-					.clickable(
-						onClick = { },
-						role = Role.Button,
-					),
-				tint = MaterialTheme.colors.onSecondary
+			drawRoundRect(
+				topLeft = Offset(
+					x = (currentColorHue / MAX_HUE_VALUE * maxWidth.toPx() + indicatorBorderWidth * 0.5f)
+						.coerceAtMost(maxWidth.toPx() - indicatorWidth + indicatorBorderWidth * 0.5f),
+					y = indicatorBorderWidth * 0.5f
+				),
+				size = Size(
+					width = indicatorWidth,
+					height = maxHeight.toPx()
+				).inset(indicatorBorderWidth),
+				color = currentColorHue.hueToColor(),
+				cornerRadius = CornerRadius(cornerRadius)
 			)
 		}
 	}
 }
+
+private fun getRainbowColors() = listOf(
+	Color(0xFFFF0000),
+	Color(0xFFFF8000),
+	Color(0xFFFFFF00),
+	Color(0xFF80FF00),
+	Color(0xFF00FF00),
+	Color(0xFF00FF80),
+	Color(0xFF00FFFF),
+	Color(0xFF0080FF),
+	Color(0xFF0000FF),
+	Color(0xFF8000FF),
+	Color(0xFFFF00FF),
+	Color(0xFFFF0040),
+)

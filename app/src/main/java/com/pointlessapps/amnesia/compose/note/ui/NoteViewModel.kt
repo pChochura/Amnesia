@@ -10,6 +10,7 @@ import androidx.lifecycle.ViewModel
 import com.pointlessapps.amnesia.model.Category
 import com.pointlessapps.rt_editor.model.RichTextValue
 import com.pointlessapps.rt_editor.model.Style
+import androidx.compose.ui.graphics.Color as ComposeColor
 
 class NoteViewModel : ViewModel() {
 
@@ -63,10 +64,20 @@ class NoteViewModel : ViewModel() {
 			content = state.content.redo()
 		)
 	}
+
+	fun updateRecentColors(color: ComposeColor) {
+		state = state.copy(
+			recentColors = listOf(
+				color,
+				*state.recentColors.take(2).toTypedArray()
+			)
+		)
+	}
 }
 
 data class State(
 	val title: TextFieldValue = TextFieldValue(),
 	val content: RichTextValue = RichTextValue.get(),
 	val categories: List<Category> = emptyList(),
+	val recentColors: List<ComposeColor> = emptyList(),
 )

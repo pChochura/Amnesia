@@ -1,7 +1,5 @@
 package com.pointlessapps.rt_editor.model
 
-import androidx.compose.ui.text.ParagraphStyle
-import androidx.compose.ui.text.SpanStyle
 import androidx.compose.ui.text.TextRange
 import androidx.compose.ui.text.input.TextFieldValue
 import androidx.compose.ui.unit.ExperimentalUnitApi
@@ -10,9 +8,6 @@ import com.pointlessapps.rt_editor.model.Style.ClearFormat
 import com.pointlessapps.rt_editor.utils.*
 
 internal typealias StyleRange<T> = AnnotatedStringBuilder.MutableRange<T>
-internal typealias SpanRange = AnnotatedStringBuilder.MutableRange<SpanStyle>
-internal typealias ParagraphRange = AnnotatedStringBuilder.MutableRange<ParagraphStyle>
-internal typealias StyleList<T> = List<StyleRange<T>>
 
 abstract class RichTextValue {
 
@@ -74,6 +69,12 @@ internal class RichTextValueImpl : RichTextValue() {
 	private val currentSelection: TextRange
 		get() = (composition ?: selection).coerceNotReversed()
 
+	override val currentStyles: Set<Style>
+		get() = filterCurrentStyles(annotatedStringBuilder.spanStyles)
+			.map { Style.fromTag(it.tag) }.toSet() +
+				filterCurrentStyles(annotatedStringBuilder.paragraphStyles)
+					.map { Style.fromTag(it.tag) }.toSet()
+
 	private fun clearRedoStack() {
 		// If offset in the history is not 0 clear possible "redo" states
 		repeat(historyOffset) {
@@ -82,10 +83,13 @@ internal class RichTextValueImpl : RichTextValue() {
 		historyOffset = 0
 	}
 
-	private fun updateHistoryIfNecessary() {
+	private fun updateHistoryIfNecessary(simple: Boolean = true) {
 		currentSnapshot?.run {
 			// Add a snapshot when the style is added, but not enough text was changed to be saved
-			if (text != annotatedStringBuilder.text) {
+			if (
+				simple && text != annotatedStringBuilder.text ||
+				!simple && this.equalsStructurally(annotatedStringBuilder)
+			) {
 				updateHistory()
 			}
 		}
@@ -110,15 +114,13 @@ internal class RichTextValueImpl : RichTextValue() {
 		}
 	}
 
-	private fun <T> filterCurrentStyles(styles: StyleList<T>) = styles.filter {
-		currentSelection.intersects(TextRange(it.start, it.end))
+	private fun <T> filterCurrentStyles(styles: List<StyleRange<T>>) = styles.filter {
+		if (!currentSelection.collapsed) {
+			currentSelection.intersects(TextRange(it.start, it.end))
+		} else {
+			currentSelection.start >= it.start && currentSelection.end <= it.end
+		}
 	}
-
-	override val currentStyles: Set<Style>
-		get() = filterCurrentStyles(annotatedStringBuilder.spanStyles)
-			.map { Style.fromTag(it.tag) }.toSet() +
-				filterCurrentStyles(annotatedStringBuilder.paragraphStyles)
-					.map { Style.fromTag(it.tag) }.toSet()
 
 	private fun getCurrentSpanStyles(style: Style?) =
 		filterCurrentStyles(annotatedStringBuilder.spanStyles)
@@ -129,9 +131,9 @@ internal class RichTextValueImpl : RichTextValue() {
 			.filter { style == null || it.tag == style.tag() }
 
 	private fun <T> removeStyleFromSelection(
-		styles: StyleList<T>,
+		styles: List<StyleRange<T>>,
 		selection: TextRange = currentSelection,
-	): Pair<StyleList<T>, StyleList<T>> {
+	): Pair<List<StyleRange<T>>, List<StyleRange<T>>> {
 		if (styles.isEmpty()) {
 			return Pair(emptyList(), emptyList())
 		}
@@ -200,13 +202,17 @@ internal class RichTextValueImpl : RichTextValue() {
 		val changedStyles = spansToAdd.isNotEmpty() || spansToRemove.isNotEmpty() ||
 				paragraphsToAdd.isNotEmpty() || paragraphsToRemove.isNotEmpty()
 		if (changedStyles || (composition == null && selection.collapsed)) {
+			if (style == ClearFormat) {
+				updateHistoryIfNecessary(false)
+			}
+
 			return this
 		}
 
 		updateHistoryIfNecessary()
 
 		val spanStyle = styleMapper.toSpanStyle(style)?.let {
-			SpanRange(
+			StyleRange(
 				item = it,
 				start = currentSelection.start,
 				end = currentSelection.end,
@@ -215,7 +221,7 @@ internal class RichTextValueImpl : RichTextValue() {
 		}
 
 		val paragraphStyle = styleMapper.toParagraphStyle(style)?.let {
-			ParagraphRange(
+			StyleRange(
 				item = it,
 				start = currentSelection.start.coerceStartOfParagraph(annotatedStringBuilder.text),
 				end = currentSelection.end.coerceEndOfParagraph(annotatedStringBuilder.text),

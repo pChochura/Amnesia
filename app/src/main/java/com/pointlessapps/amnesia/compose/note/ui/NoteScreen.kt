@@ -343,11 +343,13 @@ private fun BottomBar(viewModel: NoteViewModel) {
 
 				if (showTextColorPicker) {
 					TextColorPicker(
+						recentColors = viewModel.state.recentColors,
 						onDismissListener = { showTextColorPicker = false },
 						onColorClicked = {
 							viewModel.clearStyles(Style.TextColor(null))
 							viewModel.insertStyle(Style.TextColor(it))
-						}
+						},
+						onAddToRecents = { viewModel.updateRecentColors(it) }
 					)
 				}
 			}

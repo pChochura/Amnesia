@@ -53,30 +53,54 @@ internal class AnnotatedStringBuilder {
 			return false
 		}
 
+		return updateStyles(_spanStyles, previousSelection, lengthDifference) ||
+				updateStyles(_paragraphStyles, previousSelection, lengthDifference)
+	}
+
+	private fun <T> updateStyles(
+		styles: MutableList<MutableRange<T>>,
+		previousSelection: TextRange,
+		lengthDifference: Int
+	): Boolean {
+		val removedIndexes = mutableSetOf<Int>()
+
 		var updated = false
-		val prevEnd = previousSelection.end
-		_spanStyles.forEach { style ->
+		val prevStart = previousSelection.min
+		val prevEnd = previousSelection.max
+		styles.forEachIndexed { index, style ->
 			val updateStart = style.start > prevEnd
-			val updateEnd = style.end > prevEnd
+			val updateEnd = style.end >= prevEnd
 
-			if (updateStart || updateEnd) {
-				style.start = if (updateStart) style.start + lengthDifference else style.start
-				style.end = if (updateEnd) style.end + lengthDifference else style.end
+			if (previousSelection.collapsed && (updateStart || updateEnd)) {
+				if (updateStart) style.start += lengthDifference
+				if (updateEnd) style.end += lengthDifference
+
+				updated = true
+			} else if (prevStart <= style.start && prevEnd >= style.end) {
+				// Example: som|e *Long* t|ext
+				style.start = 0
+				style.end = 0
+
+				updated = true
+			} else if (prevStart < style.start && prevEnd <= style.end && prevEnd > style.start) {
+				// Example: som|e *Tex|t*
+				style.start -= style.start - prevStart
+				style.end -= prevEnd - prevStart
+
+				updated = true
+			} else if (prevStart >= style.start && prevStart < style.end && prevEnd > style.end) {
+				// Example: some *Lo|ng* te|xt
+				style.end = prevStart
 
 				updated = true
 			}
-		}
-		_paragraphStyles.forEach { style ->
-			val updateStart = style.start > prevEnd
-			val updateEnd = style.end > prevEnd
 
-			if (updateStart || updateEnd) {
-				style.start = if (updateStart) style.start + lengthDifference else style.start
-				style.end = if (updateEnd) style.end + lengthDifference else style.end
-
-				updated = true
+			if (style.end <= style.start) {
+				removedIndexes.add(index)
 			}
 		}
+
+		removedIndexes.reversed().forEach { styles.removeAt(it) }
 
 		return updated
 	}
@@ -84,7 +108,7 @@ internal class AnnotatedStringBuilder {
 	private fun <T> collapseStyles(styles: MutableList<MutableRange<T>>) {
 		val startRangeMap = mutableMapOf<Int, Int>()
 		val endRangeMap = mutableMapOf<Int, Int>()
-		val removedIndex = mutableSetOf<Int>()
+		val removedIndexes = mutableSetOf<Int>()
 
 		styles.forEachIndexed { index, range ->
 			startRangeMap[range.start] = index
@@ -92,7 +116,7 @@ internal class AnnotatedStringBuilder {
 		}
 
 		styles.forEachIndexed { index, range ->
-			if (removedIndex.contains(index)) {
+			if (removedIndexes.contains(index)) {
 				return@forEachIndexed
 			}
 
@@ -106,7 +130,7 @@ internal class AnnotatedStringBuilder {
 					// Remove collapsed values
 					startRangeMap.remove(range.end)
 					endRangeMap.remove(range.end)
-					removedIndex.add(otherRangeIndex)
+					removedIndexes.add(otherRangeIndex)
 				}
 			}
 
@@ -118,7 +142,7 @@ internal class AnnotatedStringBuilder {
 					// Remove collapsed values
 					startRangeMap.remove(range.start)
 					endRangeMap.remove(range.start)
-					removedIndex.add(otherRangeIndex)
+					removedIndexes.add(otherRangeIndex)
 				}
 			}
 
@@ -126,7 +150,7 @@ internal class AnnotatedStringBuilder {
 			range.end = end
 		}
 
-		removedIndex.reversed().forEach { styles.removeAt(it) }
+		removedIndexes.reversed().forEach { styles.removeAt(it) }
 	}
 
 	fun toAnnotatedString() = AnnotatedString(

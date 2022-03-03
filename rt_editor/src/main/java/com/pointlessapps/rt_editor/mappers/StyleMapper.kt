@@ -11,9 +11,27 @@ import androidx.compose.ui.unit.TextUnitType
 import com.pointlessapps.rt_editor.model.Style
 
 @OptIn(ExperimentalUnitApi::class)
-class StyleMapper {
+open class StyleMapper {
 
-	fun toSpanStyle(style: Style): SpanStyle? = when (style) {
+	open fun fromTag(tag: String): Style {
+		val klass = requireNotNull(Style::class.nestedClasses.find {
+			tag.startsWith(requireNotNull(it.simpleName))
+		})
+
+		if (klass.objectInstance != null) {
+			return requireNotNull(klass.objectInstance) as Style
+		}
+
+		return when {
+			tag.startsWith(requireNotNull(Style.TextColor::class.simpleName)) ->
+				Style.TextColor.fromTag(tag)
+			tag.startsWith(requireNotNull(Style.TextSize::class.simpleName)) ->
+				Style.TextSize.fromTag(tag)
+			else -> throw IllegalArgumentException()
+		}
+	}
+
+	open fun toSpanStyle(style: Style): SpanStyle? = when (style) {
 		Style.Bold -> SpanStyle(fontWeight = FontWeight.Bold)
 		Style.Underline -> SpanStyle(textDecoration = TextDecoration.Underline)
 		Style.Italic -> SpanStyle(fontStyle = FontStyle.Italic)
@@ -28,7 +46,7 @@ class StyleMapper {
 		else -> null
 	}
 
-	fun toParagraphStyle(style: Style): ParagraphStyle? = when (style) {
+	open fun toParagraphStyle(style: Style): ParagraphStyle? = when (style) {
 		Style.AlignLeft -> TODO()
 		Style.AlignCenter -> TODO()
 		Style.AlignRight -> TODO()

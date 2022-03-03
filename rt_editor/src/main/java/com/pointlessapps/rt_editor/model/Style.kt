@@ -3,15 +3,21 @@ package com.pointlessapps.rt_editor.model
 import androidx.annotation.FloatRange
 import androidx.compose.ui.graphics.Color
 
-sealed interface Style {
+interface Style {
+
+	object ClearFormat : Style
+
+	object OrderedList : Style
+	object UnorderedList : Style
+	object AlignLeft : Style
+	object AlignCenter : Style
+	object AlignRight : Style
+
 	object Bold : Style
 	object Underline : Style
 	object Italic : Style
-	object UnorderedList : Style {
-		const val BULLET_CHARACTER = " ●\t"
-	}
-	object OrderedList : Style
-	object ClearFormat : Style
+	object Strikethrough : Style
+
 	class TextColor(val color: Color? = null) : Style {
 		override fun tag(simple: Boolean) = if (simple) {
 			super.tag(simple)
@@ -57,28 +63,5 @@ sealed interface Style {
 		}
 	}
 
-	object AlignLeft : Style
-	object AlignCenter : Style
-	object AlignRight : Style
-	object Strikethrough : Style
-
 	fun tag(simple: Boolean = false): String = javaClass.simpleName
-
-	companion object {
-		fun fromTag(tag: String): Style {
-			val klass = requireNotNull(Style::class.sealedSubclasses.find {
-				tag.startsWith(requireNotNull(it.simpleName))
-			})
-
-			if (klass.simpleName == tag) {
-				return requireNotNull(klass.objectInstance)
-			}
-
-			return when {
-				tag.startsWith(requireNotNull(TextColor::class.simpleName)) -> TextColor.fromTag(tag)
-				tag.startsWith(requireNotNull(TextSize::class.simpleName)) -> TextSize.fromTag(tag)
-				else -> throw IllegalArgumentException()
-			}
-		}
-	}
 }

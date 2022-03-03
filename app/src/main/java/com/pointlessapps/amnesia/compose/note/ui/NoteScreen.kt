@@ -23,6 +23,7 @@ import androidx.compose.ui.focus.FocusRequester
 import androidx.compose.ui.focus.focusRequester
 import androidx.compose.ui.focus.onFocusChanged
 import androidx.compose.ui.graphics.Color
+import androidx.compose.ui.input.pointer.pointerInput
 import androidx.compose.ui.platform.LocalTextInputService
 import androidx.compose.ui.res.dimensionResource
 import androidx.compose.ui.res.stringResource
@@ -54,7 +55,7 @@ fun NoteScreen(
 	}
 
 	AmnesiaScaffoldLayout(
-		topBar = { TopBar(viewModel) },
+		topBar = { TopBar(viewModel, isUndoRedoAvailable = showBottomBar) },
 		fab = {
 			AnimatedVisibility(showBottomBar, enter = fadeIn(), exit = fadeOut()) {
 				BottomBar(viewModel)
@@ -144,7 +145,7 @@ fun NoteScreen(
 }
 
 @Composable
-private fun TopBar(viewModel: NoteViewModel) {
+private fun TopBar(viewModel: NoteViewModel, isUndoRedoAvailable: Boolean) {
 	ConstraintLayout(
 		modifier = Modifier
 			.wrapContentSize()
@@ -152,10 +153,10 @@ private fun TopBar(viewModel: NoteViewModel) {
 			.statusBarsPadding()
 			.fillMaxWidth()
 			.padding(horizontal = dimensionResource(id = R.dimen.medium_padding))
+			.pointerInput(Unit) { /* no-op */ }
 	) {
-		val dp8 = dimensionResource(id = R.dimen.small_padding)
 		val dp16 = dimensionResource(id = R.dimen.medium_padding)
-		val (menuButton, undoButton, redoButton, doneButton) = createRefs()
+		val (menuButton, undoRedoButtons, doneButton) = createRefs()
 
 		AmnesiaTooltipWrapper(
 			modifier = Modifier.constrainAs(menuButton) {
@@ -173,46 +174,53 @@ private fun TopBar(viewModel: NoteViewModel) {
 			)
 		}
 
-		AmnesiaTooltipWrapper(
-			modifier = Modifier.constrainAs(undoButton) {
-				centerVerticallyTo(parent)
-				end.linkTo(redoButton.start, margin = dp8)
-			},
-			enabled = viewModel.state.content.isUndoAvailable,
-			tooltip = stringResource(R.string.undo),
-			onClick = viewModel::onUndoClicked
-		) {
-			Icons.Undo(
-				modifier = Modifier
-					.padding(dimensionResource(id = R.dimen.tiny_padding))
-					.size(dimensionResource(id = R.dimen.icon_size)),
-				tint = if (viewModel.state.content.isUndoAvailable) {
-					MaterialTheme.colors.secondary
-				} else {
-					MaterialTheme.colors.primaryVariant
-				}
-			)
-		}
-
-		AmnesiaTooltipWrapper(
-			modifier = Modifier.constrainAs(redoButton) {
+		AnimatedVisibility(
+			modifier = Modifier.constrainAs(undoRedoButtons) {
 				centerVerticallyTo(parent)
 				end.linkTo(doneButton.start, margin = dp16)
 			},
-			enabled = viewModel.state.content.isRedoAvailable,
-			tooltip = stringResource(R.string.redo),
-			onClick = viewModel::onRedoClicked
+			visible = isUndoRedoAvailable,
+			enter = fadeIn(),
+			exit = fadeOut()
 		) {
-			Icons.Redo(
-				modifier = Modifier
-					.padding(dimensionResource(id = R.dimen.tiny_padding))
-					.size(dimensionResource(id = R.dimen.icon_size)),
-				tint = if (viewModel.state.content.isRedoAvailable) {
-					MaterialTheme.colors.secondary
-				} else {
-					MaterialTheme.colors.primaryVariant
+			Row(
+				verticalAlignment = Alignment.CenterVertically,
+				horizontalArrangement = Arrangement.spacedBy(dimensionResource(id = R.dimen.small_padding))
+			) {
+				AmnesiaTooltipWrapper(
+					enabled = viewModel.state.content.isUndoAvailable,
+					tooltip = stringResource(R.string.undo),
+					onClick = viewModel::onUndoClicked
+				) {
+					Icons.Undo(
+						modifier = Modifier
+							.padding(dimensionResource(id = R.dimen.tiny_padding))
+							.size(dimensionResource(id = R.dimen.icon_size)),
+						tint = if (viewModel.state.content.isUndoAvailable) {
+							MaterialTheme.colors.secondary
+						} else {
+							MaterialTheme.colors.primaryVariant
+						}
+					)
 				}
-			)
+
+				AmnesiaTooltipWrapper(
+					enabled = viewModel.state.content.isRedoAvailable,
+					tooltip = stringResource(R.string.redo),
+					onClick = viewModel::onRedoClicked
+				) {
+					Icons.Redo(
+						modifier = Modifier
+							.padding(dimensionResource(id = R.dimen.tiny_padding))
+							.size(dimensionResource(id = R.dimen.icon_size)),
+						tint = if (viewModel.state.content.isRedoAvailable) {
+							MaterialTheme.colors.secondary
+						} else {
+							MaterialTheme.colors.primaryVariant
+						}
+					)
+				}
+			}
 		}
 
 		AmnesiaTooltipWrapper(
@@ -237,129 +245,134 @@ private fun TopBar(viewModel: NoteViewModel) {
 
 @Composable
 private fun BottomBar(viewModel: NoteViewModel) {
-	LazyRow(
+	Box(
 		modifier = Modifier
 			.fillMaxWidth()
 			.padding(dimensionResource(id = R.dimen.medium_padding))
 			.padding(bottom = dimensionResource(id = R.dimen.medium_padding))
 			.navigationBarsPadding()
-			.imePadding()
-			.clip(MaterialTheme.shapes.medium)
-			.background(MaterialTheme.colors.secondary),
-		contentPadding = PaddingValues(dimensionResource(id = R.dimen.small_padding)),
-		horizontalArrangement = Arrangement.spacedBy(
-			dimensionResource(id = R.dimen.small_padding),
-			Alignment.CenterHorizontally
-		),
-		verticalAlignment = Alignment.CenterVertically
+			.imePadding(),
+		contentAlignment = Alignment.Center,
 	) {
-		item {
-			BottomBarIcon(
-				tooltip = R.string.bold,
-				icon = R.drawable.icon_bold,
-				selected = viewModel.state.content.currentStyles.contains(Style.Bold)
-			) { viewModel.insertStyle(Style.Bold) }
-		}
-		item {
-			BottomBarIcon(
-				tooltip = R.string.underline,
-				icon = R.drawable.icon_underline,
-				selected = viewModel.state.content.currentStyles.contains(Style.Underline)
-			) { viewModel.insertStyle(Style.Underline) }
-		}
-		item {
-			BottomBarIcon(
-				tooltip = R.string.italic,
-				icon = R.drawable.icon_italic,
-				selected = viewModel.state.content.currentStyles.contains(Style.Italic)
-			) { viewModel.insertStyle(Style.Italic) }
-		}
-		item {
-			BottomBarIcon(
-				tooltip = R.string.strikethrough,
-				icon = R.drawable.icon_strikethrough,
-				selected = viewModel.state.content.currentStyles.contains(Style.Strikethrough)
-			) { viewModel.insertStyle(Style.Strikethrough) }
-		}
-		item {
-			Box {
-				var showTextSizePicker by remember { mutableStateOf(false) }
-				var currentValue by remember { mutableStateOf(Style.TextSize.DEFAULT_VALUE) }
+		LazyRow(
+			modifier = Modifier
+				.clip(MaterialTheme.shapes.medium)
+				.background(MaterialTheme.colors.secondary),
+			contentPadding = PaddingValues(dimensionResource(id = R.dimen.small_padding)),
+			horizontalArrangement = Arrangement.spacedBy(
+				dimensionResource(id = R.dimen.small_padding),
+				Alignment.CenterHorizontally
+			),
+			verticalAlignment = Alignment.CenterVertically
+		) {
+			item {
 				BottomBarIcon(
-					tooltip = R.string.text_size,
-					icon = R.drawable.icon_text_size,
-					selected = viewModel.state.content.currentStyles
-						.filterIsInstance<Style.TextSize>().isNotEmpty()
-				) {
-					currentValue =
-						viewModel.state.content.currentStyles
-							.filterIsInstance<Style.TextSize>()
-							.firstOrNull()
-							?.fraction ?: Style.TextSize.DEFAULT_VALUE
-					showTextSizePicker = true
-				}
+					tooltip = R.string.bold,
+					icon = R.drawable.icon_bold,
+					selected = viewModel.state.content.currentStyles.contains(Style.Bold)
+				) { viewModel.insertStyle(Style.Bold) }
+			}
+			item {
+				BottomBarIcon(
+					tooltip = R.string.underline,
+					icon = R.drawable.icon_underline,
+					selected = viewModel.state.content.currentStyles.contains(Style.Underline)
+				) { viewModel.insertStyle(Style.Underline) }
+			}
+			item {
+				BottomBarIcon(
+					tooltip = R.string.italic,
+					icon = R.drawable.icon_italic,
+					selected = viewModel.state.content.currentStyles.contains(Style.Italic)
+				) { viewModel.insertStyle(Style.Italic) }
+			}
+			item {
+				BottomBarIcon(
+					tooltip = R.string.strikethrough,
+					icon = R.drawable.icon_strikethrough,
+					selected = viewModel.state.content.currentStyles.contains(Style.Strikethrough)
+				) { viewModel.insertStyle(Style.Strikethrough) }
+			}
+			item {
+				Box {
+					var showTextSizePicker by remember { mutableStateOf(false) }
+					var currentValue by remember { mutableStateOf(Style.TextSize.DEFAULT_VALUE) }
+					BottomBarIcon(
+						tooltip = R.string.text_size,
+						icon = R.drawable.icon_text_size,
+						selected = viewModel.state.content.currentStyles
+							.filterIsInstance<Style.TextSize>().isNotEmpty()
+					) {
+						currentValue =
+							viewModel.state.content.currentStyles
+								.filterIsInstance<Style.TextSize>()
+								.firstOrNull()
+								?.fraction ?: Style.TextSize.DEFAULT_VALUE
+						showTextSizePicker = true
+					}
 
-				if (showTextSizePicker) {
-					TextSizePicker(
-						currentValue = currentValue,
-						onDismissListener = { showTextSizePicker = false },
-						onMinusClicked = onMinusClicked@{
-							if (currentValue <= Style.TextSize.MIN_VALUE) {
-								return@onMinusClicked
-							}
+					if (showTextSizePicker) {
+						TextSizePicker(
+							currentValue = currentValue,
+							onDismissListener = { showTextSizePicker = false },
+							onMinusClicked = onMinusClicked@{
+								if (currentValue <= Style.TextSize.MIN_VALUE) {
+									return@onMinusClicked
+								}
 
-							viewModel.clearStyles(Style.TextSize())
-							currentValue = currentValue.decrement(Style.TextSize.INCREMENT)
-							if (currentValue != Style.TextSize.DEFAULT_VALUE) {
-								viewModel.insertStyle(Style.TextSize(currentValue))
-							}
-						},
-						onPlusClicked = onPlusClicked@{
-							if (currentValue >= Style.TextSize.MAX_VALUE) {
-								return@onPlusClicked
-							}
+								viewModel.clearStyles(Style.TextSize())
+								currentValue = currentValue.decrement(Style.TextSize.INCREMENT)
+								if (currentValue != Style.TextSize.DEFAULT_VALUE) {
+									viewModel.insertStyle(Style.TextSize(currentValue))
+								}
+							},
+							onPlusClicked = onPlusClicked@{
+								if (currentValue >= Style.TextSize.MAX_VALUE) {
+									return@onPlusClicked
+								}
 
-							viewModel.clearStyles(Style.TextSize())
-							currentValue = currentValue.increment(Style.TextSize.INCREMENT)
-							if (currentValue != Style.TextSize.DEFAULT_VALUE) {
-								viewModel.insertStyle(Style.TextSize(currentValue))
+								viewModel.clearStyles(Style.TextSize())
+								currentValue = currentValue.increment(Style.TextSize.INCREMENT)
+								if (currentValue != Style.TextSize.DEFAULT_VALUE) {
+									viewModel.insertStyle(Style.TextSize(currentValue))
+								}
 							}
-						}
-					)
+						)
+					}
 				}
 			}
-		}
-		item {
-			Box {
-				var showTextColorPicker by remember { mutableStateOf(false) }
-				BottomBarIcon(
-					tooltip = R.string.text_color,
-					icon = R.drawable.icon_circle,
-					selected = viewModel.state.content.currentStyles
-						.filterIsInstance<Style.TextColor>().isNotEmpty()
-				) {
-					showTextColorPicker = true
-				}
+			item {
+				Box {
+					var showTextColorPicker by remember { mutableStateOf(false) }
+					BottomBarIcon(
+						tooltip = R.string.text_color,
+						icon = R.drawable.icon_circle,
+						selected = viewModel.state.content.currentStyles
+							.filterIsInstance<Style.TextColor>().isNotEmpty()
+					) {
+						showTextColorPicker = true
+					}
 
-				if (showTextColorPicker) {
-					TextColorPicker(
-						recentColors = viewModel.state.recentColors,
-						onDismissListener = { showTextColorPicker = false },
-						onColorClicked = {
-							viewModel.clearStyles(Style.TextColor(null))
-							viewModel.insertStyle(Style.TextColor(it))
-						},
-						onAddToRecents = { viewModel.updateRecentColors(it) }
-					)
+					if (showTextColorPicker) {
+						TextColorPicker(
+							recentColors = viewModel.state.recentColors,
+							onDismissListener = { showTextColorPicker = false },
+							onColorClicked = {
+								viewModel.clearStyles(Style.TextColor(null))
+								viewModel.insertStyle(Style.TextColor(it))
+							},
+							onAddToRecents = { viewModel.updateRecentColors(it) }
+						)
+					}
 				}
 			}
-		}
-		item {
-			BottomBarIcon(
-				tooltip = R.string.clear_format,
-				icon = R.drawable.icon_format_clear,
-				selected = true
-			) { viewModel.insertStyle(Style.ClearFormat) }
+			item {
+				BottomBarIcon(
+					tooltip = R.string.clear_format,
+					icon = R.drawable.icon_format_clear,
+					selected = true
+				) { viewModel.insertStyle(Style.ClearFormat) }
+			}
 		}
 	}
 }

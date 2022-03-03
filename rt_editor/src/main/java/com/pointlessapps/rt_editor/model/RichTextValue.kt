@@ -28,14 +28,13 @@ abstract class RichTextValue {
 		// Indicates minimum length difference to add a new snapshot to the history stack
 		internal const val MIN_LENGTH_DIFFERENCE = 10
 
-		fun get(): RichTextValue = RichTextValueImpl()
+		fun get(styleMapper: StyleMapper = StyleMapper()): RichTextValue =
+			RichTextValueImpl(styleMapper)
 	}
 }
 
 @OptIn(ExperimentalUnitApi::class)
-internal class RichTextValueImpl : RichTextValue() {
-
-	private val styleMapper = StyleMapper()
+internal class RichTextValueImpl(private val styleMapper: StyleMapper) : RichTextValue() {
 
 	private val annotatedStringBuilder = AnnotatedStringBuilder()
 	private var selection: TextRange = TextRange.Zero
@@ -71,9 +70,9 @@ internal class RichTextValueImpl : RichTextValue() {
 
 	override val currentStyles: Set<Style>
 		get() = filterCurrentStyles(annotatedStringBuilder.spanStyles)
-			.map { Style.fromTag(it.tag) }.toSet() +
+			.map { styleMapper.fromTag(it.tag) }.toSet() +
 				filterCurrentStyles(annotatedStringBuilder.paragraphStyles)
-					.map { Style.fromTag(it.tag) }.toSet()
+					.map { styleMapper.fromTag(it.tag) }.toSet()
 
 	private fun clearRedoStack() {
 		// If offset in the history is not 0 clear possible "redo" states
@@ -83,13 +82,10 @@ internal class RichTextValueImpl : RichTextValue() {
 		historyOffset = 0
 	}
 
-	private fun updateHistoryIfNecessary(simple: Boolean = true) {
+	private fun updateHistoryIfNecessary() {
 		currentSnapshot?.run {
 			// Add a snapshot when the style is added, but not enough text was changed to be saved
-			if (
-				simple && text != annotatedStringBuilder.text ||
-				!simple && this.equalsStructurally(annotatedStringBuilder)
-			) {
+			if (text != annotatedStringBuilder.text) {
 				updateHistory()
 			}
 		}
@@ -100,7 +96,7 @@ internal class RichTextValueImpl : RichTextValue() {
 
 		historySnapshots.add(
 			RichTextValueSnapshot.fromAnnotatedStringBuilder(
-				annotatedStringBuilder,
+				annotatedStringBuilder = annotatedStringBuilder,
 				selectionPosition = selection.start
 			)
 		)
@@ -108,18 +104,14 @@ internal class RichTextValueImpl : RichTextValue() {
 
 	private fun restoreFromHistory() {
 		currentSnapshot?.run {
-			annotatedStringBuilder.update(toAnnotatedStringBuilder())
+			annotatedStringBuilder.update(toAnnotatedStringBuilder(styleMapper))
 			selection = TextRange(selectionPosition)
 			composition = null
 		}
 	}
 
 	private fun <T> filterCurrentStyles(styles: List<StyleRange<T>>) = styles.filter {
-		if (!currentSelection.collapsed) {
-			currentSelection.intersects(TextRange(it.start, it.end))
-		} else {
-			currentSelection.start >= it.start && currentSelection.end <= it.end
-		}
+		!currentSelection.collapsed && currentSelection.intersects(TextRange(it.start, it.end))
 	}
 
 	private fun getCurrentSpanStyles(style: Style?) =
@@ -194,18 +186,21 @@ internal class RichTextValueImpl : RichTextValue() {
 			getCurrentParagraphStyles(style.takeUnless { it == ClearFormat })
 		)
 
-		annotatedStringBuilder.addSpans(*spansToAdd.toTypedArray())
-		annotatedStringBuilder.removeSpans(*spansToRemove.toTypedArray())
-		annotatedStringBuilder.addParagraphs(*paragraphsToAdd.toTypedArray())
-		annotatedStringBuilder.removeParagraphs(*paragraphsToRemove.toTypedArray())
-
 		val changedStyles = spansToAdd.isNotEmpty() || spansToRemove.isNotEmpty() ||
 				paragraphsToAdd.isNotEmpty() || paragraphsToRemove.isNotEmpty()
-		if (changedStyles || (composition == null && selection.collapsed)) {
-			if (style == ClearFormat) {
-				updateHistoryIfNecessary(false)
-			}
 
+		if (changedStyles) {
+			updateHistory()
+
+			annotatedStringBuilder.addSpans(*spansToAdd.toTypedArray())
+			annotatedStringBuilder.removeSpans(*spansToRemove.toTypedArray())
+			annotatedStringBuilder.addParagraphs(*paragraphsToAdd.toTypedArray())
+			annotatedStringBuilder.removeParagraphs(*paragraphsToRemove.toTypedArray())
+
+			updateHistory()
+
+			return this
+		} else if (style == ClearFormat || (composition == null && selection.collapsed)) {
 			return this
 		}
 

@@ -3,6 +3,7 @@ package com.pointlessapps.amnesia
 import android.os.Bundle
 import androidx.activity.ComponentActivity
 import androidx.activity.compose.setContent
+import androidx.compose.animation.ExperimentalAnimationApi
 import androidx.compose.foundation.layout.fillMaxSize
 import androidx.compose.foundation.text.selection.LocalTextSelectionColors
 import androidx.compose.foundation.text.selection.TextSelectionColors
@@ -12,16 +13,12 @@ import androidx.compose.runtime.Composable
 import androidx.compose.runtime.CompositionLocalProvider
 import androidx.compose.ui.Modifier
 import androidx.core.view.WindowCompat
-import androidx.navigation.NavHostController
-import androidx.navigation.compose.NavHost
-import androidx.navigation.compose.composable
-import androidx.navigation.compose.rememberNavController
 import com.google.accompanist.insets.ProvideWindowInsets
 import com.pointlessapps.amnesia.compose.home.ui.HomeScreen
 import com.pointlessapps.amnesia.compose.note.ui.NoteScreen
-import com.pointlessapps.amnesia.compose.ui.theme.HOME_ROUTE
-import com.pointlessapps.amnesia.compose.ui.theme.NEW_NOTE_ROUTE
 import com.pointlessapps.amnesia.compose.ui.theme.AmnesiaTheme
+import com.pointlessapps.amnesia.compose.ui.theme.Route
+import dev.olshevski.navigation.reimagined.*
 
 class MainActivity : ComponentActivity() {
 
@@ -53,21 +50,23 @@ class MainActivity : ComponentActivity() {
 		}
 	}
 
-
+	@OptIn(ExperimentalAnimationApi::class)
 	@Composable
-	private fun NavHost(navController: NavHostController = rememberNavController()) = NavHost(
-		navController = navController,
-		startDestination = HOME_ROUTE
+	private fun NavHost(
+		navController: NavController<Route> = rememberNavController(
+			startDestination = Route.Home
+		),
 	) {
-		composable(HOME_ROUTE) {
-			HomeScreen(
-				onNavigateToNoteClicked = {
-					navController.navigate(NEW_NOTE_ROUTE)
-				}
-			)
-		}
-		composable(NEW_NOTE_ROUTE) {
-			NoteScreen()
+		NavBackHandler(navController = navController)
+		AnimatedNavHost(controller = navController) {
+			when (it) {
+				Route.Home -> HomeScreen(
+					onNavigateToNoteClicked = {
+						navController.navigate(Route.NewNote)
+					}
+				)
+				Route.NewNote -> NoteScreen()
+			}
 		}
 	}
 }

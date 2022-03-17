@@ -14,70 +14,70 @@ import androidx.compose.ui.graphics.Color as ComposeColor
 
 class NoteViewModel : ViewModel() {
 
-	var state: State by mutableStateOf(State(), policy = neverEqualPolicy())
-		private set
+    var state by mutableStateOf(State(), policy = neverEqualPolicy())
+        private set
 
-	fun onTitleChanged(value: TextFieldValue) {
-		state = state.copy(
-			title = value
-		)
-	}
+    fun onTitleChanged(value: TextFieldValue) {
+        state = state.copy(
+            title = value
+        )
+    }
 
-	fun onContentChanged(value: RichTextValue) {
-		state = state.copy(
-			content = value
-		)
-	}
+    fun onContentChanged(value: RichTextValue) {
+        state = state.copy(
+            content = value
+        )
+    }
 
-	fun onCategoryRemoved(value: Category) {
-		state = state.copy(
-			categories = state.categories.filterNot { it === value }
-		)
-	}
+    fun onCategoryRemoved(value: Category) {
+        state = state.copy(
+            categories = state.categories.filterNot { it === value }
+        )
+    }
 
-	fun onCategoryAdded(value: Category = Category("Test category", Color.parseColor("#FBCCCC"))) {
-		state = state.copy(
-			categories = listOf(*state.categories.toTypedArray(), value)
-		)
-	}
+    fun onCategoryAdded(value: Category = Category("Test category", Color.parseColor("#FBCCCC"))) {
+        state = state.copy(
+            categories = listOf(*state.categories.toTypedArray(), value)
+        )
+    }
 
-	fun insertStyle(style: Style) {
-		state = state.copy(
-			content = state.content.insertStyle(style)
-		)
-	}
+    fun insertStyle(style: Style) {
+        state = state.copy(
+            content = state.content.insertStyle(style)
+        )
+    }
 
-	fun clearStyles(vararg style: Style) {
-		state = state.copy(
-			content = state.content.clearStyles(*style)
-		)
-	}
+    fun clearStyles(vararg style: Style) {
+        state = state.copy(
+            content = state.content.clearStyles(*style)
+        )
+    }
 
-	fun onUndoClicked() {
-		state = state.copy(
-			content = state.content.undo()
-		)
-	}
+    fun onUndoClicked() {
+        state = state.copy(
+            content = state.content.undo()
+        )
+    }
 
-	fun onRedoClicked() {
-		state = state.copy(
-			content = state.content.redo()
-		)
-	}
+    fun onRedoClicked() {
+        state = state.copy(
+            content = state.content.redo()
+        )
+    }
 
-	fun updateRecentColors(color: ComposeColor) {
-		state = state.copy(
-			recentColors = listOf(
-				color,
-				*state.recentColors.take(2).toTypedArray()
-			)
-		)
-	}
+    fun updateRecentColors(color: ComposeColor) {
+        state = state.copy(
+            recentColors = listOf(
+                color,
+                *state.recentColors.take(2).toTypedArray()
+            )
+        )
+    }
 }
 
 data class State(
-	val title: TextFieldValue = TextFieldValue(),
-	val content: RichTextValue = RichTextValue.get(),
-	val categories: List<Category> = emptyList(),
-	val recentColors: List<ComposeColor> = emptyList(),
+    val title: TextFieldValue = TextFieldValue(),
+    val content: RichTextValue = RichTextValue.get(),
+    val categories: List<Category> = emptyList(),
+    val recentColors: List<ComposeColor> = emptyList(),
 )

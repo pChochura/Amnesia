@@ -27,63 +27,63 @@ import com.pointlessapps.rt_editor.model.Style
 
 @Composable
 fun TextSizePicker(
-	@FloatRange(from = Style.TextSize.MIN_VALUE, to = Style.TextSize.MAX_VALUE) currentValue: Float,
-	onDismissListener: () -> Unit,
-	onMinusClicked: () -> Unit,
-	onPlusClicked: () -> Unit
+    @FloatRange(from = Style.TextSize.MIN_VALUE, to = Style.TextSize.MAX_VALUE) currentValue: Float,
+    onDismissListener: () -> Unit,
+    onMinusClicked: () -> Unit,
+    onPlusClicked: () -> Unit
 ) {
-	Popup(
-		onDismissRequest = onDismissListener,
-		popupPositionProvider = AbovePositionProvider(
-			IntOffset(
-				x = 0,
-				y = -dimensionResource(id = R.dimen.medium_padding).roundToPx()
-			)
-		),
-		properties = PopupProperties(),
-	) {
-		Row(
-			modifier = Modifier
-				.clip(MaterialTheme.shapes.medium)
-				.background(MaterialTheme.colors.secondary)
-				.padding(dimensionResource(id = R.dimen.small_padding)),
-			verticalAlignment = Alignment.CenterVertically,
-			horizontalArrangement = Arrangement.spacedBy(dimensionResource(id = R.dimen.small_padding))
-		) {
-			Icons.Minus(
-				modifier = Modifier
-					.padding(dimensionResource(id = R.dimen.tiny_padding))
-					.size(dimensionResource(id = R.dimen.icon_size))
-					.clickable(
-						onClick = onMinusClicked,
-						role = Role.Button,
-					),
-				tint = if (currentValue > Style.TextSize.MIN_VALUE) {
-					MaterialTheme.colors.onSecondary
-				} else {
-					MaterialTheme.colors.secondaryVariant
-				}
-			)
-			Text(
-				text = currentValue.toPercent(),
-				style = MaterialTheme.typography.h2.copy(
-					color = MaterialTheme.colors.onSecondary
-				)
-			)
-			Icons.Plus(
-				modifier = Modifier
-					.padding(dimensionResource(id = R.dimen.tiny_padding))
-					.size(dimensionResource(id = R.dimen.icon_size))
-					.clickable(
-						onClick = onPlusClicked,
-						role = Role.Button,
-					),
-				tint = if (currentValue < Style.TextSize.MAX_VALUE) {
-					MaterialTheme.colors.onSecondary
-				} else {
-					MaterialTheme.colors.secondaryVariant
-				}
-			)
-		}
-	}
+    Popup(
+        onDismissRequest = onDismissListener,
+        popupPositionProvider = AbovePositionProvider(
+            IntOffset(
+                x = 0,
+                y = -dimensionResource(id = R.dimen.medium_padding).roundToPx()
+            )
+        ),
+        properties = PopupProperties(),
+    ) {
+        Row(
+            modifier = Modifier
+                .clip(MaterialTheme.shapes.medium)
+                .background(MaterialTheme.colors.secondary)
+                .padding(dimensionResource(id = R.dimen.small_padding)),
+            verticalAlignment = Alignment.CenterVertically,
+            horizontalArrangement = Arrangement.spacedBy(dimensionResource(id = R.dimen.small_padding))
+        ) {
+            Icons.Minus(
+                modifier = Modifier
+                    .padding(dimensionResource(id = R.dimen.tiny_padding))
+                    .size(dimensionResource(id = R.dimen.icon_size))
+                    .clickable(
+                        onClick = onMinusClicked,
+                        role = Role.Button,
+                    ),
+                tint = if (currentValue > Style.TextSize.MIN_VALUE) {
+                    MaterialTheme.colors.onSecondary
+                } else {
+                    MaterialTheme.colors.secondaryVariant
+                }
+            )
+            Text(
+                text = currentValue.toPercent(),
+                style = MaterialTheme.typography.h2.copy(
+                    color = MaterialTheme.colors.onSecondary
+                )
+            )
+            Icons.Plus(
+                modifier = Modifier
+                    .padding(dimensionResource(id = R.dimen.tiny_padding))
+                    .size(dimensionResource(id = R.dimen.icon_size))
+                    .clickable(
+                        onClick = onPlusClicked,
+                        role = Role.Button,
+                    ),
+                tint = if (currentValue < Style.TextSize.MAX_VALUE) {
+                    MaterialTheme.colors.onSecondary
+                } else {
+                    MaterialTheme.colors.secondaryVariant
+                }
+            )
+        }
+    }
 }

@@ -10,28 +10,28 @@ import androidx.compose.ui.input.pointer.consumePositionChange
 import androidx.compose.ui.input.pointer.pointerInput
 
 fun Modifier.conditional(
-	predicate: () -> Boolean,
-	then: Modifier.() -> Modifier
+    predicate: () -> Boolean,
+    then: Modifier.() -> Modifier
 ) = if (predicate()) {
-	then()
+    then()
 } else {
-	this
+    this
 }
 
 fun Modifier.onMove(
-	onMoved: AwaitPointerEventScope.(Offset) -> Unit,
-	onDown: AwaitPointerEventScope.(Offset) -> Unit = { onMoved(it) },
-	onUp: AwaitPointerEventScope.(Offset) -> Unit = { onMoved(it) }
+    onMoved: AwaitPointerEventScope.(Offset) -> Unit,
+    onDown: AwaitPointerEventScope.(Offset) -> Unit = { onMoved(it) },
+    onUp: AwaitPointerEventScope.(Offset) -> Unit = { onMoved(it) }
 ) = pointerInput(Unit) {
-	forEachGesture {
-		awaitPointerEventScope {
-			val down = awaitFirstDown()
-			onDown(down.position)
-			drag(down.id) { change ->
-				change.consumePositionChange()
-				onMoved(change.position)
-			}
-			onUp(down.position)
-		}
-	}
+    forEachGesture {
+        awaitPointerEventScope {
+            val down = awaitFirstDown()
+            onDown(down.position)
+            drag(down.id) { change ->
+                change.consumePositionChange()
+                onMoved(change.position)
+            }
+            onUp(down.position)
+        }
+    }
 }

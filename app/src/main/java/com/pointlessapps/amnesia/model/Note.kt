@@ -6,11 +6,11 @@ import java.util.*
 
 @Parcelize
 data class Note(
-	val id: Long = UUID.randomUUID().mostSignificantBits,
-	val title: String?,
-	val content: String,
-	val createdAt: String,
-	val updatedAt: String,
-	val categories: Set<Category>,
-	val isPinned: Boolean,
+    val id: Long = UUID.randomUUID().mostSignificantBits,
+    val title: String?,
+    val content: String,
+    val createdAt: String,
+    val updatedAt: String,
+    val categories: Set<Category>,
+    val isPinned: Boolean,
 ) : Parcelable

@@ -26,72 +26,72 @@ import com.pointlessapps.tooltip.Tooltip
 @OptIn(ExperimentalFoundationApi::class)
 @Composable
 fun AmnesiaTooltipWrapper(
-	modifier: Modifier = Modifier,
-	tooltipModel: AmnesiaTooltipModel = defaultAmnesiaTooltipModel(),
-	enabled: Boolean = true,
-	tooltip: String,
-	onClick: () -> Unit,
-	content: @Composable BoxScope.() -> Unit
+    modifier: Modifier = Modifier,
+    tooltipModel: AmnesiaTooltipModel = defaultAmnesiaTooltipModel(),
+    enabled: Boolean = true,
+    tooltip: String,
+    onClick: () -> Unit,
+    content: @Composable BoxScope.() -> Unit
 ) {
-	Box(
-		modifier = modifier,
-		contentAlignment = Alignment.Center
-	) {
-		val showTooltip = remember { mutableStateOf(false) }
-		Box(
-			modifier = Modifier
-				.combinedClickable(
-					enabled = enabled,
-					interactionSource = remember { MutableInteractionSource() },
-					indication = rememberRipple(
-						bounded = false,
-						color = tooltipModel.buttonRippleColor
-					),
-					onClickLabel = tooltip,
-					role = Role.Button,
-					onClick = onClick,
-					onLongClick = { showTooltip.value = true },
-				),
-			contentAlignment = Alignment.Center
-		) {
-			content()
-		}
+    Box(
+        modifier = modifier,
+        contentAlignment = Alignment.Center
+    ) {
+        val showTooltip = remember { mutableStateOf(false) }
+        Box(
+            modifier = Modifier
+                .combinedClickable(
+                    enabled = enabled,
+                    interactionSource = remember { MutableInteractionSource() },
+                    indication = rememberRipple(
+                        bounded = false,
+                        color = tooltipModel.buttonRippleColor
+                    ),
+                    onClickLabel = tooltip,
+                    role = Role.Button,
+                    onClick = onClick,
+                    onLongClick = { showTooltip.value = true },
+                ),
+            contentAlignment = Alignment.Center
+        ) {
+            content()
+        }
 
-		Tooltip(
-			expanded = showTooltip,
-			backgroundColor = tooltipModel.backgroundColor,
-			shape = tooltipModel.shape,
-			modifier = Modifier.padding(
-				vertical = tooltipModel.verticalPadding,
-				horizontal = tooltipModel.horizontalPadding
-			)
-		) {
-			Text(
-				text = tooltip,
-				style = tooltipModel.textStyle,
-			)
-		}
-	}
+        Tooltip(
+            expanded = showTooltip,
+            backgroundColor = tooltipModel.backgroundColor,
+            shape = tooltipModel.shape,
+            modifier = Modifier.padding(
+                vertical = tooltipModel.verticalPadding,
+                horizontal = tooltipModel.horizontalPadding
+            )
+        ) {
+            Text(
+                text = tooltip,
+                style = tooltipModel.textStyle,
+            )
+        }
+    }
 }
 
 @Composable
 fun defaultAmnesiaTooltipModel() = AmnesiaTooltipModel(
-	buttonRippleColor = Color.Unspecified,
-	backgroundColor = MaterialTheme.colors.secondary,
-	textStyle = MaterialTheme.typography.button.copy(
-		color = MaterialTheme.colors.onSecondary
-	),
-	shape = MaterialTheme.shapes.medium,
-	verticalPadding = dimensionResource(id = R.dimen.chip_padding_vertical),
-	horizontalPadding = dimensionResource(id = R.dimen.chip_padding_horizontal)
+    buttonRippleColor = Color.Unspecified,
+    backgroundColor = MaterialTheme.colors.secondary,
+    textStyle = MaterialTheme.typography.button.copy(
+        color = MaterialTheme.colors.onSecondary
+    ),
+    shape = MaterialTheme.shapes.medium,
+    verticalPadding = dimensionResource(id = R.dimen.chip_padding_vertical),
+    horizontalPadding = dimensionResource(id = R.dimen.chip_padding_horizontal)
 )
 
 data class AmnesiaTooltipModel(
-	val buttonRippleColor: Color,
-	val backgroundColor: Color,
-	val textStyle: TextStyle,
-	val shape: Shape,
-	val verticalPadding: Dp,
-	val horizontalPadding: Dp
+    val buttonRippleColor: Color,
+    val backgroundColor: Color,
+    val textStyle: TextStyle,
+    val shape: Shape,
+    val verticalPadding: Dp,
+    val horizontalPadding: Dp
 )
 

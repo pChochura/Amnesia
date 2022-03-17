@@ -17,83 +17,83 @@ import androidx.compose.ui.unit.sp
 import com.pointlessapps.amnesia.R
 
 private val fontFamily = FontFamily(
-	Font(
-		resId = R.font.montserrat_light,
-		weight = FontWeight.Light,
-	),
-	Font(
-		resId = R.font.montserrat_normal,
-		weight = FontWeight.Normal,
-	),
-	Font(
-		resId = R.font.montserrat_medium,
-		weight = FontWeight.Medium,
-	),
-	Font(
-		resId = R.font.montserrat_semi_bold,
-		weight = FontWeight.SemiBold,
-	),
-	Font(
-		resId = R.font.montserrat_bold,
-		weight = FontWeight.Bold,
-	)
+    Font(
+        resId = R.font.montserrat_light,
+        weight = FontWeight.Light,
+    ),
+    Font(
+        resId = R.font.montserrat_normal,
+        weight = FontWeight.Normal,
+    ),
+    Font(
+        resId = R.font.montserrat_medium,
+        weight = FontWeight.Medium,
+    ),
+    Font(
+        resId = R.font.montserrat_semi_bold,
+        weight = FontWeight.SemiBold,
+    ),
+    Font(
+        resId = R.font.montserrat_bold,
+        weight = FontWeight.Bold,
+    )
 )
 
 @Composable
 private fun typography() = Typography(
-	defaultFontFamily = fontFamily,
-	h1 = TextStyle(
-		fontWeight = FontWeight.SemiBold,
-		fontSize = 24.sp
-	),
-	h2 = TextStyle(
-		fontWeight = FontWeight.SemiBold,
-		fontSize = 20.sp
-	),
-	h3 = TextStyle(
-		fontWeight = FontWeight.Medium,
-		fontSize = 18.sp
-	),
-	button = TextStyle(
-		fontWeight = FontWeight.Medium,
-		fontSize = 14.sp
-	),
-	body1 = TextStyle(
-		fontWeight = FontWeight.Normal,
-		fontSize = 14.sp
-	),
-	subtitle1 = TextStyle(
-		fontWeight = FontWeight.Light,
-		fontSize = 12.sp
-	)
+    defaultFontFamily = fontFamily,
+    h1 = TextStyle(
+        fontWeight = FontWeight.SemiBold,
+        fontSize = 24.sp
+    ),
+    h2 = TextStyle(
+        fontWeight = FontWeight.SemiBold,
+        fontSize = 20.sp
+    ),
+    h3 = TextStyle(
+        fontWeight = FontWeight.Medium,
+        fontSize = 18.sp
+    ),
+    button = TextStyle(
+        fontWeight = FontWeight.Medium,
+        fontSize = 14.sp
+    ),
+    body1 = TextStyle(
+        fontWeight = FontWeight.Normal,
+        fontSize = 14.sp
+    ),
+    subtitle1 = TextStyle(
+        fontWeight = FontWeight.Light,
+        fontSize = 12.sp
+    )
 )
 
 @Composable
 private fun shapes() = Shapes(
-	small = RoundedCornerShape(dimensionResource(id = R.dimen.rounded_corners)),
-	medium = RoundedCornerShape(dimensionResource(id = R.dimen.rounded_corners))
+    small = RoundedCornerShape(dimensionResource(id = R.dimen.rounded_corners)),
+    medium = RoundedCornerShape(dimensionResource(id = R.dimen.rounded_corners))
 )
 
 @Composable
 private fun lightColorPalette() = lightColors(
-	primary = colorResource(id = R.color.white),
-	onPrimary = colorResource(id = R.color.black),
-	primaryVariant = colorResource(id = R.color.light_grey),
-	secondary = colorResource(id = R.color.black),
-	onSecondary = colorResource(id = R.color.white),
-	secondaryVariant = colorResource(id = R.color.grey),
-	background = colorResource(id = R.color.white),
-	onBackground = colorResource(id = R.color.black)
+    primary = colorResource(id = R.color.white),
+    onPrimary = colorResource(id = R.color.black),
+    primaryVariant = colorResource(id = R.color.light_grey),
+    secondary = colorResource(id = R.color.black),
+    onSecondary = colorResource(id = R.color.white),
+    secondaryVariant = colorResource(id = R.color.grey),
+    background = colorResource(id = R.color.white),
+    onBackground = colorResource(id = R.color.black)
 )
 
 @Composable
 fun AmnesiaTheme(darkTheme: Boolean = isSystemInDarkTheme(), content: @Composable () -> Unit) {
-	val colors = lightColorPalette() // TODO: add dark theme
+    val colors = lightColorPalette() // TODO: add dark theme
 
-	MaterialTheme(
-		colors = colors,
-		typography = typography(),
-		shapes = shapes(),
-		content = content
-	)
+    MaterialTheme(
+        colors = colors,
+        typography = typography(),
+        shapes = shapes(),
+        content = content
+    )
 }

@@ -10,6 +10,7 @@ dependencyResolutionManagement {
     repositories {
         google()
         mavenCentral()
+        maven { url 'https://jitpack.io' }
     }
 }
 rootProject.name = "Amnesia"
@@ -17,4 +18,3 @@ rootProject.name = "Amnesia"
 include ':app'
 include ':dash_border'
 include ':tooltip'
-include ':rt_editor'

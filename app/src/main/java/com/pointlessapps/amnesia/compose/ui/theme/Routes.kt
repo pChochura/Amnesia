@@ -1,4 +1,12 @@
 package com.pointlessapps.amnesia.compose.ui.theme
 
-const val HOME_ROUTE = "Home"
-const val NEW_NOTE_ROUTE = "NewNote"
+import android.os.Parcelable
+import kotlinx.parcelize.Parcelize
+
+sealed interface Route : Parcelable {
+    @Parcelize
+    object Home : Route
+
+    @Parcelize
+    object NewNote : Route
+}

@@ -15,44 +15,44 @@ import com.pointlessapps.amnesia.R
 
 @Composable
 fun AmnesiaButton(
-	text: String,
-	onClick: () -> Unit,
-	modifier: Modifier = Modifier,
-	buttonModel: AmnesiaButtonModel = defaultAmnesiaButtonModel()
+    text: String,
+    onClick: () -> Unit,
+    modifier: Modifier = Modifier,
+    buttonModel: AmnesiaButtonModel = defaultAmnesiaButtonModel()
 ) {
-	Button(
-		modifier = modifier,
-		elevation = null,
-		shape = buttonModel.shape,
-		colors = buttonColors(backgroundColor = buttonModel.backgroundColor),
-		contentPadding = PaddingValues(
-			vertical = buttonModel.verticalPadding,
-			horizontal = buttonModel.horizontalPadding
-		),
-		onClick = onClick
-	) {
-		Text(
-			text = text,
-			style = MaterialTheme.typography.button.copy(
-				color = buttonModel.textColor
-			)
-		)
-	}
+    Button(
+        modifier = modifier,
+        elevation = null,
+        shape = buttonModel.shape,
+        colors = buttonColors(backgroundColor = buttonModel.backgroundColor),
+        contentPadding = PaddingValues(
+            vertical = buttonModel.verticalPadding,
+            horizontal = buttonModel.horizontalPadding
+        ),
+        onClick = onClick
+    ) {
+        Text(
+            text = text,
+            style = MaterialTheme.typography.button.copy(
+                color = buttonModel.textColor
+            )
+        )
+    }
 }
 
 @Composable
 fun defaultAmnesiaButtonModel() = AmnesiaButtonModel(
-	backgroundColor = MaterialTheme.colors.secondary,
-	textColor = MaterialTheme.colors.onSecondary,
-	shape = MaterialTheme.shapes.medium,
-	verticalPadding = dimensionResource(id = R.dimen.button_padding_vertical),
-	horizontalPadding = dimensionResource(id = R.dimen.button_padding_horizontal)
+    backgroundColor = MaterialTheme.colors.secondary,
+    textColor = MaterialTheme.colors.onSecondary,
+    shape = MaterialTheme.shapes.medium,
+    verticalPadding = dimensionResource(id = R.dimen.button_padding_vertical),
+    horizontalPadding = dimensionResource(id = R.dimen.button_padding_horizontal)
 )
 
 data class AmnesiaButtonModel(
-	val backgroundColor: Color,
-	val textColor: Color,
-	val shape: Shape,
-	val verticalPadding: Dp,
-	val horizontalPadding: Dp
+    val backgroundColor: Color,
+    val textColor: Color,
+    val shape: Shape,
+    val verticalPadding: Dp,
+    val horizontalPadding: Dp
 )

@@ -9,12 +9,12 @@ import org.koin.core.logger.Level
 
 class AmnesiaApp : Application() {
 
-	override fun onCreate() {
-		super.onCreate()
-		startKoin {
-			androidLogger(if (BuildConfig.DEBUG) Level.ERROR else Level.NONE)
-			androidContext(this@AmnesiaApp)
-			modules(applicationModules)
-		}
-	}
+    override fun onCreate() {
+        super.onCreate()
+        startKoin {
+            androidLogger(if (BuildConfig.DEBUG) Level.ERROR else Level.NONE)
+            androidContext(this@AmnesiaApp)
+            modules(applicationModules)
+        }
+    }
 }

@@ -16,7 +16,7 @@ class AbovePositionProvider(private val offset: IntOffset = IntOffset.Zero) :
         anchorBounds: IntRect,
         windowSize: IntSize,
         layoutDirection: LayoutDirection,
-        popupContentSize: IntSize
+        popupContentSize: IntSize,
     ): IntOffset {
         var popupPosition = IntOffset(0, 0)
 
@@ -24,13 +24,13 @@ class AbovePositionProvider(private val offset: IntOffset = IntOffset.Zero) :
         val parentAlignmentPoint = alignment.align(
             IntSize.Zero,
             IntSize(anchorBounds.width, anchorBounds.height),
-            layoutDirection
+            layoutDirection,
         )
         // Get the aligned point inside the child
         val relativePopupPos = alignment.align(
             IntSize.Zero,
             IntSize(popupContentSize.width, popupContentSize.height),
-            layoutDirection
+            layoutDirection,
         )
 
         // Add the position of the parent
@@ -48,7 +48,7 @@ class AbovePositionProvider(private val offset: IntOffset = IntOffset.Zero) :
         // Add the user offset
         popupPosition += IntOffset(
             offset.x * (if (layoutDirection == LayoutDirection.Ltr) 1 else -1),
-            offset.y
+            offset.y,
         )
 
         return popupPosition

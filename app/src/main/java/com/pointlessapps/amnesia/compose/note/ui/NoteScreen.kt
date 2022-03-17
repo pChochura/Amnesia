@@ -58,26 +58,26 @@ fun NoteScreen(viewModel: NoteViewModel = getViewModel()) {
             AnimatedVisibility(showBottomBar, enter = fadeIn(), exit = fadeOut()) {
                 BottomBar(viewModel)
             }
-        }
+        },
     ) { innerPadding ->
         Box(
             modifier = Modifier
                 .fillMaxSize()
                 .clickable(
                     interactionSource = remember { MutableInteractionSource() },
-                    indication = null
+                    indication = null,
                 ) {
                     focusRequester.requestFocus()
                     keyboardController?.showSoftwareKeyboard()
-                }
+                },
         ) {
             LazyColumn(
                 contentPadding = innerPadding.add(
                     top = dimensionResource(id = R.dimen.small_padding),
                     start = dimensionResource(id = R.dimen.medium_padding),
-                    end = dimensionResource(id = R.dimen.medium_padding)
+                    end = dimensionResource(id = R.dimen.medium_padding),
                 ),
-                verticalArrangement = Arrangement.spacedBy(dimensionResource(id = R.dimen.medium_padding))
+                verticalArrangement = Arrangement.spacedBy(dimensionResource(id = R.dimen.medium_padding)),
             ) {
                 item {
                     AmnesiaTextField(
@@ -86,25 +86,25 @@ fun NoteScreen(viewModel: NoteViewModel = getViewModel()) {
                         onValueChange = viewModel::onTitleChanged,
                         textFieldModel = defaultAmnesiaTextFieldModel().copy(
                             textStyle = MaterialTheme.typography.h2,
-                            placeholder = stringResource(id = R.string.title)
-                        )
+                            placeholder = stringResource(id = R.string.title),
+                        ),
                     )
                 }
                 item {
                     LazyRow(
-                        horizontalArrangement = Arrangement.spacedBy(dimensionResource(id = R.dimen.small_padding))
+                        horizontalArrangement = Arrangement.spacedBy(dimensionResource(id = R.dimen.small_padding)),
                     ) {
                         items(viewModel.state.categories, key = { it.id }) { category ->
                             AmnesiaChip(
                                 modifier = Modifier.animateItemPlacement(),
                                 text = category.text,
                                 chipModel = defaultAmnesiaChipModel().copy(
-                                    backgroundColor = Color(category.color)
+                                    backgroundColor = Color(category.color),
                                 ),
                                 onClick = {
                                     /* TODO display popup to remove category */
                                     viewModel.onCategoryRemoved(category)
-                                }
+                                },
                             )
                         }
                         item(key = RANDOM_UUID) {
@@ -112,13 +112,13 @@ fun NoteScreen(viewModel: NoteViewModel = getViewModel()) {
                                 modifier = Modifier.animateItemPlacement(),
                                 text = stringResource(id = R.string.add_tag),
                                 chipModel = defaultAmnesiaChipModel().copy(
-                                    borderColor = MaterialTheme.colors.primaryVariant
+                                    borderColor = MaterialTheme.colors.primaryVariant,
                                 ),
                                 colored = false,
                                 onClick = {
                                     /* TODO display popup to add category */
                                     viewModel.onCategoryAdded()
-                                }
+                                },
                             )
                         }
                     }
@@ -133,8 +133,8 @@ fun NoteScreen(viewModel: NoteViewModel = getViewModel()) {
                         onValueChange = viewModel::onContentChanged,
                         textFieldStyle = defaultRichTextFieldStyle().copy(
                             textStyle = MaterialTheme.typography.body1,
-                            placeholder = stringResource(id = R.string.content)
-                        )
+                            placeholder = stringResource(id = R.string.content),
+                        ),
                     )
                 }
             }
@@ -151,7 +151,7 @@ private fun TopBar(viewModel: NoteViewModel, isUndoRedoAvailable: Boolean) {
             .statusBarsPadding()
             .fillMaxWidth()
             .padding(horizontal = dimensionResource(id = R.dimen.medium_padding))
-            .pointerInput(Unit) { /* no-op */ }
+            .pointerInput(Unit) { /* no-op */ },
     ) {
         val dp16 = dimensionResource(id = R.dimen.medium_padding)
         val (menuButton, undoRedoButtons, doneButton) = createRefs()
@@ -162,13 +162,13 @@ private fun TopBar(viewModel: NoteViewModel, isUndoRedoAvailable: Boolean) {
                 start.linkTo(parent.start)
             },
             tooltip = stringResource(R.string.menu),
-            onClick = { /*TODO*/ }
+            onClick = { /*TODO*/ },
         ) {
             Icons.Menu(
                 modifier = Modifier
                     .padding(dimensionResource(id = R.dimen.tiny_padding))
                     .size(dimensionResource(id = R.dimen.icon_size)),
-                tint = MaterialTheme.colors.secondary
+                tint = MaterialTheme.colors.secondary,
             )
         }
 
@@ -179,16 +179,16 @@ private fun TopBar(viewModel: NoteViewModel, isUndoRedoAvailable: Boolean) {
             },
             visible = isUndoRedoAvailable,
             enter = fadeIn(),
-            exit = fadeOut()
+            exit = fadeOut(),
         ) {
             Row(
                 verticalAlignment = Alignment.CenterVertically,
-                horizontalArrangement = Arrangement.spacedBy(dimensionResource(id = R.dimen.small_padding))
+                horizontalArrangement = Arrangement.spacedBy(dimensionResource(id = R.dimen.small_padding)),
             ) {
                 AmnesiaTooltipWrapper(
                     enabled = viewModel.state.content.isUndoAvailable,
                     tooltip = stringResource(R.string.undo),
-                    onClick = viewModel::onUndoClicked
+                    onClick = viewModel::onUndoClicked,
                 ) {
                     Icons.Undo(
                         modifier = Modifier
@@ -198,14 +198,14 @@ private fun TopBar(viewModel: NoteViewModel, isUndoRedoAvailable: Boolean) {
                             MaterialTheme.colors.secondary
                         } else {
                             MaterialTheme.colors.primaryVariant
-                        }
+                        },
                     )
                 }
 
                 AmnesiaTooltipWrapper(
                     enabled = viewModel.state.content.isRedoAvailable,
                     tooltip = stringResource(R.string.redo),
-                    onClick = viewModel::onRedoClicked
+                    onClick = viewModel::onRedoClicked,
                 ) {
                     Icons.Redo(
                         modifier = Modifier
@@ -215,7 +215,7 @@ private fun TopBar(viewModel: NoteViewModel, isUndoRedoAvailable: Boolean) {
                             MaterialTheme.colors.secondary
                         } else {
                             MaterialTheme.colors.primaryVariant
-                        }
+                        },
                     )
                 }
             }
@@ -231,11 +231,11 @@ private fun TopBar(viewModel: NoteViewModel, isUndoRedoAvailable: Boolean) {
                     end.linkTo(parent.end)
                 },
             tooltip = stringResource(R.string.done),
-            onClick = { /*TODO*/ }
+            onClick = { /*TODO*/ },
         ) {
             Icons.Done(
                 modifier = Modifier.size(dimensionResource(id = R.dimen.icon_size)),
-                tint = MaterialTheme.colors.onSecondary
+                tint = MaterialTheme.colors.onSecondary,
             )
         }
     }
@@ -259,36 +259,36 @@ private fun BottomBar(viewModel: NoteViewModel) {
             contentPadding = PaddingValues(dimensionResource(id = R.dimen.small_padding)),
             horizontalArrangement = Arrangement.spacedBy(
                 dimensionResource(id = R.dimen.small_padding),
-                Alignment.CenterHorizontally
+                Alignment.CenterHorizontally,
             ),
-            verticalAlignment = Alignment.CenterVertically
+            verticalAlignment = Alignment.CenterVertically,
         ) {
             item {
                 BottomBarIcon(
                     tooltip = R.string.bold,
                     icon = R.drawable.icon_bold,
-                    selected = viewModel.state.content.currentStyles.contains(Style.Bold)
+                    selected = viewModel.state.content.currentStyles.contains(Style.Bold),
                 ) { viewModel.insertStyle(Style.Bold) }
             }
             item {
                 BottomBarIcon(
                     tooltip = R.string.underline,
                     icon = R.drawable.icon_underline,
-                    selected = viewModel.state.content.currentStyles.contains(Style.Underline)
+                    selected = viewModel.state.content.currentStyles.contains(Style.Underline),
                 ) { viewModel.insertStyle(Style.Underline) }
             }
             item {
                 BottomBarIcon(
                     tooltip = R.string.italic,
                     icon = R.drawable.icon_italic,
-                    selected = viewModel.state.content.currentStyles.contains(Style.Italic)
+                    selected = viewModel.state.content.currentStyles.contains(Style.Italic),
                 ) { viewModel.insertStyle(Style.Italic) }
             }
             item {
                 BottomBarIcon(
                     tooltip = R.string.strikethrough,
                     icon = R.drawable.icon_strikethrough,
-                    selected = viewModel.state.content.currentStyles.contains(Style.Strikethrough)
+                    selected = viewModel.state.content.currentStyles.contains(Style.Strikethrough),
                 ) { viewModel.insertStyle(Style.Strikethrough) }
             }
             item {
@@ -299,7 +299,7 @@ private fun BottomBar(viewModel: NoteViewModel) {
                         tooltip = R.string.text_size,
                         icon = R.drawable.icon_text_size,
                         selected = viewModel.state.content.currentStyles
-                            .filterIsInstance<Style.TextSize>().isNotEmpty()
+                            .filterIsInstance<Style.TextSize>().isNotEmpty(),
                     ) {
                         currentValue =
                             viewModel.state.content.currentStyles
@@ -334,7 +334,7 @@ private fun BottomBar(viewModel: NoteViewModel) {
                                 if (currentValue != Style.TextSize.DEFAULT_VALUE) {
                                     viewModel.insertStyle(Style.TextSize(currentValue))
                                 }
-                            }
+                            },
                         )
                     }
                 }
@@ -346,7 +346,7 @@ private fun BottomBar(viewModel: NoteViewModel) {
                         tooltip = R.string.text_color,
                         icon = R.drawable.icon_circle,
                         selected = viewModel.state.content.currentStyles
-                            .filterIsInstance<Style.TextColor>().isNotEmpty()
+                            .filterIsInstance<Style.TextColor>().isNotEmpty(),
                     ) {
                         showTextColorPicker = true
                     }
@@ -359,7 +359,7 @@ private fun BottomBar(viewModel: NoteViewModel) {
                                 viewModel.clearStyles(Style.TextColor(null))
                                 viewModel.insertStyle(Style.TextColor(it))
                             },
-                            onAddToRecents = { viewModel.updateRecentColors(it) }
+                            onAddToRecents = { viewModel.updateRecentColors(it) },
                         )
                     }
                 }
@@ -368,28 +368,28 @@ private fun BottomBar(viewModel: NoteViewModel) {
                 BottomBarIcon(
                     tooltip = R.string.align_left,
                     icon = R.drawable.icon_align_left,
-                    selected = viewModel.state.content.currentStyles.contains(Style.AlignLeft)
+                    selected = viewModel.state.content.currentStyles.contains(Style.AlignLeft),
                 ) { viewModel.insertStyle(Style.AlignLeft) }
             }
             item {
                 BottomBarIcon(
                     tooltip = R.string.align_center,
                     icon = R.drawable.icon_align_center,
-                    selected = viewModel.state.content.currentStyles.contains(Style.AlignCenter)
+                    selected = viewModel.state.content.currentStyles.contains(Style.AlignCenter),
                 ) { viewModel.insertStyle(Style.AlignCenter) }
             }
             item {
                 BottomBarIcon(
                     tooltip = R.string.align_right,
                     icon = R.drawable.icon_align_right,
-                    selected = viewModel.state.content.currentStyles.contains(Style.AlignRight)
+                    selected = viewModel.state.content.currentStyles.contains(Style.AlignRight),
                 ) { viewModel.insertStyle(Style.AlignRight) }
             }
             item {
                 BottomBarIcon(
                     tooltip = R.string.clear_format,
                     icon = R.drawable.icon_format_clear,
-                    selected = true
+                    selected = true,
                 ) { viewModel.insertStyle(Style.ClearFormat) }
             }
         }
@@ -401,14 +401,14 @@ fun BottomBarIcon(
     @StringRes tooltip: Int,
     @DrawableRes icon: Int,
     selected: Boolean,
-    onClick: () -> Unit
+    onClick: () -> Unit,
 ) {
     AmnesiaTooltipWrapper(
         tooltip = stringResource(tooltip),
         onClick = onClick,
         tooltipModel = defaultAmnesiaTooltipModel().copy(
-            buttonRippleColor = MaterialTheme.colors.secondaryVariant
-        )
+            buttonRippleColor = MaterialTheme.colors.secondaryVariant,
+        ),
     ) {
         Icons.Get(
             iconRes = icon,
@@ -419,7 +419,7 @@ fun BottomBarIcon(
                 MaterialTheme.colors.primary
             } else {
                 MaterialTheme.colors.secondaryVariant
-            }
+            },
         )
     }
 }

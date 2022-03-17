@@ -10,7 +10,7 @@ import androidx.compose.ui.layout.SubcomposeLayout
 fun AmnesiaScaffoldLayout(
     topBar: @Composable () -> Unit = {},
     fab: @Composable () -> Unit = {},
-    content: @Composable (PaddingValues) -> Unit
+    content: @Composable (PaddingValues) -> Unit,
 ) {
     SubcomposeLayout(modifier = Modifier.imePadding()) { constraints ->
         val layoutWidth = constraints.maxWidth
@@ -37,7 +37,7 @@ fun AmnesiaScaffoldLayout(
                     PaddingValues(
                         top = topBarHeight.toDp(),
                         bottom = fabHeight.toDp(),
-                    )
+                    ),
                 )
             }.map { it.measure(looseConstraints.copy(maxHeight = layoutHeight)) }
 

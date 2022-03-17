@@ -19,58 +19,61 @@ class NoteViewModel : ViewModel() {
 
     fun onTitleChanged(value: TextFieldValue) {
         state = state.copy(
-            title = value
+            title = value,
         )
     }
 
     fun onContentChanged(value: RichTextValue) {
         state = state.copy(
-            content = value
+            content = value,
         )
     }
 
     fun onCategoryRemoved(value: Category) {
         state = state.copy(
-            categories = state.categories.filterNot { it === value }
+            categories = state.categories.filterNot { it === value },
         )
     }
 
     fun onCategoryAdded(value: Category = Category("Test category", Color.parseColor("#FBCCCC"))) {
         state = state.copy(
-            categories = listOf(*state.categories.toTypedArray(), value)
+            categories = buildList {
+                addAll(state.categories)
+                add(value)
+            },
         )
     }
 
     fun insertStyle(style: Style) {
         state = state.copy(
-            content = state.content.insertStyle(style)
+            content = state.content.insertStyle(style),
         )
     }
 
     fun clearStyles(vararg style: Style) {
         state = state.copy(
-            content = state.content.clearStyles(*style)
+            content = state.content.clearStyles(*style),
         )
     }
 
     fun onUndoClicked() {
         state = state.copy(
-            content = state.content.undo()
+            content = state.content.undo(),
         )
     }
 
     fun onRedoClicked() {
         state = state.copy(
-            content = state.content.redo()
+            content = state.content.redo(),
         )
     }
 
     fun updateRecentColors(color: ComposeColor) {
         state = state.copy(
-            recentColors = listOf(
-                color,
-                *state.recentColors.take(2).toTypedArray()
-            )
+            recentColors = buildList {
+                add(color)
+                addAll(state.recentColors.take(2))
+            },
         )
     }
 }

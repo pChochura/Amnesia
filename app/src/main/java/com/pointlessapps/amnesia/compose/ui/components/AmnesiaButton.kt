@@ -18,7 +18,7 @@ fun AmnesiaButton(
     text: String,
     onClick: () -> Unit,
     modifier: Modifier = Modifier,
-    buttonModel: AmnesiaButtonModel = defaultAmnesiaButtonModel()
+    buttonModel: AmnesiaButtonModel = defaultAmnesiaButtonModel(),
 ) {
     Button(
         modifier = modifier,
@@ -27,15 +27,15 @@ fun AmnesiaButton(
         colors = buttonColors(backgroundColor = buttonModel.backgroundColor),
         contentPadding = PaddingValues(
             vertical = buttonModel.verticalPadding,
-            horizontal = buttonModel.horizontalPadding
+            horizontal = buttonModel.horizontalPadding,
         ),
-        onClick = onClick
+        onClick = onClick,
     ) {
         Text(
             text = text,
             style = MaterialTheme.typography.button.copy(
-                color = buttonModel.textColor
-            )
+                color = buttonModel.textColor,
+            ),
         )
     }
 }
@@ -46,7 +46,7 @@ fun defaultAmnesiaButtonModel() = AmnesiaButtonModel(
     textColor = MaterialTheme.colors.onSecondary,
     shape = MaterialTheme.shapes.medium,
     verticalPadding = dimensionResource(id = R.dimen.button_padding_vertical),
-    horizontalPadding = dimensionResource(id = R.dimen.button_padding_horizontal)
+    horizontalPadding = dimensionResource(id = R.dimen.button_padding_horizontal),
 )
 
 data class AmnesiaButtonModel(
@@ -54,5 +54,5 @@ data class AmnesiaButtonModel(
     val textColor: Color,
     val shape: Shape,
     val verticalPadding: Dp,
-    val horizontalPadding: Dp
+    val horizontalPadding: Dp,
 )

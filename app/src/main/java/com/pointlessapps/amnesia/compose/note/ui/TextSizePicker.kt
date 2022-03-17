@@ -30,15 +30,15 @@ fun TextSizePicker(
     @FloatRange(from = Style.TextSize.MIN_VALUE, to = Style.TextSize.MAX_VALUE) currentValue: Float,
     onDismissListener: () -> Unit,
     onMinusClicked: () -> Unit,
-    onPlusClicked: () -> Unit
+    onPlusClicked: () -> Unit,
 ) {
     Popup(
         onDismissRequest = onDismissListener,
         popupPositionProvider = AbovePositionProvider(
             IntOffset(
                 x = 0,
-                y = -dimensionResource(id = R.dimen.medium_padding).roundToPx()
-            )
+                y = -dimensionResource(id = R.dimen.medium_padding).roundToPx(),
+            ),
         ),
         properties = PopupProperties(),
     ) {
@@ -48,7 +48,7 @@ fun TextSizePicker(
                 .background(MaterialTheme.colors.secondary)
                 .padding(dimensionResource(id = R.dimen.small_padding)),
             verticalAlignment = Alignment.CenterVertically,
-            horizontalArrangement = Arrangement.spacedBy(dimensionResource(id = R.dimen.small_padding))
+            horizontalArrangement = Arrangement.spacedBy(dimensionResource(id = R.dimen.small_padding)),
         ) {
             Icons.Minus(
                 modifier = Modifier
@@ -62,13 +62,13 @@ fun TextSizePicker(
                     MaterialTheme.colors.onSecondary
                 } else {
                     MaterialTheme.colors.secondaryVariant
-                }
+                },
             )
             Text(
                 text = currentValue.toPercent(),
                 style = MaterialTheme.typography.h2.copy(
-                    color = MaterialTheme.colors.onSecondary
-                )
+                    color = MaterialTheme.colors.onSecondary,
+                ),
             )
             Icons.Plus(
                 modifier = Modifier
@@ -82,7 +82,7 @@ fun TextSizePicker(
                     MaterialTheme.colors.onSecondary
                 } else {
                     MaterialTheme.colors.secondaryVariant
-                }
+                },
             )
         }
     }

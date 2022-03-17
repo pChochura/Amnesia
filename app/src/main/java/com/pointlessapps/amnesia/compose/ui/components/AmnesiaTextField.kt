@@ -22,7 +22,7 @@ fun AmnesiaTextField(
     value: String,
     onValueChange: (String) -> Unit,
     modifier: Modifier = Modifier,
-    textFieldModel: AmnesiaTextFieldModel = defaultAmnesiaTextFieldModel()
+    textFieldModel: AmnesiaTextFieldModel = defaultAmnesiaTextFieldModel(),
 ) {
     var textFieldValueState by remember { mutableStateOf(TextFieldValue(text = value)) }
     val textFieldValue = textFieldValueState.copy(text = value)
@@ -36,7 +36,7 @@ fun AmnesiaTextField(
             }
         },
         modifier = modifier,
-        textFieldModel = textFieldModel
+        textFieldModel = textFieldModel,
     )
 }
 
@@ -45,7 +45,7 @@ fun AmnesiaTextField(
     value: TextFieldValue,
     onValueChange: (TextFieldValue) -> Unit,
     modifier: Modifier = Modifier,
-    textFieldModel: AmnesiaTextFieldModel = defaultAmnesiaTextFieldModel()
+    textFieldModel: AmnesiaTextFieldModel = defaultAmnesiaTextFieldModel(),
 ) {
     Box(modifier = modifier) {
         if (value.text.isEmpty()) {
@@ -53,8 +53,8 @@ fun AmnesiaTextField(
                 modifier = Modifier.fillMaxSize(),
                 text = textFieldModel.placeholder,
                 style = textFieldModel.textStyle.copy(
-                    color = textFieldModel.placeholderColor
-                )
+                    color = textFieldModel.placeholderColor,
+                ),
             )
         }
         BasicTextField(
@@ -64,9 +64,9 @@ fun AmnesiaTextField(
             keyboardOptions = textFieldModel.keyboardOptions,
             visualTransformation = textFieldModel.visualTransformation,
             textStyle = textFieldModel.textStyle.copy(
-                textFieldModel.textColor
+                textFieldModel.textColor,
             ),
-            cursorBrush = SolidColor(textFieldModel.cursorColor)
+            cursorBrush = SolidColor(textFieldModel.cursorColor),
         )
     }
 }
@@ -91,5 +91,5 @@ data class AmnesiaTextFieldModel(
     val textStyle: TextStyle,
     val textColor: Color,
     val placeholderColor: Color,
-    val cursorColor: Color
+    val cursorColor: Color,
 )

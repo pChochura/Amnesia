@@ -25,7 +25,7 @@ fun AmnesiaChip(
     chipModel: AmnesiaChipModel = defaultAmnesiaChipModel(),
     clickable: Boolean = true,
     onClick: () -> Unit = {},
-    colored: Boolean = true
+    colored: Boolean = true,
 ) {
     Text(
         text = text,
@@ -42,15 +42,15 @@ fun AmnesiaChip(
                 Modifier.border(
                     width = chipModel.borderWidth,
                     color = chipModel.borderColor,
-                    shape = chipModel.shape
+                    shape = chipModel.shape,
                 )
             }
             .clickable(enabled = clickable, onClick = onClick)
             .padding(
                 vertical = chipModel.verticalPadding,
-                horizontal = chipModel.horizontalPadding
+                horizontal = chipModel.horizontalPadding,
             ),
-        style = chipModel.textStyle
+        style = chipModel.textStyle,
     )
 }
 
@@ -60,11 +60,11 @@ fun defaultAmnesiaChipModel() = AmnesiaChipModel(
     borderColor = colorResource(id = android.R.color.transparent),
     backgroundColor = MaterialTheme.colors.secondary,
     textStyle = MaterialTheme.typography.button.copy(
-        color = MaterialTheme.colors.secondaryVariant
+        color = MaterialTheme.colors.secondaryVariant,
     ),
     shape = MaterialTheme.shapes.medium,
     verticalPadding = dimensionResource(id = R.dimen.chip_padding_vertical),
-    horizontalPadding = dimensionResource(id = R.dimen.chip_padding_horizontal)
+    horizontalPadding = dimensionResource(id = R.dimen.chip_padding_horizontal),
 )
 
 data class AmnesiaChipModel(
@@ -74,5 +74,5 @@ data class AmnesiaChipModel(
     val textStyle: TextStyle,
     val shape: Shape,
     val verticalPadding: Dp,
-    val horizontalPadding: Dp
+    val horizontalPadding: Dp,
 )

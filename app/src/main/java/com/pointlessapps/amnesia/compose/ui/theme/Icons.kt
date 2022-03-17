@@ -8,17 +8,18 @@ import androidx.compose.ui.graphics.Color
 import androidx.compose.ui.res.painterResource
 import com.pointlessapps.amnesia.R
 
+@Suppress("TooManyFunctions")
 object Icons {
     @Composable
     fun Get(
         @DrawableRes iconRes: Int,
         modifier: Modifier = Modifier,
-        tint: Color = Color.White
+        tint: Color = Color.White,
     ) = Icon(
         painter = painterResource(id = iconRes),
         contentDescription = null,
         modifier = modifier,
-        tint = tint
+        tint = tint,
     )
 
     @Composable

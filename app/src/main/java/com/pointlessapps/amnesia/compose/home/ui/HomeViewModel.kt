@@ -21,8 +21,10 @@ class HomeViewModel : ViewModel() {
             CATEGORY_ALL,
             Category("Notes", Color.parseColor("#CCFBD9")),
             Category("Ideas", Color.parseColor("#D0CCFB")),
-            Category("Reminders", Color.parseColor("#FAFBCC"))
+            Category("Reminders", Color.parseColor("#FAFBCC")),
         )
+
+        @Suppress("MagicNumber")
         state = state.copy(
             categories = categories,
             notes = listOf(
@@ -32,7 +34,7 @@ class HomeViewModel : ViewModel() {
                     createdAt = "12.02.2022",
                     updatedAt = "yesterday",
                     categories = categories.subList(1, 2).toSet(),
-                    isPinned = false
+                    isPinned = false,
                 ),
                 Note(
                     title = null,
@@ -49,7 +51,7 @@ class HomeViewModel : ViewModel() {
                     createdAt = "01.02.2022",
                     updatedAt = "03.02.2022",
                     categories = categories.subList(2, 3).toSet(),
-                    isPinned = false
+                    isPinned = false,
                 ),
                 Note(
                     title = null,
@@ -57,9 +59,9 @@ class HomeViewModel : ViewModel() {
                     createdAt = "12.02.2022",
                     updatedAt = "12.02.2022",
                     categories = categories.subList(1, 3).toSet(),
-                    isPinned = true
-                )
-            )
+                    isPinned = true,
+                ),
+            ),
         )
     }
 
@@ -75,7 +77,7 @@ class HomeViewModel : ViewModel() {
 
     fun onCategorySelected(value: Category) {
         state = state.copy(
-            selectedCategory = value
+            selectedCategory = value,
         )
     }
 
@@ -86,5 +88,5 @@ class HomeViewModel : ViewModel() {
 data class State(
     val categories: List<Category> = emptyList(),
     val selectedCategory: Category = CATEGORY_ALL,
-    val notes: List<Note> = emptyList()
+    val notes: List<Note> = emptyList(),
 )

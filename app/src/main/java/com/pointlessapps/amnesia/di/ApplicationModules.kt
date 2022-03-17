@@ -5,5 +5,5 @@ import com.pointlessapps.amnesia.compose.note.di.noteModule
 
 val applicationModules = listOf(
     homeModule,
-    noteModule
+    noteModule,
 )

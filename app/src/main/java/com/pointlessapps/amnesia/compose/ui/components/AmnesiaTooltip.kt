@@ -31,11 +31,11 @@ fun AmnesiaTooltipWrapper(
     enabled: Boolean = true,
     tooltip: String,
     onClick: () -> Unit,
-    content: @Composable BoxScope.() -> Unit
+    content: @Composable BoxScope.() -> Unit,
 ) {
     Box(
         modifier = modifier,
-        contentAlignment = Alignment.Center
+        contentAlignment = Alignment.Center,
     ) {
         val showTooltip = remember { mutableStateOf(false) }
         Box(
@@ -45,14 +45,14 @@ fun AmnesiaTooltipWrapper(
                     interactionSource = remember { MutableInteractionSource() },
                     indication = rememberRipple(
                         bounded = false,
-                        color = tooltipModel.buttonRippleColor
+                        color = tooltipModel.buttonRippleColor,
                     ),
                     onClickLabel = tooltip,
                     role = Role.Button,
                     onClick = onClick,
                     onLongClick = { showTooltip.value = true },
                 ),
-            contentAlignment = Alignment.Center
+            contentAlignment = Alignment.Center,
         ) {
             content()
         }
@@ -63,8 +63,8 @@ fun AmnesiaTooltipWrapper(
             shape = tooltipModel.shape,
             modifier = Modifier.padding(
                 vertical = tooltipModel.verticalPadding,
-                horizontal = tooltipModel.horizontalPadding
-            )
+                horizontal = tooltipModel.horizontalPadding,
+            ),
         ) {
             Text(
                 text = tooltip,
@@ -79,11 +79,11 @@ fun defaultAmnesiaTooltipModel() = AmnesiaTooltipModel(
     buttonRippleColor = Color.Unspecified,
     backgroundColor = MaterialTheme.colors.secondary,
     textStyle = MaterialTheme.typography.button.copy(
-        color = MaterialTheme.colors.onSecondary
+        color = MaterialTheme.colors.onSecondary,
     ),
     shape = MaterialTheme.shapes.medium,
     verticalPadding = dimensionResource(id = R.dimen.chip_padding_vertical),
-    horizontalPadding = dimensionResource(id = R.dimen.chip_padding_horizontal)
+    horizontalPadding = dimensionResource(id = R.dimen.chip_padding_horizontal),
 )
 
 data class AmnesiaTooltipModel(
@@ -92,6 +92,5 @@ data class AmnesiaTooltipModel(
     val textStyle: TextStyle,
     val shape: Shape,
     val verticalPadding: Dp,
-    val horizontalPadding: Dp
+    val horizontalPadding: Dp,
 )
-

@@ -11,7 +11,7 @@ import androidx.compose.ui.input.pointer.pointerInput
 
 fun Modifier.conditional(
     predicate: () -> Boolean,
-    then: Modifier.() -> Modifier
+    then: Modifier.() -> Modifier,
 ) = if (predicate()) {
     then()
 } else {
@@ -21,7 +21,7 @@ fun Modifier.conditional(
 fun Modifier.onMove(
     onMoved: AwaitPointerEventScope.(Offset) -> Unit,
     onDown: AwaitPointerEventScope.(Offset) -> Unit = { onMoved(it) },
-    onUp: AwaitPointerEventScope.(Offset) -> Unit = { onMoved(it) }
+    onUp: AwaitPointerEventScope.(Offset) -> Unit = { onMoved(it) },
 ) = pointerInput(Unit) {
     forEachGesture {
         awaitPointerEventScope {

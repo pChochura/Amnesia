@@ -24,13 +24,14 @@ import com.pointlessapps.amnesia.compose.ui.theme.Icons
 import com.pointlessapps.amnesia.compose.utils.*
 
 private const val MAX_HUE_VALUE = 360
+private const val HALF = 0.5f
 
 @Composable
 fun TextColorPicker(
     recentColors: List<Color>,
     onDismissListener: () -> Unit,
     onColorClicked: (Color) -> Unit,
-    onAddToRecents: (Color) -> Unit
+    onAddToRecents: (Color) -> Unit,
 ) {
     var currentColor by remember { mutableStateOf(Color.Black) }
     var showColorSlider by remember { mutableStateOf(false) }
@@ -40,8 +41,8 @@ fun TextColorPicker(
         popupPositionProvider = AbovePositionProvider(
             IntOffset(
                 x = 0,
-                y = -dimensionResource(id = R.dimen.medium_padding).roundToPx()
-            )
+                y = -dimensionResource(id = R.dimen.medium_padding).roundToPx(),
+            ),
         ),
         properties = PopupProperties(),
     ) {
@@ -51,7 +52,7 @@ fun TextColorPicker(
                 .background(MaterialTheme.colors.secondary)
                 .padding(dimensionResource(id = R.dimen.small_padding)),
             verticalAlignment = Alignment.CenterVertically,
-            horizontalArrangement = Arrangement.spacedBy(dimensionResource(id = R.dimen.small_padding))
+            horizontalArrangement = Arrangement.spacedBy(dimensionResource(id = R.dimen.small_padding)),
         ) {
             if (showColorSlider) {
                 ColorSlider {
@@ -69,7 +70,7 @@ fun TextColorPicker(
                             },
                             role = Role.Button,
                         ),
-                    tint = MaterialTheme.colors.onSecondary
+                    tint = MaterialTheme.colors.onSecondary,
                 )
             } else {
                 recentColors.forEach {
@@ -81,7 +82,7 @@ fun TextColorPicker(
                                 onClick = { onColorClicked(it) },
                                 role = Role.Button,
                             ),
-                        tint = it
+                        tint = it,
                     )
                 }
                 Icons.Plus(
@@ -92,7 +93,7 @@ fun TextColorPicker(
                             onClick = { showColorSlider = true },
                             role = Role.Button,
                         ),
-                    tint = MaterialTheme.colors.onSecondary
+                    tint = MaterialTheme.colors.onSecondary,
                 )
             }
         }
@@ -109,7 +110,7 @@ private fun ColorSlider(onValueChangeListener: (Color) -> Unit) {
     BoxWithConstraints(
         modifier = Modifier
             .width(dimensionResource(id = R.dimen.size_200))
-            .height(dimensionResource(id = R.dimen.icon_button_size))
+            .height(dimensionResource(id = R.dimen.icon_button_size)),
     ) {
         Canvas(modifier = Modifier
             .fillMaxSize()
@@ -118,43 +119,44 @@ private fun ColorSlider(onValueChangeListener: (Color) -> Unit) {
                     currentColorHue = (x / maxWidth.toPx() * MAX_HUE_VALUE)
                         .coerceIn(0f, MAX_HUE_VALUE.toFloat())
                 },
-                onUp = { onValueChangeListener(currentColorHue.hueToColor()) }
-            )
+                onUp = { onValueChangeListener(currentColorHue.hueToColor()) },
+            ),
         ) {
             drawRoundRect(
                 brush = rainbowBrush,
-                cornerRadius = CornerRadius(cornerRadius)
+                cornerRadius = CornerRadius(cornerRadius),
             )
             drawRoundRect(
                 topLeft = Offset(
                     x = (currentColorHue / MAX_HUE_VALUE * maxWidth.toPx())
                         .coerceAtMost(maxWidth.toPx() - indicatorWidth),
-                    y = 0f
+                    y = 0f,
                 ),
                 size = Size(
                     width = indicatorWidth,
-                    height = maxHeight.toPx()
+                    height = maxHeight.toPx(),
                 ),
                 color = Color.White,
-                cornerRadius = CornerRadius(cornerRadius)
+                cornerRadius = CornerRadius(cornerRadius),
             )
             drawRoundRect(
                 topLeft = Offset(
-                    x = (currentColorHue / MAX_HUE_VALUE * maxWidth.toPx() + indicatorBorderWidth * 0.5f)
-                        .coerceAtMost(maxWidth.toPx() - indicatorWidth + indicatorBorderWidth * 0.5f),
-                    y = indicatorBorderWidth * 0.5f
+                    x = (currentColorHue / MAX_HUE_VALUE * maxWidth.toPx() + indicatorBorderWidth * HALF)
+                        .coerceAtMost(maxWidth.toPx() - indicatorWidth + indicatorBorderWidth * HALF),
+                    y = indicatorBorderWidth * HALF,
                 ),
                 size = Size(
                     width = indicatorWidth,
-                    height = maxHeight.toPx()
+                    height = maxHeight.toPx(),
                 ).inset(indicatorBorderWidth),
                 color = currentColorHue.hueToColor(),
-                cornerRadius = CornerRadius(cornerRadius)
+                cornerRadius = CornerRadius(cornerRadius),
             )
         }
     }
 }
 
+@Suppress("MagicNumber")
 private fun getRainbowColors() = listOf(
     Color(0xFFFF0000),
     Color(0xFFFF8000),

@@ -6,6 +6,7 @@ buildscript {
         accompanist_version = '0.24.3-alpha'
         firebase_version    = '24.0.2'
         richtext_version    = '1.1.2'
+        detekt_version      = '1.20.0-RC1'
     }
 
     repositories {

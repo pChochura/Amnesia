@@ -16,7 +16,7 @@ import androidx.compose.ui.res.dimensionResource
 import androidx.compose.ui.res.stringResource
 import com.pointlessapps.amnesia.R
 import com.pointlessapps.amnesia.model.Note
-import com.pointlessapps.dash_border.dashedBorder
+import com.pointlessapps.dash.border.dashedBorder
 import androidx.compose.ui.graphics.Color as ComposeColor
 
 @Composable

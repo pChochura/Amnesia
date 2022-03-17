@@ -18,3 +18,7 @@ rootProject.name = "Amnesia"
 include ':app'
 include ':dash_border'
 include ':tooltip'
+include ':errors'
+include ':domain'
+include ':datasource'
+include ':firebase_datasource'

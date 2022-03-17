@@ -1,6 +1,6 @@
 @file:Suppress("INVISIBLE_REFERENCE", "INVISIBLE_MEMBER", "UnnecessaryComposedModifier")
 
-package com.pointlessapps.dash_border
+package com.pointlessapps.dash.border
 
 /*
  * Copyright 2020 The Android Open Source Project

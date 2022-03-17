@@ -1,0 +1,47 @@
+{
+  "project_info": {
+    "project_number": "1053598048104",
+    "project_id": "amnesia-8b71d",
+    "storage_bucket": "amnesia-8b71d.appspot.com"
+  },
+  "client": [
+    {
+      "client_info": {
+        "mobilesdk_app_id": "1:1053598048104:android:1931196ef054ff6b5c40dd",
+        "android_client_info": {
+          "package_name": "com.pointlessapps.amnesia"
+        }
+      },
+      "oauth_client": [
+        {
+          "client_id": "1053598048104-mupihfhd9e807shdlqem6fj79j2nfcpv.apps.googleusercontent.com",
+          "client_type": 1,
+          "android_info": {
+            "package_name": "com.pointlessapps.amnesia",
+            "certificate_hash": "18728e59223ebe386d111fd8a8acf4e0d6bcbf36"
+          }
+        },
+        {
+          "client_id": "1053598048104-02ah90cn0klm9g88fcq6huo7vps1g213.apps.googleusercontent.com",
+          "client_type": 3
+        }
+      ],
+      "api_key": [
+        {
+          "current_key": "AIzaSyD1j9YS_XfHkb4jy9Mm80tv7rXK6yjeDqY"
+        }
+      ],
+      "services": {
+        "appinvite_service": {
+          "other_platform_oauth_client": [
+            {
+              "client_id": "1053598048104-02ah90cn0klm9g88fcq6huo7vps1g213.apps.googleusercontent.com",
+              "client_type": 3
+            }
+          ]
+        }
+      }
+    }
+  ],
+  "configuration_version": "1"
+}

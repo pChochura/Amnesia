@@ -1,6 +1,6 @@
 @file:Suppress("INVISIBLE_REFERENCE", "INVISIBLE_MEMBER")
 
-package com.pointlessapps.tooltip
+package com.pointlessapps.amnesia.tooltip
 
 // Tooltip implementation for AndroidX Jetpack Compose
 // See usage example in the next file

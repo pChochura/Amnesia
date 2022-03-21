@@ -21,6 +21,7 @@ android {
 
 dependencies {
     implementation "io.insert-koin:koin-core:$koin_version"
+    implementation "androidx.activity:activity-ktx:$androix_version"
 
     implementation 'org.jetbrains.kotlinx:kotlinx-coroutines-play-services:1.6.0'
 
@@ -30,4 +31,5 @@ dependencies {
     implementation "com.google.android.gms:play-services-auth:$gms_version"
 
     implementation(project(':datasource'))
+    implementation(project(':domain'))
 }

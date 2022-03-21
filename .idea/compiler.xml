@@ -4,6 +4,8 @@
     <bytecodeTargetLevel target="1.8">
       <module name="Amnesia.app" target="11" />
       <module name="Amnesia.dash_border" target="11" />
+      <module name="Amnesia.datasource" target="11" />
+      <module name="Amnesia.domain" target="11" />
       <module name="Amnesia.firebase_datasource" target="11" />
       <module name="Amnesia.tooltip" target="11" />
     </bytecodeTargetLevel>

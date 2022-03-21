@@ -1,13 +1,19 @@
 package com.pointlessapps.amnesia.compose.login.ui
 
+import android.content.Intent
+import androidx.activity.result.ActivityResultLauncher
+import androidx.annotation.StringRes
 import androidx.compose.runtime.getValue
 import androidx.compose.runtime.mutableStateOf
 import androidx.compose.runtime.setValue
 import androidx.lifecycle.ViewModel
 import androidx.lifecycle.viewModelScope
+import com.google.android.gms.auth.api.signin.GoogleSignInResult
+import com.pointlessapps.amnesia.R
 import com.pointlessapps.amnesia.domain.auth.SignInWithGoogleUseCase
 import kotlinx.coroutines.channels.Channel
 import kotlinx.coroutines.flow.*
+import kotlinx.coroutines.launch
 
 internal class LoginViewModel(
     private val signInWithGoogleUseCase: SignInWithGoogleUseCase,
@@ -19,7 +25,7 @@ internal class LoginViewModel(
     var state by mutableStateOf(State())
         private set
 
-    fun onSignInWithGoogleClicked() {
+    fun onSignInWithGoogleClicked(intentLauncher: ActivityResultLauncher<Intent>) {
         signInWithGoogleUseCase.prepare()
             .take(1)
             .onStart {
@@ -28,13 +34,10 @@ internal class LoginViewModel(
                 )
             }
             .onEach {
-                eventChannel.send(Event.MoveToNextScreen)
-                state = state.copy(
-                    isLoading = false,
-                )
+                it.launch(intentLauncher)
             }
             .catch {
-                println("LOG!, $it")
+                eventChannel.send(Event.ShowMessage(R.string.default_error_message))
                 state = state.copy(
                     isLoading = false,
                 )
@@ -42,11 +45,25 @@ internal class LoginViewModel(
             .launchIn(viewModelScope)
     }
 
+    fun handleSignInWithGoogleResult(data: GoogleSignInResult?) {
+        state = state.copy(
+            isLoading = false,
+        )
+        viewModelScope.launch {
+            if (data?.isSuccess == true) {
+                eventChannel.send(Event.MoveToNextScreen)
+            } else {
+                eventChannel.send(Event.ShowMessage(R.string.default_error_message))
+            }
+        }
+    }
+
     internal data class State(
         val isLoading: Boolean = false,
     )
 
     internal sealed interface Event {
+        class ShowMessage(@StringRes val message: Int) : Event
         object MoveToNextScreen : Event
     }
 }

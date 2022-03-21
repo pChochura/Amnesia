@@ -7,6 +7,7 @@ import com.google.firebase.auth.AuthCredential
 import com.google.firebase.auth.FirebaseAuth
 import com.google.firebase.auth.GoogleAuthProvider
 import com.pointlessapps.amnesia.datasource.auth.AuthDataSource
+import com.pointlessapps.amnesia.datasource.auth.dto.GoogleSignInClientDto
 import kotlinx.coroutines.tasks.await
 
 internal class AuthDataSourceImpl(
@@ -27,15 +28,12 @@ internal class AuthDataSourceImpl(
         requireNotNull(auth.currentUser).linkWithCredential(getGoogleAuthCredential()).await()
     }
 
-    override suspend fun signInWithGoogle() {
+    override suspend fun signInWithGoogle(): GoogleSignInClientDto {
         val options = GoogleSignInOptions
             .Builder(GoogleSignInOptions.DEFAULT_SIGN_IN)
             .requestEmail()
             .build()
 
-//        context.startActivity(GoogleSignIn.getClient(context, options).signInIntent.apply {
-//            addFlags(FLAG_ACTIVITY_NEW_TASK)
-//        })
-        GoogleSignIn.getClient(context, options).silentSignIn().await()
+        return GoogleSignInClientDto(GoogleSignIn.getClient(context, options).signInIntent)
     }
 }

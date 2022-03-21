@@ -1,6 +1,8 @@
 package com.pointlessapps.amnesia.domain.auth
 
 import com.pointlessapps.amnesia.datasource.auth.AuthDataSource
+import com.pointlessapps.amnesia.domain.auth.mapper.toGoogleSignInClient
+import com.pointlessapps.amnesia.domain.auth.model.GoogleSignInClient
 import kotlinx.coroutines.flow.Flow
 import kotlinx.coroutines.flow.flow
 
@@ -9,7 +11,7 @@ interface AuthRepository {
 
     fun linkWithGoogle(): Flow<Unit>
 
-    fun signInWithGoogle(): Flow<Unit>
+    fun signInWithGoogle(): Flow<GoogleSignInClient>
 }
 
 internal class AuthRepositoryImpl(
@@ -24,7 +26,7 @@ internal class AuthRepositoryImpl(
         emit(authDataSource.linkWithGoogle())
     }
 
-    override fun signInWithGoogle(): Flow<Unit> = flow {
-        emit(authDataSource.signInWithGoogle())
+    override fun signInWithGoogle(): Flow<GoogleSignInClient> = flow {
+        emit(authDataSource.signInWithGoogle().toGoogleSignInClient())
     }
 }

@@ -20,7 +20,7 @@ import com.google.accompanist.insets.statusBarsPadding
 private const val SCRIM_ALPHA = 0.9f
 
 @Composable
-internal fun AudiLoader(enabled: Boolean) {
+internal fun AmnesiaLoader(enabled: Boolean) {
     val focusManager = LocalFocusManager.current
     LaunchedEffect(enabled) {
         focusManager.clearFocus(true)

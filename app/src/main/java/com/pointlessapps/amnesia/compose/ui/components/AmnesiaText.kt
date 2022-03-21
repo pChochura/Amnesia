@@ -10,18 +10,18 @@ import androidx.compose.ui.text.TextStyle
 import androidx.compose.ui.text.style.TextAlign
 
 @Composable
-internal fun AudiText(
+internal fun AmnesiaText(
     text: String,
     modifier: Modifier = Modifier,
     textStyle: AmnesiaTextStyle = defaultAmnesiaTextStyle(),
-) = AudiText(
+) = AmnesiaText(
     annotatedString = AnnotatedString(text),
     modifier = modifier,
     textStyle = textStyle,
 )
 
 @Composable
-internal fun AudiText(
+internal fun AmnesiaText(
     annotatedString: AnnotatedString,
     modifier: Modifier = Modifier,
     textStyle: AmnesiaTextStyle = defaultAmnesiaTextStyle(),

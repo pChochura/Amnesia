@@ -41,7 +41,7 @@ internal fun HomeScreen(
         focusManager.clearFocus()
     }
 
-    AudiLoader(enabled = viewModel.state.isLoading)
+    AmnesiaLoader(enabled = viewModel.state.isLoading)
 
     AmnesiaScaffoldLayout(
         topBar = {

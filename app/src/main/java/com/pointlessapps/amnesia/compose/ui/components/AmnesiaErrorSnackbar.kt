@@ -13,13 +13,13 @@ import androidx.compose.ui.res.dimensionResource
 import com.pointlessapps.amnesia.R
 
 @Composable
-internal fun AudiSnackbar(message: String) {
+internal fun AmnesiaSnackbar(message: String) {
     Snackbar(
         modifier = Modifier.fillMaxWidth(),
         shape = MaterialTheme.shapes.small,
         backgroundColor = colorResource(id = R.color.black),
     ) {
-        AudiText(
+        AmnesiaText(
             text = message,
             modifier = Modifier
                 .fillMaxWidth()

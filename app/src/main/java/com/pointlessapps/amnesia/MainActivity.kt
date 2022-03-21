@@ -25,8 +25,8 @@ import com.google.accompanist.insets.systemBarsPadding
 import com.pointlessapps.amnesia.compose.home.ui.HomeScreen
 import com.pointlessapps.amnesia.compose.login.ui.LoginScreen
 import com.pointlessapps.amnesia.compose.note.ui.NoteScreen
+import com.pointlessapps.amnesia.compose.ui.components.AmnesiaSnackbar
 import com.pointlessapps.amnesia.compose.ui.components.AmnesiaSnackbarHostState
-import com.pointlessapps.amnesia.compose.ui.components.AudiSnackbar
 import com.pointlessapps.amnesia.compose.ui.theme.AmnesiaTheme
 import com.pointlessapps.amnesia.compose.ui.theme.Route
 import dev.olshevski.navigation.reimagined.*
@@ -78,7 +78,7 @@ class MainActivity : ComponentActivity() {
                                 contentAlignment = Alignment.BottomCenter,
                             ) {
                                 SnackbarHost(hostState = snackbarHostState) {
-                                    AudiSnackbar(message = it.message)
+                                    AmnesiaSnackbar(message = it.message)
                                 }
                             }
                         }
@@ -100,6 +100,7 @@ class MainActivity : ComponentActivity() {
             when (it) {
                 Route.Login -> LoginScreen(
                     onNavigateToHome = {
+                        navController.popAll()
                         navController.navigate(Route.Home)
                     },
                 )
@@ -115,5 +116,5 @@ class MainActivity : ComponentActivity() {
 }
 
 internal val LocalSnackbarHostState = compositionLocalOf<AmnesiaSnackbarHostState> {
-    error("No AudiSnackbarHostState")
+    error("No AmnesiaSnackbarHostState")
 }

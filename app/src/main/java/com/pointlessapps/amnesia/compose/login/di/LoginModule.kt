@@ -8,6 +8,7 @@ internal val loginModule = module {
     viewModel {
         LoginViewModel(
             signInWithGoogleUseCase = get(),
+            signInAnonymouslyUseCase = get(),
         )
     }
 }

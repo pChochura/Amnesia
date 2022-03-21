@@ -10,6 +10,7 @@ import androidx.lifecycle.ViewModel
 import androidx.lifecycle.viewModelScope
 import com.google.android.gms.auth.api.signin.GoogleSignInResult
 import com.pointlessapps.amnesia.R
+import com.pointlessapps.amnesia.domain.auth.SignInAnonymouslyUseCase
 import com.pointlessapps.amnesia.domain.auth.SignInWithGoogleUseCase
 import kotlinx.coroutines.channels.Channel
 import kotlinx.coroutines.flow.*
@@ -17,6 +18,7 @@ import kotlinx.coroutines.launch
 
 internal class LoginViewModel(
     private val signInWithGoogleUseCase: SignInWithGoogleUseCase,
+    private val signInAnonymouslyUseCase: SignInAnonymouslyUseCase,
 ) : ViewModel() {
 
     private val eventChannel = Channel<Event>()
@@ -56,6 +58,29 @@ internal class LoginViewModel(
                 eventChannel.send(Event.ShowMessage(R.string.default_error_message))
             }
         }
+    }
+
+    fun onSignInAnonymously() {
+        signInAnonymouslyUseCase.prepare()
+            .take(1)
+            .onStart {
+                state = state.copy(
+                    isLoading = true,
+                )
+            }
+            .onEach {
+                state = state.copy(
+                    isLoading = false,
+                )
+                eventChannel.send(Event.MoveToNextScreen)
+            }
+            .catch {
+                eventChannel.send(Event.ShowMessage(R.string.default_error_message))
+                state = state.copy(
+                    isLoading = false,
+                )
+            }
+            .launchIn(viewModelScope)
     }
 
     internal data class State(

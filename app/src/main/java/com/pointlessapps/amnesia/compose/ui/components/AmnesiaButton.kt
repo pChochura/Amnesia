@@ -14,7 +14,7 @@ import androidx.compose.ui.unit.Dp
 import com.pointlessapps.amnesia.R
 
 @Composable
-fun AmnesiaButton(
+internal fun AmnesiaButton(
     text: String,
     onClick: () -> Unit,
     modifier: Modifier = Modifier,
@@ -41,7 +41,7 @@ fun AmnesiaButton(
 }
 
 @Composable
-fun defaultAmnesiaButtonModel() = AmnesiaButtonModel(
+internal fun defaultAmnesiaButtonModel() = AmnesiaButtonModel(
     backgroundColor = MaterialTheme.colors.secondary,
     textColor = MaterialTheme.colors.onSecondary,
     shape = MaterialTheme.shapes.medium,
@@ -49,7 +49,7 @@ fun defaultAmnesiaButtonModel() = AmnesiaButtonModel(
     horizontalPadding = dimensionResource(id = R.dimen.button_padding_horizontal),
 )
 
-data class AmnesiaButtonModel(
+internal data class AmnesiaButtonModel(
     val backgroundColor: Color,
     val textColor: Color,
     val shape: Shape,

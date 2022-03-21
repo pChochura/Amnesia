@@ -12,7 +12,7 @@ import com.pointlessapps.rt_editor.model.RichTextValue
 import com.pointlessapps.rt_editor.model.Style
 import androidx.compose.ui.graphics.Color as ComposeColor
 
-class NoteViewModel : ViewModel() {
+internal class NoteViewModel : ViewModel() {
 
     var state by mutableStateOf(State(), policy = neverEqualPolicy())
         private set

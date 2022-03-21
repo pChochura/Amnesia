@@ -43,7 +43,7 @@ import org.koin.androidx.compose.getViewModel
 
 @OptIn(ExperimentalFoundationApi::class)
 @Composable
-fun NoteScreen(viewModel: NoteViewModel = getViewModel()) {
+internal fun NoteScreen(viewModel: NoteViewModel = getViewModel()) {
     var showBottomBar by remember { mutableStateOf(false) }
     val focusRequester = remember { FocusRequester() }
     val keyboardController = LocalTextInputService.current

@@ -15,6 +15,7 @@ import androidx.compose.ui.Modifier
 import androidx.core.view.WindowCompat
 import com.google.accompanist.insets.ProvideWindowInsets
 import com.pointlessapps.amnesia.compose.home.ui.HomeScreen
+import com.pointlessapps.amnesia.compose.login.ui.LoginScreen
 import com.pointlessapps.amnesia.compose.note.ui.NoteScreen
 import com.pointlessapps.amnesia.compose.ui.theme.AmnesiaTheme
 import com.pointlessapps.amnesia.compose.ui.theme.Route
@@ -54,12 +55,17 @@ class MainActivity : ComponentActivity() {
     @Composable
     private fun NavHost(
         navController: NavController<Route> = rememberNavController(
-            startDestination = Route.Home,
+            startDestination = Route.Login,
         ),
     ) {
         NavBackHandler(navController = navController)
         AnimatedNavHost(controller = navController) {
             when (it) {
+                Route.Login -> LoginScreen(
+                    onNavigateToHome = {
+                        navController.navigate(Route.Home)
+                    },
+                )
                 Route.Home -> HomeScreen(
                     onNavigateToNoteClicked = {
                         navController.navigate(Route.NewNote)

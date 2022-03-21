@@ -31,7 +31,7 @@ import org.koin.androidx.compose.getViewModel
 import androidx.compose.ui.graphics.Color as ComposeColor
 
 @Composable
-fun HomeScreen(
+internal fun HomeScreen(
     viewModel: HomeViewModel = getViewModel(),
     onNavigateToNoteClicked: (Note?) -> Unit,
 ) {
@@ -40,6 +40,8 @@ fun HomeScreen(
     SideEffect {
         focusManager.clearFocus()
     }
+
+    AudiLoader(enabled = viewModel.state.isLoading)
 
     AmnesiaScaffoldLayout(
         topBar = {

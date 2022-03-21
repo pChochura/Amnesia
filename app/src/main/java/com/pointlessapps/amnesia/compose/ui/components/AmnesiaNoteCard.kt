@@ -20,7 +20,7 @@ import com.pointlessapps.dash.border.dashedBorder
 import androidx.compose.ui.graphics.Color as ComposeColor
 
 @Composable
-fun AmnesiaNoteCard(
+internal fun AmnesiaNoteCard(
     note: Note,
     modifier: Modifier = Modifier,
 ) {

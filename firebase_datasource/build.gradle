@@ -4,11 +4,11 @@ plugins {
 }
 
 android {
-    compileSdk compileAndTargetSdk
+    compileSdk 32
 
     defaultConfig {
-        minSdk minSdk
-        targetSdk compileAndTargetSdk
+        minSdk 24
+        targetSdk 32
     }
     compileOptions {
         sourceCompatibility JavaVersion.VERSION_1_8
@@ -25,8 +25,9 @@ dependencies {
     implementation 'org.jetbrains.kotlinx:kotlinx-coroutines-play-services:1.6.0'
 
     implementation platform("com.google.firebase:firebase-bom:$firebase_version")
-    implementation 'com.google.firebase:firebase-analytics-ktx'
     implementation 'com.google.firebase:firebase-firestore-ktx'
+    implementation 'com.google.firebase:firebase-auth-ktx'
+    implementation "com.google.android.gms:play-services-auth:$gms_version"
 
     implementation(project(':datasource'))
 }

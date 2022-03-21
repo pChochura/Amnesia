@@ -9,16 +9,16 @@ import androidx.compose.ui.input.pointer.AwaitPointerEventScope
 import androidx.compose.ui.input.pointer.consumePositionChange
 import androidx.compose.ui.input.pointer.pointerInput
 
-fun Modifier.conditional(
-    predicate: () -> Boolean,
+internal fun Modifier.conditional(
+    predicate: Boolean,
     then: Modifier.() -> Modifier,
-) = if (predicate()) {
+) = if (predicate) {
     then()
 } else {
     this
 }
 
-fun Modifier.onMove(
+internal fun Modifier.onMove(
     onMoved: AwaitPointerEventScope.(Offset) -> Unit,
     onDown: AwaitPointerEventScope.(Offset) -> Unit = { onMoved(it) },
     onUp: AwaitPointerEventScope.(Offset) -> Unit = { onMoved(it) },

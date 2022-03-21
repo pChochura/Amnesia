@@ -17,7 +17,7 @@ import androidx.core.graphics.ColorUtils
 import kotlin.math.roundToInt
 
 @Composable
-fun PaddingValues.add(
+internal fun PaddingValues.add(
     start: Dp = 0.dp,
     top: Dp = 0.dp,
     end: Dp = 0.dp,
@@ -32,57 +32,57 @@ fun PaddingValues.add(
 }
 
 @Composable
-fun PaddingValues.left(layoutDirection: LayoutDirection = LocalLayoutDirection.current) =
+internal fun PaddingValues.left(layoutDirection: LayoutDirection = LocalLayoutDirection.current) =
     calculateStartPadding(layoutDirection)
 
 @Composable
-fun PaddingValues.right(layoutDirection: LayoutDirection = LocalLayoutDirection.current) =
+internal fun PaddingValues.right(layoutDirection: LayoutDirection = LocalLayoutDirection.current) =
     calculateEndPadding(layoutDirection)
 
 @Composable
-fun PaddingValues.width(layoutDirection: LayoutDirection = LocalLayoutDirection.current) =
+internal fun PaddingValues.width(layoutDirection: LayoutDirection = LocalLayoutDirection.current) =
     left(layoutDirection) + right(layoutDirection)
 
 @Composable
-fun PaddingValues.top() = calculateTopPadding()
+internal fun PaddingValues.top() = calculateTopPadding()
 
 @Composable
-fun PaddingValues.bottom() = calculateBottomPadding()
+internal fun PaddingValues.bottom() = calculateBottomPadding()
 
 @Composable
-fun PaddingValues.height() = top() + bottom()
+internal fun PaddingValues.height() = top() + bottom()
 
 @Composable
-fun PaddingValues.horizontal(layoutDirection: LayoutDirection = LocalLayoutDirection.current) =
+internal fun PaddingValues.horizontal(layoutDirection: LayoutDirection = LocalLayoutDirection.current) =
     PaddingValues(
         start = left(layoutDirection),
         end = right(layoutDirection),
     )
 
 @Composable
-fun PaddingValues.vertical() = PaddingValues(
+internal fun PaddingValues.vertical() = PaddingValues(
     top = top(),
     bottom = bottom(),
 )
 
-fun Float.toPercent(): String = "${(this * 100).roundToInt()}%"
+internal fun Float.toPercent(): String = "${(this * 100).roundToInt()}%"
 
 @Composable
-fun Dp.roundToPx(): Int = LocalDensity.current.run {
+internal fun Dp.roundToPx(): Int = LocalDensity.current.run {
     this@roundToPx.roundToPx()
 }
 
 @Composable
-fun Dp.toPx(): Float = LocalDensity.current.run {
+internal fun Dp.toPx(): Float = LocalDensity.current.run {
     this@toPx.toPx()
 }
 
-fun Float.increment(value: Float) = ((this + value) * 10).roundToInt() / 10f
+internal fun Float.increment(value: Float) = ((this + value) * 10).roundToInt() / 10f
 
-fun Float.decrement(value: Float) = ((this - value) * 10).roundToInt() / 10f
+internal fun Float.decrement(value: Float) = ((this - value) * 10).roundToInt() / 10f
 
-fun Float.hueToColor(saturation: Float = 1f, value: Float = 0.5f): Color = Color(
+internal fun Float.hueToColor(saturation: Float = 1f, value: Float = 0.5f): Color = Color(
     ColorUtils.HSLToColor(floatArrayOf(this, saturation, value)),
 )
 
-fun Size.inset(amount: Float) = Size(width - amount, height - amount)
+internal fun Size.inset(amount: Float) = Size(width - amount, height - amount)

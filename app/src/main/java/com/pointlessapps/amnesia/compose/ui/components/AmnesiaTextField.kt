@@ -18,7 +18,7 @@ import com.pointlessapps.amnesia.compose.utils.EMPTY_STRING
 
 @Suppress("unused")
 @Composable
-fun AmnesiaTextField(
+internal fun AmnesiaTextField(
     value: String,
     onValueChange: (String) -> Unit,
     modifier: Modifier = Modifier,
@@ -41,7 +41,7 @@ fun AmnesiaTextField(
 }
 
 @Composable
-fun AmnesiaTextField(
+internal fun AmnesiaTextField(
     value: TextFieldValue,
     onValueChange: (TextFieldValue) -> Unit,
     modifier: Modifier = Modifier,
@@ -72,7 +72,7 @@ fun AmnesiaTextField(
 }
 
 @Composable
-fun defaultAmnesiaTextFieldModel() = AmnesiaTextFieldModel(
+internal fun defaultAmnesiaTextFieldModel() = AmnesiaTextFieldModel(
     keyboardOptions = KeyboardOptions(
         capitalization = KeyboardCapitalization.Sentences,
     ),
@@ -84,7 +84,7 @@ fun defaultAmnesiaTextFieldModel() = AmnesiaTextFieldModel(
     cursorColor = MaterialTheme.colors.secondary,
 )
 
-data class AmnesiaTextFieldModel(
+internal data class AmnesiaTextFieldModel(
     val keyboardOptions: KeyboardOptions,
     val visualTransformation: VisualTransformation,
     val placeholder: String,

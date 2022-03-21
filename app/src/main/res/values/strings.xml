@@ -26,4 +26,5 @@
 	<string name="align_right">Align right</string>
 	<string name="align_center">Align center</string>
 	<string name="strikethrough">Strikethrough</string>
+    <string name="sign_in_with_google">Sign in with Google</string>
 </resources>

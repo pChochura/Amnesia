@@ -9,3 +9,8 @@ private fun NoteDto.toNote(): Note = Note(
     title = title,
     content = content,
 )
+
+internal fun Note.toNoteDto(): NoteDto = NoteDto(
+    title = title,
+    content = content,
+)

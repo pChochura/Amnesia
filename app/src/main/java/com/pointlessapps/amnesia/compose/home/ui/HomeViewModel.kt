@@ -3,7 +3,6 @@ package com.pointlessapps.amnesia.compose.home.ui
 import android.graphics.Color
 import androidx.compose.runtime.getValue
 import androidx.compose.runtime.mutableStateOf
-import androidx.compose.runtime.referentialEqualityPolicy
 import androidx.compose.runtime.setValue
 import androidx.lifecycle.ViewModel
 import com.pointlessapps.amnesia.model.Category
@@ -11,9 +10,9 @@ import com.pointlessapps.amnesia.model.Note
 
 private val CATEGORY_ALL = Category("All", Color.parseColor("#FBCCCC"))
 
-class HomeViewModel : ViewModel() {
+internal class HomeViewModel : ViewModel() {
 
-    var state: State by mutableStateOf(State(), policy = referentialEqualityPolicy())
+    var state: State by mutableStateOf(State())
         private set
 
     init {
@@ -83,10 +82,11 @@ class HomeViewModel : ViewModel() {
 
     fun partitionNotesByPinned(): Pair<List<Note>, List<Note>> =
         filterNotesBySelectedCategory().partition { it.isPinned }
-}
 
-data class State(
-    val categories: List<Category> = emptyList(),
-    val selectedCategory: Category = CATEGORY_ALL,
-    val notes: List<Note> = emptyList(),
-)
+    data class State(
+        val categories: List<Category> = emptyList(),
+        val selectedCategory: Category = CATEGORY_ALL,
+        val notes: List<Note> = emptyList(),
+        val isLoading: Boolean = false,
+    )
+}

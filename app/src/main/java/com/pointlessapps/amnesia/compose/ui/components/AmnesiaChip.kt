@@ -19,7 +19,7 @@ import com.pointlessapps.amnesia.R
 import com.pointlessapps.amnesia.compose.utils.conditional
 
 @Composable
-fun AmnesiaChip(
+internal fun AmnesiaChip(
     text: String,
     modifier: Modifier = Modifier,
     chipModel: AmnesiaChipModel = defaultAmnesiaChipModel(),
@@ -38,7 +38,7 @@ fun AmnesiaChip(
                     Color.Transparent
                 },
             )
-            .conditional({ !colored }) {
+            .conditional(!colored) {
                 Modifier.border(
                     width = chipModel.borderWidth,
                     color = chipModel.borderColor,
@@ -55,7 +55,7 @@ fun AmnesiaChip(
 }
 
 @Composable
-fun defaultAmnesiaChipModel() = AmnesiaChipModel(
+internal fun defaultAmnesiaChipModel() = AmnesiaChipModel(
     borderWidth = dimensionResource(id = R.dimen.border_size),
     borderColor = colorResource(id = android.R.color.transparent),
     backgroundColor = MaterialTheme.colors.secondary,
@@ -67,7 +67,7 @@ fun defaultAmnesiaChipModel() = AmnesiaChipModel(
     horizontalPadding = dimensionResource(id = R.dimen.chip_padding_horizontal),
 )
 
-data class AmnesiaChipModel(
+internal data class AmnesiaChipModel(
     val borderWidth: Dp,
     val borderColor: Color,
     val backgroundColor: Color,

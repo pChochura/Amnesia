@@ -26,7 +26,7 @@ import com.pointlessapps.amnesia.compose.utils.toPercent
 import com.pointlessapps.rt_editor.model.Style
 
 @Composable
-fun TextSizePicker(
+internal fun TextSizePicker(
     @FloatRange(from = Style.TextSize.MIN_VALUE, to = Style.TextSize.MAX_VALUE) currentValue: Float,
     onDismissListener: () -> Unit,
     onMinusClicked: () -> Unit,

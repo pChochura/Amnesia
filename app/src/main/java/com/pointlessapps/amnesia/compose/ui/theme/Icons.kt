@@ -9,7 +9,7 @@ import androidx.compose.ui.res.painterResource
 import com.pointlessapps.amnesia.R
 
 @Suppress("TooManyFunctions")
-object Icons {
+internal object Icons {
     @Composable
     fun Get(
         @DrawableRes iconRes: Int,

@@ -27,7 +27,7 @@ private const val MAX_HUE_VALUE = 360
 private const val HALF = 0.5f
 
 @Composable
-fun TextColorPicker(
+internal fun TextColorPicker(
     recentColors: List<Color>,
     onDismissListener: () -> Unit,
     onColorClicked: (Color) -> Unit,

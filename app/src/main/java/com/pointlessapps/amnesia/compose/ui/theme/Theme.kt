@@ -86,7 +86,7 @@ private fun lightColorPalette() = lightColors(
 )
 
 @Composable
-fun AmnesiaTheme(content: @Composable () -> Unit) {
+internal fun AmnesiaTheme(content: @Composable () -> Unit) {
     val colors = lightColorPalette() // TODO add dark theme
 
     MaterialTheme(

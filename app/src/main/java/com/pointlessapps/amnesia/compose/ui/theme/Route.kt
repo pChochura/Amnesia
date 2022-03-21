@@ -3,7 +3,10 @@ package com.pointlessapps.amnesia.compose.ui.theme
 import android.os.Parcelable
 import kotlinx.parcelize.Parcelize
 
-sealed interface Route : Parcelable {
+internal sealed interface Route : Parcelable {
+    @Parcelize
+    object Login : Route
+
     @Parcelize
     object Home : Route
 

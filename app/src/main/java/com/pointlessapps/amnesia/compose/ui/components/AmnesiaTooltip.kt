@@ -25,7 +25,7 @@ import com.pointlessapps.amnesia.tooltip.Tooltip
 
 @OptIn(ExperimentalFoundationApi::class)
 @Composable
-fun AmnesiaTooltipWrapper(
+internal fun AmnesiaTooltipWrapper(
     modifier: Modifier = Modifier,
     tooltipModel: AmnesiaTooltipModel = defaultAmnesiaTooltipModel(),
     enabled: Boolean = true,
@@ -75,7 +75,7 @@ fun AmnesiaTooltipWrapper(
 }
 
 @Composable
-fun defaultAmnesiaTooltipModel() = AmnesiaTooltipModel(
+internal fun defaultAmnesiaTooltipModel() = AmnesiaTooltipModel(
     buttonRippleColor = Color.Unspecified,
     backgroundColor = MaterialTheme.colors.secondary,
     textStyle = MaterialTheme.typography.button.copy(
@@ -86,7 +86,7 @@ fun defaultAmnesiaTooltipModel() = AmnesiaTooltipModel(
     horizontalPadding = dimensionResource(id = R.dimen.chip_padding_horizontal),
 )
 
-data class AmnesiaTooltipModel(
+internal data class AmnesiaTooltipModel(
     val buttonRippleColor: Color,
     val backgroundColor: Color,
     val textStyle: TextStyle,

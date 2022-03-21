@@ -4,8 +4,7 @@ import com.pointlessapps.amnesia.compose.home.ui.HomeViewModel
 import org.koin.androidx.viewmodel.dsl.viewModel
 import org.koin.dsl.module
 
-val homeModule = module {
-
+internal val homeModule = module {
     viewModel {
         HomeViewModel()
     }

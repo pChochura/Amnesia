@@ -7,7 +7,7 @@ import androidx.compose.ui.Modifier
 import androidx.compose.ui.layout.SubcomposeLayout
 
 @Composable
-fun AmnesiaScaffoldLayout(
+internal fun AmnesiaScaffoldLayout(
     topBar: @Composable () -> Unit = {},
     fab: @Composable () -> Unit = {},
     content: @Composable (PaddingValues) -> Unit,

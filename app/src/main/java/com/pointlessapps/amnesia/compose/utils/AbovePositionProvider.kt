@@ -7,7 +7,7 @@ import androidx.compose.ui.unit.IntSize
 import androidx.compose.ui.unit.LayoutDirection
 import androidx.compose.ui.window.PopupPositionProvider
 
-class AbovePositionProvider(private val offset: IntOffset = IntOffset.Zero) :
+internal class AbovePositionProvider(private val offset: IntOffset = IntOffset.Zero) :
     PopupPositionProvider {
 
     private val alignment = Alignment.TopCenter

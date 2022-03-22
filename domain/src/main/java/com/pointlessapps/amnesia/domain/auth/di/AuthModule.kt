@@ -1,9 +1,6 @@
 package com.pointlessapps.amnesia.domain.auth.di
 
-import com.pointlessapps.amnesia.domain.auth.AuthRepository
-import com.pointlessapps.amnesia.domain.auth.AuthRepositoryImpl
-import com.pointlessapps.amnesia.domain.auth.SignInAnonymouslyUseCase
-import com.pointlessapps.amnesia.domain.auth.SignInWithGoogleUseCase
+import com.pointlessapps.amnesia.domain.auth.*
 import org.koin.dsl.module
 
 internal val authModule = module {
@@ -21,6 +18,12 @@ internal val authModule = module {
 
     factory {
         SignInAnonymouslyUseCase(
+            repository = get(),
+        )
+    }
+
+    factory {
+        IsSignedInUseCase(
             repository = get(),
         )
     }

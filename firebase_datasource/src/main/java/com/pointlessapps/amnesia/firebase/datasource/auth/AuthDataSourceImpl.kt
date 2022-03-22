@@ -36,4 +36,8 @@ internal class AuthDataSourceImpl(
 
         return GoogleSignInClientDto(GoogleSignIn.getClient(context, options).signInIntent)
     }
+
+    override fun isSignedIn(): Boolean {
+        return auth.currentUser != null
+    }
 }

@@ -31,8 +31,11 @@ import com.pointlessapps.amnesia.compose.ui.theme.AmnesiaTheme
 import com.pointlessapps.amnesia.compose.ui.theme.Route
 import dev.olshevski.navigation.reimagined.*
 import kotlinx.coroutines.launch
+import org.koin.androidx.viewmodel.ext.android.viewModel
 
 class MainActivity : ComponentActivity() {
+
+    private val viewModel by viewModel<MainViewModel>()
 
     override fun onCreate(savedInstanceState: Bundle?) {
         WindowCompat.setDecorFitsSystemWindows(window, false)
@@ -67,7 +70,11 @@ class MainActivity : ComponentActivity() {
                             modifier = Modifier.fillMaxSize(),
                             color = MaterialTheme.colors.background,
                         ) {
-                            NavHost()
+                            NavHost(
+                                navController = rememberNavController(
+                                    startDestination = viewModel.startingRoute,
+                                ),
+                            )
 
                             Box(
                                 modifier = Modifier
@@ -90,11 +97,7 @@ class MainActivity : ComponentActivity() {
 
     @OptIn(ExperimentalAnimationApi::class)
     @Composable
-    private fun NavHost(
-        navController: NavController<Route> = rememberNavController(
-            startDestination = Route.Login,
-        ),
-    ) {
+    private fun NavHost(navController: NavController<Route>) {
         NavBackHandler(navController = navController)
         AnimatedNavHost(controller = navController) {
             when (it) {

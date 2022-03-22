@@ -12,6 +12,8 @@ interface AuthRepository {
     fun linkWithGoogle(): Flow<Unit>
 
     fun signInWithGoogle(): Flow<GoogleSignInClient>
+
+    fun isSignedIn(): Boolean
 }
 
 internal class AuthRepositoryImpl(
@@ -28,5 +30,9 @@ internal class AuthRepositoryImpl(
 
     override fun signInWithGoogle(): Flow<GoogleSignInClient> = flow {
         emit(authDataSource.signInWithGoogle().toGoogleSignInClient())
+    }
+
+    override fun isSignedIn(): Boolean {
+        return authDataSource.isSignedIn()
     }
 }

@@ -8,4 +8,6 @@ interface AuthDataSource {
     suspend fun linkWithGoogle()
 
     suspend fun signInWithGoogle(): GoogleSignInClientDto
+
+    fun isSignedIn(): Boolean
 }

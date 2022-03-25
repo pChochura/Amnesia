@@ -102,7 +102,13 @@ class MainActivity : ComponentActivity() {
                         navController.navigate(Route.Note(note))
                     },
                 )
-                is Route.Note -> NoteScreen(it.note)
+                is Route.Note -> NoteScreen(
+                    note = it.note,
+                    onNavigateToHome = {
+                        navController.popAll()
+                        navController.navigate(Route.Home)
+                    },
+                )
             }
         }
     }

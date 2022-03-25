@@ -53,7 +53,7 @@ internal class LoginViewModel(
         )
         viewModelScope.launch {
             if (data?.isSuccess == true) {
-                eventChannel.send(Event.MoveToNextScreen)
+                eventChannel.send(Event.NavigateToHome)
             } else {
                 eventChannel.send(Event.ShowMessage(R.string.default_error_message))
             }
@@ -72,7 +72,7 @@ internal class LoginViewModel(
                 state = state.copy(
                     isLoading = false,
                 )
-                eventChannel.send(Event.MoveToNextScreen)
+                eventChannel.send(Event.NavigateToHome)
             }
             .catch {
                 eventChannel.send(Event.ShowMessage(R.string.default_error_message))
@@ -89,6 +89,6 @@ internal class LoginViewModel(
 
     internal sealed interface Event {
         class ShowMessage(@StringRes val message: Int) : Event
-        object MoveToNextScreen : Event
+        object NavigateToHome : Event
     }
 }

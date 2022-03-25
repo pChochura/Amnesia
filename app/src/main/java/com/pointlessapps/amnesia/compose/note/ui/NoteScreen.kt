@@ -46,8 +46,9 @@ import org.koin.androidx.compose.getViewModel
 @OptIn(ExperimentalFoundationApi::class)
 @Composable
 internal fun NoteScreen(
-    note: NoteModel?,
     viewModel: NoteViewModel = getViewModel(),
+    note: NoteModel?,
+    onNavigateToHome: () -> Unit,
 ) {
     var showBottomBar by remember { mutableStateOf(false) }
     val focusRequester = remember { FocusRequester() }
@@ -62,6 +63,7 @@ internal fun NoteScreen(
     LaunchedEffect(Unit) {
         viewModel.events.collect { event ->
             when (event) {
+                NoteViewModel.Event.NavigateToHome -> onNavigateToHome()
                 is NoteViewModel.Event.ShowMessage ->
                     snackbarHostState.showSnackbar(event.message)
             }

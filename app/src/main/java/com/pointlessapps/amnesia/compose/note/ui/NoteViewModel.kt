@@ -13,6 +13,7 @@ import com.pointlessapps.amnesia.domain.notes.dto.Category
 import com.pointlessapps.amnesia.domain.notes.dto.Content
 import com.pointlessapps.amnesia.domain.notes.dto.Note
 import com.pointlessapps.amnesia.domain.notes.usecase.SaveNoteUseCase
+import com.pointlessapps.amnesia.domain.utils.DateFormatter
 import com.pointlessapps.amnesia.model.CategoryModel
 import com.pointlessapps.amnesia.model.NoteModel
 import com.pointlessapps.rt_editor.model.RichTextValue
@@ -24,6 +25,7 @@ import androidx.compose.ui.graphics.Color as ComposeColor
 
 internal class NoteViewModel(
     private val saveNoteUseCase: SaveNoteUseCase,
+    private val dateFormatter: DateFormatter,
 ) : ViewModel() {
 
     private val eventChannel = Channel<Event>()
@@ -42,6 +44,8 @@ internal class NoteViewModel(
             title = TextFieldValue(note.title.orEmpty()),
             content = RichTextValue.fromSnapshot(note.content),
             categories = note.categories.toList(),
+            createdAt = dateFormatter.fromString(note.createdAt),
+            isPinned = note.isPinned,
         )
     }
 
@@ -64,8 +68,10 @@ internal class NoteViewModel(
     }
 
     fun onCategoryAdded(
-        value: CategoryModel = CategoryModel(name = "Test category",
-            color = Color.parseColor("#FBCCCC")),
+        value: CategoryModel = CategoryModel(
+            name = "Test category",
+            color = Color.parseColor("#FBCCCC"),
+        ),
     ) {
         state = state.copy(
             categories = buildList {
@@ -117,6 +123,7 @@ internal class NoteViewModel(
             }
             .onEach {
                 state = state.copy(isLoading = false)
+                eventChannel.send(Event.NavigateToHome)
             }
             .catch {
                 state = state.copy(isLoading = false)
@@ -140,8 +147,8 @@ internal class NoteViewModel(
                 selectionPosition = selectionPosition,
             )
         },
-        createdAt = Date().time,
-        updatedAt = Date().time,
+        updatedAt = System.currentTimeMillis(),
+        createdAt = state.createdAt,
         categories = state.categories.map {
             Category(
                 id = it.id,
@@ -149,11 +156,13 @@ internal class NoteViewModel(
                 color = it.color,
             )
         },
-        isPinned = false,
+        isPinned = state.isPinned,
     )
 
     internal data class State(
         val id: Long = UUID.randomUUID().mostSignificantBits,
+        val createdAt: Long = System.currentTimeMillis(),
+        val isPinned: Boolean = false,
         val title: TextFieldValue = TextFieldValue(),
         val content: RichTextValue = RichTextValue.get(),
         val categories: List<CategoryModel> = emptyList(),
@@ -163,5 +172,6 @@ internal class NoteViewModel(
 
     internal sealed interface Event {
         class ShowMessage(@StringRes val message: Int) : Event
+        object NavigateToHome : Event
     }
 }

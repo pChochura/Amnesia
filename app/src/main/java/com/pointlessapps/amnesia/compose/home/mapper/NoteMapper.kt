@@ -3,18 +3,17 @@ package com.pointlessapps.amnesia.compose.home.mapper
 import com.pointlessapps.amnesia.domain.notes.dto.Category
 import com.pointlessapps.amnesia.domain.notes.dto.Content
 import com.pointlessapps.amnesia.domain.notes.dto.Note
+import com.pointlessapps.amnesia.domain.utils.DateFormatter
 import com.pointlessapps.amnesia.model.CategoryModel
 import com.pointlessapps.amnesia.model.NoteModel
 import com.pointlessapps.rt_editor.utils.RichTextValueSnapshot
-import java.text.SimpleDateFormat
-import java.util.*
 
-internal fun Note.toNoteModel(dateFormatter: SimpleDateFormat) = NoteModel(
+internal fun Note.toNoteModel(dateFormatter: DateFormatter) = NoteModel(
     id = id,
     title = title,
     content = content.toRichTextValueSnapshot(),
-    createdAt = dateFormatter.format(Date(createdAt)),
-    updatedAt = dateFormatter.format(Date(updatedAt)),
+    createdAt = dateFormatter.toString(createdAt),
+    updatedAt = dateFormatter.toString(updatedAt),
     categories = categories.map(Category::toCategoryModel).toSet(),
     isPinned = isPinned,
 )

@@ -9,6 +9,7 @@ internal val noteModule = module {
     viewModel {
         NoteViewModel(
             saveNoteUseCase = get(),
+            dateFormatter = get(),
         )
     }
 }

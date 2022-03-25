@@ -12,16 +12,16 @@ import com.pointlessapps.amnesia.compose.home.mapper.toNoteModel
 import com.pointlessapps.amnesia.domain.notes.dto.Category
 import com.pointlessapps.amnesia.domain.notes.usecase.GetAllCategoriesUseCase
 import com.pointlessapps.amnesia.domain.notes.usecase.GetAllNotesUseCase
+import com.pointlessapps.amnesia.domain.utils.DateFormatter
 import com.pointlessapps.amnesia.model.CategoryModel
 import com.pointlessapps.amnesia.model.NoteModel
 import kotlinx.coroutines.channels.Channel
 import kotlinx.coroutines.flow.*
-import java.text.SimpleDateFormat
 
 internal class HomeViewModel(
-    getAllNotesUseCase: GetAllNotesUseCase,
-    getAllCategoriesUseCase: GetAllCategoriesUseCase,
-    private val dateFormatter: SimpleDateFormat,
+    private val getAllNotesUseCase: GetAllNotesUseCase,
+    private val getAllCategoriesUseCase: GetAllCategoriesUseCase,
+    private val dateFormatter: DateFormatter,
 ) : ViewModel() {
 
     private val eventChannel = Channel<Event>()
@@ -30,7 +30,7 @@ internal class HomeViewModel(
     var state: State by mutableStateOf(State())
         private set
 
-    init {
+    fun refreshNotes() {
         combine(
             getAllCategoriesUseCase.prepare(),
             getAllNotesUseCase.prepare(),
@@ -77,7 +77,7 @@ internal class HomeViewModel(
         val categories: List<CategoryModel> = emptyList(),
         val selectedCategory: CategoryModel? = null,
         val notes: List<NoteModel> = emptyList(),
-        val isLoading: Boolean = false,
+        val isLoading: Boolean = true,
     )
 
     internal sealed interface Event {

@@ -11,6 +11,7 @@ import androidx.compose.foundation.shape.CircleShape
 import androidx.compose.material.MaterialTheme
 import androidx.compose.material.Text
 import androidx.compose.runtime.Composable
+import androidx.compose.runtime.DisposableEffect
 import androidx.compose.runtime.LaunchedEffect
 import androidx.compose.runtime.SideEffect
 import androidx.compose.ui.Alignment
@@ -19,11 +20,14 @@ import androidx.compose.ui.draw.clip
 import androidx.compose.ui.graphics.toArgb
 import androidx.compose.ui.layout.ContentScale
 import androidx.compose.ui.platform.LocalFocusManager
+import androidx.compose.ui.platform.LocalLifecycleOwner
 import androidx.compose.ui.res.colorResource
 import androidx.compose.ui.res.dimensionResource
 import androidx.compose.ui.res.painterResource
 import androidx.compose.ui.res.stringResource
 import androidx.constraintlayout.compose.ConstraintLayout
+import androidx.lifecycle.Lifecycle
+import androidx.lifecycle.LifecycleEventObserver
 import com.pointlessapps.amnesia.LocalSnackbarHostState
 import com.pointlessapps.amnesia.R
 import com.pointlessapps.amnesia.compose.ui.components.*
@@ -42,7 +46,23 @@ internal fun HomeScreen(
 ) {
     val snackbarHostState = LocalSnackbarHostState.current
     val focusManager = LocalFocusManager.current
+    val lifecycleOwner = LocalLifecycleOwner.current
+
     SideEffect { focusManager.clearFocus() }
+
+    DisposableEffect(lifecycleOwner) {
+        val observer = LifecycleEventObserver { _, event ->
+            if (event == Lifecycle.Event.ON_RESUME) {
+                viewModel.refreshNotes()
+            }
+        }
+
+        lifecycleOwner.lifecycle.addObserver(observer)
+
+        onDispose {
+            lifecycleOwner.lifecycle.removeObserver(observer)
+        }
+    }
 
     LaunchedEffect(Unit) {
         viewModel.events.collect { event ->
@@ -233,13 +253,13 @@ private fun CategoriesRow(viewModel: HomeViewModel) {
                 color = colorResource(id = R.color.orange).toArgb(),
             ),
             isSelected = viewModel.state.selectedCategory == null,
-            onCategorySelected = { viewModel.onCategorySelected(null) }
+            onCategorySelected = { viewModel.onCategorySelected(null) },
         )
         viewModel.state.categories.forEach { category ->
             CategoryItem(
                 category = category,
                 isSelected = viewModel.state.selectedCategory === category,
-                onCategorySelected = viewModel::onCategorySelected
+                onCategorySelected = viewModel::onCategorySelected,
             )
         }
     }
@@ -256,9 +276,13 @@ private fun CategoryItem(
         chipModel = defaultAmnesiaChipModel().copy(
             backgroundColor = ComposeColor(category.color),
             textStyle = MaterialTheme.typography.h3.copy(
-                color = MaterialTheme.colors.foregroundColor(
-                    ComposeColor(category.color),
-                ),
+                color = if (isSelected) {
+                    MaterialTheme.colors.foregroundColor(
+                        ComposeColor(category.color),
+                    )
+                } else {
+                    MaterialTheme.colors.onPrimary
+                },
             ),
         ),
         colored = isSelected,

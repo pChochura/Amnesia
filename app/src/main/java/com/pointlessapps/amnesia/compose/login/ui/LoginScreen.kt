@@ -34,8 +34,7 @@ internal fun LoginScreen(
     LaunchedEffect(Unit) {
         viewModel.events.collect { event ->
             when (event) {
-                LoginViewModel.Event.MoveToNextScreen ->
-                    onNavigateToHome()
+                LoginViewModel.Event.NavigateToHome -> onNavigateToHome()
                 is LoginViewModel.Event.ShowMessage ->
                     snackbarHostState.showSnackbar(event.message)
             }

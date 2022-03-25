@@ -19,7 +19,7 @@ internal fun Note.toNoteModel(dateFormatter: SimpleDateFormat) = NoteModel(
     isPinned = isPinned,
 )
 
-private fun Category.toCategoryModel() = CategoryModel(
+internal fun Category.toCategoryModel() = CategoryModel(
     id = id,
     name = name,
     color = color,

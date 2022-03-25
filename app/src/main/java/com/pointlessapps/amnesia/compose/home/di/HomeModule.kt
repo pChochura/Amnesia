@@ -9,6 +9,7 @@ internal val homeModule = module {
     viewModel {
         HomeViewModel(
             getAllNotesUseCase = get(),
+            getAllCategoriesUseCase = get(),
             dateFormatter = DATE_FORMATTER,
         )
     }

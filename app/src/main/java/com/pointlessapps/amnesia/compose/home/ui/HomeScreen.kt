@@ -16,6 +16,7 @@ import androidx.compose.runtime.SideEffect
 import androidx.compose.ui.Alignment
 import androidx.compose.ui.Modifier
 import androidx.compose.ui.draw.clip
+import androidx.compose.ui.graphics.toArgb
 import androidx.compose.ui.layout.ContentScale
 import androidx.compose.ui.platform.LocalFocusManager
 import androidx.compose.ui.res.colorResource
@@ -28,6 +29,8 @@ import com.pointlessapps.amnesia.R
 import com.pointlessapps.amnesia.compose.ui.components.*
 import com.pointlessapps.amnesia.compose.ui.theme.Icons
 import com.pointlessapps.amnesia.compose.utils.add
+import com.pointlessapps.amnesia.compose.utils.foregroundColor
+import com.pointlessapps.amnesia.model.CategoryModel
 import com.pointlessapps.amnesia.model.NoteModel
 import org.koin.androidx.compose.getViewModel
 import androidx.compose.ui.graphics.Color as ComposeColor
@@ -222,20 +225,41 @@ private fun CategoriesRow(viewModel: HomeViewModel) {
             ),
         horizontalArrangement = Arrangement.spacedBy(dimensionResource(id = R.dimen.small_padding)),
     ) {
+        CategoryItem(
+            category = CategoryModel(
+                name = stringResource(id = R.string.all),
+                color = colorResource(id = R.color.orange).toArgb(),
+            ),
+            isSelected = viewModel.state.selectedCategory == null,
+            onCategorySelected = { viewModel.onCategorySelected(null) }
+        )
         viewModel.state.categories.forEach { category ->
-            AmnesiaChip(
-                text = category.name,
-                chipModel = defaultAmnesiaChipModel().run {
-                    copy(
-                        backgroundColor = ComposeColor(category.color),
-                        textStyle = MaterialTheme.typography.h3.copy(
-                            color = textStyle.color,
-                        ),
-                    )
-                },
-                colored = viewModel.state.selectedCategory === category,
-                onClick = { viewModel.onCategorySelected(category) },
+            CategoryItem(
+                category = category,
+                isSelected = viewModel.state.selectedCategory === category,
+                onCategorySelected = viewModel::onCategorySelected
             )
         }
     }
+}
+
+@Composable
+private fun CategoryItem(
+    category: CategoryModel,
+    isSelected: Boolean,
+    onCategorySelected: (CategoryModel?) -> Unit,
+) {
+    AmnesiaChip(
+        text = category.name,
+        chipModel = defaultAmnesiaChipModel().copy(
+            backgroundColor = ComposeColor(category.color),
+            textStyle = MaterialTheme.typography.h3.copy(
+                color = MaterialTheme.colors.foregroundColor(
+                    ComposeColor(category.color),
+                ),
+            ),
+        ),
+        colored = isSelected,
+        onClick = { onCategorySelected(category) },
+    )
 }

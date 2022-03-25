@@ -5,9 +5,12 @@ package com.pointlessapps.amnesia.compose.utils
 import androidx.compose.foundation.layout.PaddingValues
 import androidx.compose.foundation.layout.calculateEndPadding
 import androidx.compose.foundation.layout.calculateStartPadding
+import androidx.compose.material.Colors
+import androidx.compose.material.MaterialTheme
 import androidx.compose.runtime.Composable
 import androidx.compose.ui.geometry.Size
 import androidx.compose.ui.graphics.Color
+import androidx.compose.ui.graphics.luminance
 import androidx.compose.ui.platform.LocalDensity
 import androidx.compose.ui.platform.LocalLayoutDirection
 import androidx.compose.ui.unit.Dp
@@ -86,3 +89,11 @@ internal fun Float.hueToColor(saturation: Float = 1f, value: Float = 0.5f): Colo
 )
 
 internal fun Size.inset(amount: Float) = Size(width - amount, height - amount)
+
+@Composable
+internal fun Colors.foregroundColor(backgroundColor: Color) =
+    if (backgroundColor.luminance() > 0.5f) {
+        MaterialTheme.colors.onPrimary
+    } else {
+        MaterialTheme.colors.onSecondary
+    }

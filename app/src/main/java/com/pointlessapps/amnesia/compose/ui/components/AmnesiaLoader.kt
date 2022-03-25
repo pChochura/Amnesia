@@ -20,7 +20,9 @@ private const val SCRIM_ALPHA = 0.9f
 internal fun AmnesiaLoader(enabled: Boolean) {
     val focusManager = LocalFocusManager.current
     LaunchedEffect(enabled) {
-        focusManager.clearFocus(true)
+        if (enabled) {
+            focusManager.clearFocus(true)
+        }
     }
 
     AnimatedVisibility(

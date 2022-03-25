@@ -15,13 +15,13 @@ import androidx.compose.ui.draw.clip
 import androidx.compose.ui.res.dimensionResource
 import androidx.compose.ui.res.stringResource
 import com.pointlessapps.amnesia.R
-import com.pointlessapps.amnesia.model.Note
+import com.pointlessapps.amnesia.model.NoteModel
 import com.pointlessapps.dash.border.dashedBorder
 import androidx.compose.ui.graphics.Color as ComposeColor
 
 @Composable
 internal fun AmnesiaNoteCard(
-    note: Note,
+    note: NoteModel,
     modifier: Modifier = Modifier,
 ) {
     Column(
@@ -48,7 +48,7 @@ internal fun AmnesiaNoteCard(
         ) {
             note.categories.forEach {
                 AmnesiaChip(
-                    text = it.text,
+                    text = it.name,
                     chipModel = defaultAmnesiaChipModel().run {
                         copy(
                             backgroundColor = ComposeColor(it.color),
@@ -85,7 +85,7 @@ internal fun AmnesiaNoteCard(
         }
 
         Text(
-            text = note.content,
+            text = note.content.text,
             style = MaterialTheme.typography.body1.copy(
                 color = MaterialTheme.colors.secondaryVariant,
             ),

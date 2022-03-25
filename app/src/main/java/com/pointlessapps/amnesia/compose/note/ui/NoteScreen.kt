@@ -28,6 +28,7 @@ import androidx.compose.ui.platform.LocalTextInputService
 import androidx.compose.ui.res.dimensionResource
 import androidx.compose.ui.res.stringResource
 import androidx.constraintlayout.compose.ConstraintLayout
+import com.pointlessapps.amnesia.LocalSnackbarHostState
 import com.pointlessapps.amnesia.R
 import com.pointlessapps.amnesia.compose.note.util.TEXT_SIZE_INCREMENT
 import com.pointlessapps.amnesia.compose.ui.components.*
@@ -47,10 +48,22 @@ internal fun NoteScreen(viewModel: NoteViewModel = getViewModel()) {
     var showBottomBar by remember { mutableStateOf(false) }
     val focusRequester = remember { FocusRequester() }
     val keyboardController = LocalTextInputService.current
+    val snackbarHostState = LocalSnackbarHostState.current
 
     LaunchedEffect(Unit) {
         focusRequester.requestFocus()
     }
+
+    LaunchedEffect(Unit) {
+        viewModel.events.collect { event ->
+            when (event) {
+                is NoteViewModel.Event.ShowMessage ->
+                    snackbarHostState.showSnackbar(event.message)
+            }
+        }
+    }
+
+    AmnesiaLoader(enabled = viewModel.state.isLoading)
 
     AmnesiaScaffoldLayout(
         topBar = { TopBar(viewModel, isUndoRedoAvailable = showBottomBar) },
@@ -97,7 +110,7 @@ internal fun NoteScreen(viewModel: NoteViewModel = getViewModel()) {
                         items(viewModel.state.categories, key = { it.id }) { category ->
                             AmnesiaChip(
                                 modifier = Modifier.animateItemPlacement(),
-                                text = category.text,
+                                text = category.name,
                                 chipModel = defaultAmnesiaChipModel().copy(
                                     backgroundColor = Color(category.color),
                                 ),
@@ -231,7 +244,7 @@ private fun TopBar(viewModel: NoteViewModel, isUndoRedoAvailable: Boolean) {
                     end.linkTo(parent.end)
                 },
             tooltip = stringResource(R.string.done),
-            onClick = { /*TODO*/ },
+            onClick = viewModel::onNoteSaved,
         ) {
             Icons.Done(
                 modifier = Modifier.size(dimensionResource(id = R.dimen.icon_size)),

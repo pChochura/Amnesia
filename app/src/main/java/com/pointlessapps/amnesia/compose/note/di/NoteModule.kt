@@ -7,6 +7,8 @@ import org.koin.dsl.module
 internal val noteModule = module {
 
     viewModel {
-        NoteViewModel()
+        NoteViewModel(
+            saveNoteUseCase = get(),
+        )
     }
 }

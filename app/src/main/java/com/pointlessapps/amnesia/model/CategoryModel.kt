@@ -6,8 +6,8 @@ import kotlinx.parcelize.Parcelize
 import java.util.*
 
 @Parcelize
-data class Category(
-    val text: String,
-    @ColorInt val color: Int,
+data class CategoryModel(
     val id: Long = UUID.randomUUID().mostSignificantBits,
+    val name: String,
+    @ColorInt val color: Int,
 ) : Parcelable

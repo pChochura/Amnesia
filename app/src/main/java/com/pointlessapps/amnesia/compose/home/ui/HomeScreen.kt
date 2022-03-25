@@ -11,6 +11,7 @@ import androidx.compose.foundation.shape.CircleShape
 import androidx.compose.material.MaterialTheme
 import androidx.compose.material.Text
 import androidx.compose.runtime.Composable
+import androidx.compose.runtime.LaunchedEffect
 import androidx.compose.runtime.SideEffect
 import androidx.compose.ui.Alignment
 import androidx.compose.ui.Modifier
@@ -22,23 +23,31 @@ import androidx.compose.ui.res.dimensionResource
 import androidx.compose.ui.res.painterResource
 import androidx.compose.ui.res.stringResource
 import androidx.constraintlayout.compose.ConstraintLayout
+import com.pointlessapps.amnesia.LocalSnackbarHostState
 import com.pointlessapps.amnesia.R
 import com.pointlessapps.amnesia.compose.ui.components.*
 import com.pointlessapps.amnesia.compose.ui.theme.Icons
 import com.pointlessapps.amnesia.compose.utils.add
-import com.pointlessapps.amnesia.model.Note
+import com.pointlessapps.amnesia.model.NoteModel
 import org.koin.androidx.compose.getViewModel
 import androidx.compose.ui.graphics.Color as ComposeColor
 
 @Composable
 internal fun HomeScreen(
     viewModel: HomeViewModel = getViewModel(),
-    onNavigateToNoteClicked: (Note?) -> Unit,
+    onNavigateToNoteClicked: (NoteModel?) -> Unit,
 ) {
+    val snackbarHostState = LocalSnackbarHostState.current
     val focusManager = LocalFocusManager.current
+    SideEffect { focusManager.clearFocus() }
 
-    SideEffect {
-        focusManager.clearFocus()
+    LaunchedEffect(Unit) {
+        viewModel.events.collect { event ->
+            when (event) {
+                is HomeViewModel.Event.ShowMessage ->
+                    snackbarHostState.showSnackbar(event.message)
+            }
+        }
     }
 
     AmnesiaLoader(enabled = viewModel.state.isLoading)
@@ -215,7 +224,7 @@ private fun CategoriesRow(viewModel: HomeViewModel) {
     ) {
         viewModel.state.categories.forEach { category ->
             AmnesiaChip(
-                text = category.text,
+                text = category.name,
                 chipModel = defaultAmnesiaChipModel().run {
                     copy(
                         backgroundColor = ComposeColor(category.color),

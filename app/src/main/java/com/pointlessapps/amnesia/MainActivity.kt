@@ -98,11 +98,11 @@ class MainActivity : ComponentActivity() {
                     },
                 )
                 Route.Home -> HomeScreen(
-                    onNavigateToNoteClicked = {
-                        navController.navigate(Route.NewNote)
+                    onNavigateToNoteClicked = { note ->
+                        navController.navigate(Route.Note(note))
                     },
                 )
-                Route.NewNote -> NoteScreen()
+                is Route.Note -> NoteScreen(it.note)
             }
         }
     }

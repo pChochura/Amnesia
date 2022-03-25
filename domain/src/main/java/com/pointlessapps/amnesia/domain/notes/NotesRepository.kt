@@ -4,6 +4,7 @@ import com.pointlessapps.amnesia.datasource.notes.StoreNotesDataSource
 import com.pointlessapps.amnesia.domain.notes.dto.Category
 import com.pointlessapps.amnesia.domain.notes.dto.Note
 import com.pointlessapps.amnesia.domain.notes.mapper.toCategories
+import com.pointlessapps.amnesia.domain.notes.mapper.toCategoryDto
 import com.pointlessapps.amnesia.domain.notes.mapper.toNoteDto
 import com.pointlessapps.amnesia.domain.notes.mapper.toNotes
 import kotlinx.coroutines.flow.Flow
@@ -11,6 +12,8 @@ import kotlinx.coroutines.flow.flow
 
 interface NotesRepository {
     fun getAllCategories(): Flow<List<Category>>
+
+    fun saveCategory(category: Category): Flow<Unit>
 
     fun getAllNotes(): Flow<List<Note>>
 
@@ -23,6 +26,10 @@ internal class NotesRepositoryImpl(
 
     override fun getAllCategories(): Flow<List<Category>> = flow {
         emit(storeNotesDataSource.getAllCategories().toCategories())
+    }
+
+    override fun saveCategory(category: Category): Flow<Unit> = flow {
+        emit(storeNotesDataSource.saveCategory(category.toCategoryDto()))
     }
 
     override fun getAllNotes(): Flow<List<Note>> = flow {

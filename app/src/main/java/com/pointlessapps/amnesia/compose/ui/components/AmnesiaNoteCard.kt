@@ -23,6 +23,7 @@ import androidx.compose.ui.graphics.Color as ComposeColor
 internal fun AmnesiaNoteCard(
     note: NoteModel,
     modifier: Modifier = Modifier,
+    onNoteClicked: (NoteModel) -> Unit,
 ) {
     Column(
         modifier = modifier
@@ -34,9 +35,7 @@ internal fun AmnesiaNoteCard(
                 on = dimensionResource(id = R.dimen.dash_size),
                 off = dimensionResource(id = R.dimen.dash_gap_size),
             )
-            .clickable {
-                // TODO
-            }
+            .clickable { onNoteClicked(note) }
             .padding(dimensionResource(id = R.dimen.medium_padding)),
         verticalArrangement = Arrangement.spacedBy(dimensionResource(id = R.dimen.small_padding)),
     ) {

@@ -4,7 +4,6 @@ import android.graphics.Color
 import androidx.annotation.StringRes
 import androidx.compose.runtime.getValue
 import androidx.compose.runtime.mutableStateOf
-import androidx.compose.runtime.neverEqualPolicy
 import androidx.compose.runtime.setValue
 import androidx.compose.ui.text.input.TextFieldValue
 import androidx.lifecycle.ViewModel
@@ -15,6 +14,7 @@ import com.pointlessapps.amnesia.domain.notes.dto.Content
 import com.pointlessapps.amnesia.domain.notes.dto.Note
 import com.pointlessapps.amnesia.domain.notes.usecase.SaveNoteUseCase
 import com.pointlessapps.amnesia.model.CategoryModel
+import com.pointlessapps.amnesia.model.NoteModel
 import com.pointlessapps.rt_editor.model.RichTextValue
 import com.pointlessapps.rt_editor.model.Style
 import kotlinx.coroutines.channels.Channel
@@ -29,8 +29,21 @@ internal class NoteViewModel(
     private val eventChannel = Channel<Event>()
     val events = eventChannel.receiveAsFlow()
 
-    var state by mutableStateOf(State(), policy = neverEqualPolicy())
+    var state by mutableStateOf(State())
         private set
+
+    fun setNote(note: NoteModel?) {
+        if (note == null) {
+            return
+        }
+
+        state = state.copy(
+            id = note.id,
+            title = TextFieldValue(note.title.orEmpty()),
+            content = RichTextValue.fromSnapshot(note.content),
+            categories = note.categories.toList(),
+        )
+    }
 
     fun onTitleChanged(value: TextFieldValue) {
         state = state.copy(
@@ -106,7 +119,6 @@ internal class NoteViewModel(
                 state = state.copy(isLoading = false)
             }
             .catch {
-                println("LOG!, $it")
                 state = state.copy(isLoading = false)
                 eventChannel.send(Event.ShowMessage(R.string.default_error_message))
             }
@@ -114,7 +126,7 @@ internal class NoteViewModel(
     }
 
     private fun buildNote() = Note(
-        id = UUID.randomUUID().mostSignificantBits,
+        id = state.id,
         title = state.title.text,
         content = state.content.getLastSnapshot().run {
             Content(
@@ -141,6 +153,7 @@ internal class NoteViewModel(
     )
 
     internal data class State(
+        val id: Long = UUID.randomUUID().mostSignificantBits,
         val title: TextFieldValue = TextFieldValue(),
         val content: RichTextValue = RichTextValue.get(),
         val categories: List<CategoryModel> = emptyList(),

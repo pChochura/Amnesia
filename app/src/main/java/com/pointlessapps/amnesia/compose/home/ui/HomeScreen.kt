@@ -130,6 +130,7 @@ internal fun HomeScreen(
                     AmnesiaNoteCard(
                         note = note,
                         modifier = Modifier.fillMaxWidth(),
+                        onNoteClicked = { onNavigateToNoteClicked(it) },
                     )
                 }
 
@@ -152,6 +153,7 @@ internal fun HomeScreen(
                 AmnesiaNoteCard(
                     note = note,
                     modifier = Modifier.fillMaxWidth(),
+                    onNoteClicked = { onNavigateToNoteClicked(it) },
                 )
             }
         }

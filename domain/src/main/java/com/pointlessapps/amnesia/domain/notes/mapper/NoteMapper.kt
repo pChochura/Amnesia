@@ -7,39 +7,39 @@ import com.pointlessapps.amnesia.domain.notes.dto.Category
 import com.pointlessapps.amnesia.domain.notes.dto.Content
 import com.pointlessapps.amnesia.domain.notes.dto.Note
 
-internal fun List<NoteDto>.toNotes(categories: Map<Long, Category>): List<Note> =
-    map { it.toNote(categories) }
-
-private fun NoteDto.toNote(categories: Map<Long, Category>): Note = Note(
-    id = id,
-    title = title,
-    content = requireNotNull(content).run {
-        Content(
-            text = requireNotNull(text),
-            spanStyles = spanStyles.map {
-                Content.Span(
-                    start = it.start,
-                    end = it.end,
-                    tag = requireNotNull(it.tag),
-                )
-            },
-            paragraphStyles = spanStyles.map {
-                Content.Span(
-                    start = it.start,
-                    end = it.end,
-                    tag = requireNotNull(it.tag),
-                )
-            },
-            selectionPosition = selectionPosition,
-        )
-    },
-    createdAt = createdAt ?: System.currentTimeMillis(),
-    updatedAt = updatedAt ?: System.currentTimeMillis(),
-    categories = this.categories.mapNotNull { categories[it] },
-    isPinned = pinned,
-)
+internal fun List<NoteDto>.toNotes(categories: Map<Long, Category>): List<Note> = map {
+    Note(
+        id = it.id,
+        title = it.title,
+        content = requireNotNull(it.content).run {
+            Content(
+                text = requireNotNull(text),
+                spanStyles = spanStyles.map {
+                    Content.Span(
+                        start = it.start,
+                        end = it.end,
+                        tag = requireNotNull(it.tag),
+                    )
+                },
+                paragraphStyles = spanStyles.map {
+                    Content.Span(
+                        start = it.start,
+                        end = it.end,
+                        tag = requireNotNull(it.tag),
+                    )
+                },
+                selectionPosition = selectionPosition,
+            )
+        },
+        createdAt = it.createdAt ?: System.currentTimeMillis(),
+        updatedAt = it.updatedAt ?: System.currentTimeMillis(),
+        categories = it.categories.mapNotNull { categories[it] },
+        isPinned = it.pinned,
+    )
+}
 
 internal fun Note.toNoteDto(): NoteDto = NoteDto(
+    id = id,
     title = title,
     content = ContentDto(
         text = content.text,
@@ -72,3 +72,9 @@ internal fun List<CategoryDto>.toCategories(): List<Category> = map {
         color = it.color,
     )
 }
+
+internal fun Category.toCategoryDto(): CategoryDto = CategoryDto(
+    id = id,
+    name = name,
+    color = color,
+)

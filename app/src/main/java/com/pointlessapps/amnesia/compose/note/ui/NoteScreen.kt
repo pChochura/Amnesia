@@ -37,6 +37,7 @@ import com.pointlessapps.amnesia.compose.utils.RANDOM_UUID
 import com.pointlessapps.amnesia.compose.utils.add
 import com.pointlessapps.amnesia.compose.utils.decrement
 import com.pointlessapps.amnesia.compose.utils.increment
+import com.pointlessapps.amnesia.model.NoteModel
 import com.pointlessapps.rt_editor.model.Style
 import com.pointlessapps.rt_editor.ui.RichTextEditor
 import com.pointlessapps.rt_editor.ui.defaultRichTextFieldStyle
@@ -44,7 +45,10 @@ import org.koin.androidx.compose.getViewModel
 
 @OptIn(ExperimentalFoundationApi::class)
 @Composable
-internal fun NoteScreen(viewModel: NoteViewModel = getViewModel()) {
+internal fun NoteScreen(
+    note: NoteModel?,
+    viewModel: NoteViewModel = getViewModel(),
+) {
     var showBottomBar by remember { mutableStateOf(false) }
     val focusRequester = remember { FocusRequester() }
     val keyboardController = LocalTextInputService.current
@@ -52,6 +56,7 @@ internal fun NoteScreen(viewModel: NoteViewModel = getViewModel()) {
 
     LaunchedEffect(Unit) {
         focusRequester.requestFocus()
+        viewModel.setNote(note)
     }
 
     LaunchedEffect(Unit) {

@@ -27,11 +27,15 @@ internal class StoreNotesDataSourceImpl(
     override suspend fun getAllCategories(): List<CategoryDto> =
         getCategoriesCollection().get().await().toObjects(CategoryDto::class.java)
 
+    override suspend fun saveCategory(category: CategoryDto) {
+        getCategoriesCollection().document(category.id.toString()).set(category).await()
+    }
+
     override suspend fun getAllNotes(): List<NoteDto> =
         getNotesCollection().get().await().toObjects(NoteDto::class.java)
 
     override suspend fun saveNote(note: NoteDto) {
-        getNotesCollection().add(note).await()
+        getNotesCollection().document(note.id.toString()).set(note).await()
     }
 
     private companion object {

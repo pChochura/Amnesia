@@ -9,15 +9,15 @@ buildscript {
         androix_version = '1.4.0'
         firebase_version = '29.2.0'
         gms_version = '20.1.0'
-        richtext_version = '1.1.5'
+        richtext_version = '1.1.6'
         detekt_version = '1.20.0-RC1'
         coroutines_version = '1.6.0'
     }
 }
 
 plugins {
-    id 'com.android.application' version '7.1.1' apply false
-    id 'com.android.library' version '7.1.1' apply false
+    id 'com.android.application' version '7.1.2' apply false
+    id 'com.android.library' version '7.1.2' apply false
     id 'com.google.gms.google-services' version '4.3.10' apply false
     id 'org.jetbrains.kotlin.android' version '1.6.10' apply false
     id 'io.gitlab.arturbosch.detekt' version "1.20.0-RC1"

@@ -9,5 +9,5 @@ import java.util.*
 data class CategoryModel(
     val id: Long = UUID.randomUUID().mostSignificantBits,
     val name: String,
-    @ColorInt val color: Int,
+    @ColorInt val color: ULong,
 ) : Parcelable

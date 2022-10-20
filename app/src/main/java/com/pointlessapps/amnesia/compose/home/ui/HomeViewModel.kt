@@ -48,6 +48,7 @@ internal class HomeViewModel(
                 )
             }
             .catch {
+                println("LOG!, $it")
                 state = state.copy(isLoading = false)
                 eventChannel.send(Event.ShowMessage(R.string.default_error_message))
             }

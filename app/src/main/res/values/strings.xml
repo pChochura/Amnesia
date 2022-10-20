@@ -11,7 +11,7 @@
 	<string name="undo">Undo</string>
 	<string name="redo">Redo</string>
 	<string name="done">Done</string>
-	<string name="add_tag">Add tag</string>
+	<string name="add_tag">Add a tag</string>
 	<string name="bold">Bold</string>
 	<string name="text_color">Text color</string>
 	<string name="text_size">Text size</string>
@@ -30,4 +30,6 @@
     <string name="default_error_message">Something went wrong. Please try again</string>
     <string name="use_anonymously">Use anonymously</string>
     <string name="all">All</string>
+    <string name="tags">Tags</string>
+    <string name="your_tag">Your tag…</string>
 </resources>

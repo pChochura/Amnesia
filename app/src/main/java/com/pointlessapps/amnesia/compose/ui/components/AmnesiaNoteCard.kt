@@ -2,12 +2,8 @@ package com.pointlessapps.amnesia.compose.ui.components
 
 import androidx.compose.foundation.background
 import androidx.compose.foundation.clickable
-import androidx.compose.foundation.layout.Arrangement
-import androidx.compose.foundation.layout.Column
-import androidx.compose.foundation.layout.Row
-import androidx.compose.foundation.layout.padding
+import androidx.compose.foundation.layout.*
 import androidx.compose.material.MaterialTheme
-import androidx.compose.material.Text
 import androidx.compose.runtime.Composable
 import androidx.compose.ui.Alignment
 import androidx.compose.ui.Modifier
@@ -17,6 +13,9 @@ import androidx.compose.ui.res.stringResource
 import com.pointlessapps.amnesia.R
 import com.pointlessapps.amnesia.model.NoteModel
 import com.pointlessapps.dash.border.dashedBorder
+import com.pointlessapps.rt_editor.model.RichTextValue
+import com.pointlessapps.rt_editor.ui.RichText
+import com.pointlessapps.rt_editor.ui.defaultRichTextStyle
 import androidx.compose.ui.graphics.Color as ComposeColor
 
 @Composable
@@ -51,43 +50,48 @@ internal fun AmnesiaNoteCard(
                     chipModel = defaultAmnesiaChipModel().run {
                         copy(
                             backgroundColor = ComposeColor(it.color),
-                            textStyle = MaterialTheme.typography.subtitle1.copy(
-                                color = textStyle.color,
+                            typography = MaterialTheme.typography.subtitle1.copy(
+                                color = typography.color,
                             ),
                         )
                     },
                 )
             }
             if (note.categories.isNotEmpty()) {
-                Text(
+                AmnesiaText(
                     text = stringResource(id = R.string.dot),
-                    style = MaterialTheme.typography.subtitle1.copy(
-                        color = MaterialTheme.colors.secondaryVariant,
+                    textStyle = defaultAmnesiaTextStyle().copy(
+                        typography = MaterialTheme.typography.subtitle1,
+                        textColor = MaterialTheme.colors.secondaryVariant,
                     ),
                 )
             }
-            Text(
+            AmnesiaText(
                 text = note.updatedAt,
-                style = MaterialTheme.typography.subtitle1.copy(
-                    color = MaterialTheme.colors.secondaryVariant,
+                textStyle = defaultAmnesiaTextStyle().copy(
+                    typography = MaterialTheme.typography.subtitle1,
+                    textColor = MaterialTheme.colors.secondaryVariant,
                 ),
             )
         }
 
         if (!note.title.isNullOrBlank()) {
-            Text(
+            AmnesiaText(
                 text = note.title,
-                style = MaterialTheme.typography.h1.copy(
-                    color = MaterialTheme.colors.onPrimary,
-                ),
+                textStyle = defaultAmnesiaTextStyle().copy(
+                    typography = MaterialTheme.typography.h1,
+                    textColor = MaterialTheme.colors.onPrimary,
+                )
             )
         }
 
-        Text(
-            text = note.content.text,
-            style = MaterialTheme.typography.body1.copy(
-                color = MaterialTheme.colors.secondaryVariant,
-            ),
+        RichText(
+            modifier = Modifier.fillMaxWidth(),
+            value = RichTextValue.fromSnapshot(note.content),
+            textStyle = defaultRichTextStyle().copy(
+                textStyle = MaterialTheme.typography.body1,
+                textColor = MaterialTheme.colors.secondaryVariant,
+            )
         )
     }
 }

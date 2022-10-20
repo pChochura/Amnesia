@@ -7,7 +7,6 @@ import androidx.compose.foundation.layout.Box
 import androidx.compose.foundation.layout.BoxScope
 import androidx.compose.foundation.layout.padding
 import androidx.compose.material.MaterialTheme
-import androidx.compose.material.Text
 import androidx.compose.material.ripple.rememberRipple
 import androidx.compose.runtime.Composable
 import androidx.compose.runtime.mutableStateOf
@@ -66,9 +65,11 @@ internal fun AmnesiaTooltipWrapper(
                 horizontal = tooltipModel.horizontalPadding,
             ),
         ) {
-            Text(
+            AmnesiaText(
                 text = tooltip,
-                style = tooltipModel.textStyle,
+                textStyle = defaultAmnesiaTextStyle().copy(
+                    typography = tooltipModel.textStyle,
+                ),
             )
         }
     }

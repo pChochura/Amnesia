@@ -7,34 +7,34 @@ import com.pointlessapps.amnesia.domain.notes.dto.Category
 import com.pointlessapps.amnesia.domain.notes.dto.Content
 import com.pointlessapps.amnesia.domain.notes.dto.Note
 
-internal fun List<NoteDto>.toNotes(categories: Map<Long, Category>): List<Note> = map {
+internal fun List<NoteDto>.toNotes(categories: Map<Long, Category>): List<Note> = map { note ->
     Note(
-        id = it.id,
-        title = it.title,
-        content = requireNotNull(it.content).run {
+        id = note.id,
+        title = note.title,
+        content = requireNotNull(note.content) { "Content cannot be empty" }.run {
             Content(
-                text = requireNotNull(text),
+                text = requireNotNull(text) { "Content text cannot be empty" },
                 spanStyles = spanStyles.map {
                     Content.Span(
                         start = it.start,
                         end = it.end,
-                        tag = requireNotNull(it.tag),
+                        tag = requireNotNull(it.tag) { "Content span tag cannot be empty" },
                     )
                 },
-                paragraphStyles = spanStyles.map {
+                paragraphStyles = paragraphStyles.map {
                     Content.Span(
                         start = it.start,
                         end = it.end,
-                        tag = requireNotNull(it.tag),
+                        tag = requireNotNull(it.tag) { "Content paragraph tag cannot be empty" },
                     )
                 },
                 selectionPosition = selectionPosition,
             )
         },
-        createdAt = it.createdAt ?: System.currentTimeMillis(),
-        updatedAt = it.updatedAt ?: System.currentTimeMillis(),
-        categories = it.categories.mapNotNull { categories[it] },
-        isPinned = it.pinned,
+        createdAt = note.createdAt ?: System.currentTimeMillis(),
+        updatedAt = note.updatedAt ?: System.currentTimeMillis(),
+        categories = note.categories.mapNotNull { categories[it] },
+        isPinned = note.pinned,
     )
 }
 
@@ -50,7 +50,7 @@ internal fun Note.toNoteDto(): NoteDto = NoteDto(
                 tag = it.tag,
             )
         },
-        paragraphStyles = content.spanStyles.map {
+        paragraphStyles = content.paragraphStyles.map {
             ContentDto.SpanDto(
                 start = it.start,
                 end = it.end,
@@ -68,13 +68,13 @@ internal fun Note.toNoteDto(): NoteDto = NoteDto(
 internal fun List<CategoryDto>.toCategories(): List<Category> = map {
     Category(
         id = it.id,
-        name = it.name,
-        color = it.color,
+        name = requireNotNull(it.name) { "Category name cannot be empty" },
+        color = requireNotNull(it.color) { "Category color cannot be empty" }.toULong(),
     )
 }
 
 internal fun Category.toCategoryDto(): CategoryDto = CategoryDto(
     id = id,
     name = name,
-    color = color,
+    color = color.toString(),
 )

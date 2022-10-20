@@ -7,5 +7,5 @@ import androidx.annotation.Keep
 data class Category(
     val id: Long,
     val name: String,
-    @ColorInt val color: Int,
+    @ColorInt val color: ULong,
 )

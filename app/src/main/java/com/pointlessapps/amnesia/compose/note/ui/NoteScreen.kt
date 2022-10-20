@@ -1,7 +1,5 @@
 package com.pointlessapps.amnesia.compose.note.ui
 
-import androidx.annotation.DrawableRes
-import androidx.annotation.StringRes
 import androidx.compose.animation.AnimatedVisibility
 import androidx.compose.animation.fadeIn
 import androidx.compose.animation.fadeOut
@@ -14,6 +12,7 @@ import androidx.compose.foundation.lazy.LazyColumn
 import androidx.compose.foundation.lazy.LazyRow
 import androidx.compose.foundation.lazy.items
 import androidx.compose.foundation.shape.CircleShape
+import androidx.compose.material.CircularProgressIndicator
 import androidx.compose.material.MaterialTheme
 import androidx.compose.runtime.*
 import androidx.compose.ui.Alignment
@@ -27,21 +26,22 @@ import androidx.compose.ui.input.pointer.pointerInput
 import androidx.compose.ui.platform.LocalTextInputService
 import androidx.compose.ui.res.dimensionResource
 import androidx.compose.ui.res.stringResource
+import androidx.compose.ui.text.style.TextAlign
 import androidx.constraintlayout.compose.ConstraintLayout
 import com.pointlessapps.amnesia.LocalSnackbarHostState
 import com.pointlessapps.amnesia.R
-import com.pointlessapps.amnesia.compose.note.util.TEXT_SIZE_INCREMENT
 import com.pointlessapps.amnesia.compose.ui.components.*
 import com.pointlessapps.amnesia.compose.ui.theme.Icons
 import com.pointlessapps.amnesia.compose.utils.RANDOM_UUID
 import com.pointlessapps.amnesia.compose.utils.add
-import com.pointlessapps.amnesia.compose.utils.decrement
-import com.pointlessapps.amnesia.compose.utils.increment
+import com.pointlessapps.amnesia.compose.utils.foregroundColor
+import com.pointlessapps.amnesia.model.CategoryModel
 import com.pointlessapps.amnesia.model.NoteModel
-import com.pointlessapps.rt_editor.model.Style
 import com.pointlessapps.rt_editor.ui.RichTextEditor
 import com.pointlessapps.rt_editor.ui.defaultRichTextFieldStyle
 import org.koin.androidx.compose.getViewModel
+
+private const val SPACER_ALPHA = 0.5f
 
 @OptIn(ExperimentalFoundationApi::class)
 @Composable
@@ -50,7 +50,8 @@ internal fun NoteScreen(
     note: NoteModel?,
     onNavigateToHome: () -> Unit,
 ) {
-    var showBottomBar by remember { mutableStateOf(false) }
+    var showChooseCategoryModal by remember { mutableStateOf(false) }
+    var isContentFocused by remember { mutableStateOf(true) }
     val focusRequester = remember { FocusRequester() }
     val keyboardController = LocalTextInputService.current
     val snackbarHostState = LocalSnackbarHostState.current
@@ -72,11 +73,23 @@ internal fun NoteScreen(
 
     AmnesiaLoader(enabled = viewModel.state.isLoading)
 
+    CategoryModal(
+        enabled = showChooseCategoryModal,
+        isLoading = viewModel.state.isLoadingCategories,
+        categories = viewModel.allCategories,
+        onDismissListener = { showChooseCategoryModal = false },
+        onCategoryAdded = { color, name -> viewModel.onCategoryAdded(color, name) },
+        onCategorySelected = {
+            showChooseCategoryModal = false
+            viewModel.onCategorySelected(it)
+        }
+    )
+
     AmnesiaScaffoldLayout(
-        topBar = { TopBar(viewModel, isUndoRedoAvailable = showBottomBar) },
+        topBar = { TopBar(viewModel, isUndoRedoAvailable = isContentFocused) },
         fab = {
-            AnimatedVisibility(showBottomBar, enter = fadeIn(), exit = fadeOut()) {
-                BottomBar(viewModel)
+            AnimatedVisibility(isContentFocused, enter = fadeIn(), exit = fadeOut()) {
+                EditorActionsBottomBar(viewModel)
             }
         },
     ) { innerPadding ->
@@ -118,9 +131,16 @@ internal fun NoteScreen(
                             AmnesiaChip(
                                 modifier = Modifier.animateItemPlacement(),
                                 text = category.name,
-                                chipModel = defaultAmnesiaChipModel().copy(
-                                    backgroundColor = Color(category.color),
-                                ),
+                                chipModel = defaultAmnesiaChipModel().run {
+                                    copy(
+                                        backgroundColor = Color(category.color),
+                                        typography = typography.copy(
+                                            color = MaterialTheme.colors.foregroundColor(
+                                                Color(category.color),
+                                            ),
+                                        ),
+                                    )
+                                },
                                 onClick = {
                                     /* TODO display popup to remove category */
                                     viewModel.onCategoryRemoved(category)
@@ -136,8 +156,8 @@ internal fun NoteScreen(
                                 ),
                                 colored = false,
                                 onClick = {
-                                    /* TODO display popup to add category */
-                                    viewModel.onCategoryAdded()
+                                    viewModel.refreshAllCategories()
+                                    showChooseCategoryModal = true
                                 },
                             )
                         }
@@ -148,12 +168,122 @@ internal fun NoteScreen(
                         modifier = Modifier
                             .fillMaxWidth()
                             .focusRequester(focusRequester)
-                            .onFocusChanged { showBottomBar = it.isFocused },
+                            .onFocusChanged { isContentFocused = it.isFocused },
                         value = viewModel.state.content,
                         onValueChange = viewModel::onContentChanged,
                         textFieldStyle = defaultRichTextFieldStyle().copy(
                             textStyle = MaterialTheme.typography.body1,
                             placeholder = stringResource(id = R.string.content),
+                        ),
+                    )
+                }
+            }
+        }
+    }
+}
+
+@Composable
+private fun CategoryModal(
+    enabled: Boolean,
+    isLoading: Boolean,
+    categories: List<CategoryModel>,
+    onDismissListener: () -> Unit,
+    onCategoryAdded: (Color, String) -> Unit,
+    onCategorySelected: (CategoryModel) -> Unit,
+) {
+    AmnesiaBottomModal(enabled = enabled, onDismissListener = onDismissListener) {
+        LazyColumn(
+            modifier = Modifier.fillMaxWidth(),
+            horizontalAlignment = Alignment.CenterHorizontally,
+            verticalArrangement = Arrangement.spacedBy(dimensionResource(id = R.dimen.small_padding)),
+            contentPadding = PaddingValues(vertical = dimensionResource(id = R.dimen.medium_padding))
+        ) {
+            item {
+                AmnesiaText(
+                    text = stringResource(id = R.string.tags),
+                    textStyle = defaultAmnesiaTextStyle().copy(
+                        typography = MaterialTheme.typography.h2,
+                        textColor = MaterialTheme.colors.onPrimary,
+                        textAlign = TextAlign.Center,
+                    ),
+                )
+            }
+            if (isLoading) {
+                item {
+                    Box(
+                        modifier = Modifier
+                            .fillMaxWidth()
+                            .background(color = MaterialTheme.colors.surface),
+                    ) {
+                        CircularProgressIndicator(
+                            modifier = Modifier.align(Alignment.Center),
+                            color = MaterialTheme.colors.onPrimary,
+                        )
+                    }
+                }
+            } else {
+                items(categories) { category ->
+                    Row(
+                        modifier = Modifier
+                            .fillMaxWidth()
+                            .clickable { onCategorySelected(category) }
+                            .padding(
+                                vertical = dimensionResource(id = R.dimen.small_padding),
+                                horizontal = dimensionResource(id = R.dimen.medium_padding),
+                            ),
+                        verticalAlignment = Alignment.CenterVertically,
+                        horizontalArrangement = Arrangement.spacedBy(
+                            space = dimensionResource(id = R.dimen.medium_padding),
+                        ),
+                    ) {
+                        Box(
+                            modifier = Modifier
+                                .size(dimensionResource(id = R.dimen.icon_size))
+                                .clip(MaterialTheme.shapes.small)
+                                .background(color = Color(category.color)),
+                        )
+                        AmnesiaText(
+                            text = category.name,
+                            textStyle = defaultAmnesiaTextStyle().copy(
+                                typography = MaterialTheme.typography.body1,
+                                textColor = MaterialTheme.colors.onPrimary,
+                            ),
+                        )
+                    }
+
+                    Spacer(
+                        modifier = Modifier
+                            .fillMaxWidth()
+                            .background(
+                                MaterialTheme.colors.secondaryVariant.copy(
+                                    alpha = SPACER_ALPHA,
+                                ),
+                            ),
+                    )
+                }
+            }
+            item {
+                Row(
+                    modifier = Modifier
+                        .fillMaxWidth()
+                        .padding(
+                            vertical = dimensionResource(id = R.dimen.small_padding),
+                            horizontal = dimensionResource(id = R.dimen.medium_padding),
+                        ),
+                    verticalAlignment = Alignment.CenterVertically,
+                    horizontalArrangement = Arrangement.spacedBy(
+                        space = dimensionResource(id = R.dimen.medium_padding),
+                    ),
+                ) {
+                    Icons.Plus(
+                        modifier = Modifier.size(dimensionResource(id = R.dimen.icon_size)),
+                        tint = MaterialTheme.colors.onPrimary,
+                    )
+                    AmnesiaText(
+                        text = stringResource(id = R.string.add_tag),
+                        textStyle = defaultAmnesiaTextStyle().copy(
+                            typography = MaterialTheme.typography.body1,
+                            textColor = MaterialTheme.colors.onPrimary,
                         ),
                     )
                 }
@@ -258,188 +388,5 @@ private fun TopBar(viewModel: NoteViewModel, isUndoRedoAvailable: Boolean) {
                 tint = MaterialTheme.colors.onSecondary,
             )
         }
-    }
-}
-
-@Composable
-private fun BottomBar(viewModel: NoteViewModel) {
-    Box(
-        modifier = Modifier
-            .fillMaxWidth()
-            .padding(dimensionResource(id = R.dimen.medium_padding))
-            .padding(bottom = dimensionResource(id = R.dimen.medium_padding))
-            .navigationBarsPadding()
-            .imePadding(),
-        contentAlignment = Alignment.Center,
-    ) {
-        LazyRow(
-            modifier = Modifier
-                .clip(MaterialTheme.shapes.medium)
-                .background(MaterialTheme.colors.secondary),
-            contentPadding = PaddingValues(dimensionResource(id = R.dimen.small_padding)),
-            horizontalArrangement = Arrangement.spacedBy(
-                dimensionResource(id = R.dimen.small_padding),
-                Alignment.CenterHorizontally,
-            ),
-            verticalAlignment = Alignment.CenterVertically,
-        ) {
-            item {
-                BottomBarIcon(
-                    tooltip = R.string.bold,
-                    icon = R.drawable.icon_bold,
-                    selected = viewModel.state.content.currentStyles.contains(Style.Bold),
-                ) { viewModel.insertStyle(Style.Bold) }
-            }
-            item {
-                BottomBarIcon(
-                    tooltip = R.string.underline,
-                    icon = R.drawable.icon_underline,
-                    selected = viewModel.state.content.currentStyles.contains(Style.Underline),
-                ) { viewModel.insertStyle(Style.Underline) }
-            }
-            item {
-                BottomBarIcon(
-                    tooltip = R.string.italic,
-                    icon = R.drawable.icon_italic,
-                    selected = viewModel.state.content.currentStyles.contains(Style.Italic),
-                ) { viewModel.insertStyle(Style.Italic) }
-            }
-            item {
-                BottomBarIcon(
-                    tooltip = R.string.strikethrough,
-                    icon = R.drawable.icon_strikethrough,
-                    selected = viewModel.state.content.currentStyles.contains(Style.Strikethrough),
-                ) { viewModel.insertStyle(Style.Strikethrough) }
-            }
-            item {
-                Box {
-                    var showTextSizePicker by remember { mutableStateOf(false) }
-                    var currentValue by remember { mutableStateOf(Style.TextSize.DEFAULT_VALUE) }
-                    BottomBarIcon(
-                        tooltip = R.string.text_size,
-                        icon = R.drawable.icon_text_size,
-                        selected = viewModel.state.content.currentStyles
-                            .filterIsInstance<Style.TextSize>().isNotEmpty(),
-                    ) {
-                        currentValue =
-                            viewModel.state.content.currentStyles
-                                .filterIsInstance<Style.TextSize>()
-                                .firstOrNull()
-                                ?.fraction ?: Style.TextSize.DEFAULT_VALUE
-                        showTextSizePicker = true
-                    }
-
-                    if (showTextSizePicker) {
-                        TextSizePicker(
-                            currentValue = currentValue,
-                            onDismissListener = { showTextSizePicker = false },
-                            onMinusClicked = onMinusClicked@{
-                                if (currentValue <= Style.TextSize.MIN_VALUE) {
-                                    return@onMinusClicked
-                                }
-
-                                viewModel.clearStyles(Style.TextSize())
-                                currentValue = currentValue.decrement(TEXT_SIZE_INCREMENT)
-                                if (currentValue != Style.TextSize.DEFAULT_VALUE) {
-                                    viewModel.insertStyle(Style.TextSize(currentValue))
-                                }
-                            },
-                            onPlusClicked = onPlusClicked@{
-                                if (currentValue >= Style.TextSize.MAX_VALUE) {
-                                    return@onPlusClicked
-                                }
-
-                                viewModel.clearStyles(Style.TextSize())
-                                currentValue = currentValue.increment(TEXT_SIZE_INCREMENT)
-                                if (currentValue != Style.TextSize.DEFAULT_VALUE) {
-                                    viewModel.insertStyle(Style.TextSize(currentValue))
-                                }
-                            },
-                        )
-                    }
-                }
-            }
-            item {
-                Box {
-                    var showTextColorPicker by remember { mutableStateOf(false) }
-                    BottomBarIcon(
-                        tooltip = R.string.text_color,
-                        icon = R.drawable.icon_circle,
-                        selected = viewModel.state.content.currentStyles
-                            .filterIsInstance<Style.TextColor>().isNotEmpty(),
-                    ) {
-                        showTextColorPicker = true
-                    }
-
-                    if (showTextColorPicker) {
-                        TextColorPicker(
-                            recentColors = viewModel.state.recentColors,
-                            onDismissListener = { showTextColorPicker = false },
-                            onColorClicked = {
-                                viewModel.clearStyles(Style.TextColor(null))
-                                viewModel.insertStyle(Style.TextColor(it))
-                            },
-                            onAddToRecents = { viewModel.updateRecentColors(it) },
-                        )
-                    }
-                }
-            }
-            item {
-                BottomBarIcon(
-                    tooltip = R.string.align_left,
-                    icon = R.drawable.icon_align_left,
-                    selected = viewModel.state.content.currentStyles.contains(Style.AlignLeft),
-                ) { viewModel.insertStyle(Style.AlignLeft) }
-            }
-            item {
-                BottomBarIcon(
-                    tooltip = R.string.align_center,
-                    icon = R.drawable.icon_align_center,
-                    selected = viewModel.state.content.currentStyles.contains(Style.AlignCenter),
-                ) { viewModel.insertStyle(Style.AlignCenter) }
-            }
-            item {
-                BottomBarIcon(
-                    tooltip = R.string.align_right,
-                    icon = R.drawable.icon_align_right,
-                    selected = viewModel.state.content.currentStyles.contains(Style.AlignRight),
-                ) { viewModel.insertStyle(Style.AlignRight) }
-            }
-            item {
-                BottomBarIcon(
-                    tooltip = R.string.clear_format,
-                    icon = R.drawable.icon_format_clear,
-                    selected = true,
-                ) { viewModel.insertStyle(Style.ClearFormat) }
-            }
-        }
-    }
-}
-
-@Composable
-fun BottomBarIcon(
-    @StringRes tooltip: Int,
-    @DrawableRes icon: Int,
-    selected: Boolean,
-    onClick: () -> Unit,
-) {
-    AmnesiaTooltipWrapper(
-        tooltip = stringResource(tooltip),
-        onClick = onClick,
-        tooltipModel = defaultAmnesiaTooltipModel().copy(
-            buttonRippleColor = MaterialTheme.colors.secondaryVariant,
-        ),
-    ) {
-        Icons.Get(
-            iconRes = icon,
-            modifier = Modifier
-                .padding(dimensionResource(id = R.dimen.tiny_padding))
-                .size(dimensionResource(id = R.dimen.icon_size)),
-            tint = if (selected) {
-                MaterialTheme.colors.primary
-            } else {
-                MaterialTheme.colors.secondaryVariant
-            },
-        )
     }
 }

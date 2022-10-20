@@ -1,11 +1,11 @@
 package com.pointlessapps.amnesia.datasource.notes.dto
 
-import androidx.annotation.ColorInt
 import androidx.annotation.Keep
+import java.util.*
 
 @Keep
 data class CategoryDto(
-    val id: Long,
-    val name: String,
-    @ColorInt val color: Int,
+    val id: Long = UUID.randomUUID().mostSignificantBits,
+    val name: String? = null,
+    val color: String? = null,
 )

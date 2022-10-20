@@ -28,16 +28,20 @@ private const val HALF = 0.5f
 
 @Composable
 internal fun TextColorPicker(
-    recentColors: List<Color>,
     onDismissListener: () -> Unit,
     onColorClicked: (Color) -> Unit,
-    onAddToRecents: (Color) -> Unit,
+    recentColors: List<Color> = emptyList(),
+    onAddToRecents: (Color) -> Unit = {},
+    showOnlyColorSlider: Boolean = false,
 ) {
-    var currentColor by remember { mutableStateOf(Color.Black) }
-    var showColorSlider by remember { mutableStateOf(false) }
+    var currentColor by remember { mutableStateOf<Float?>(null) }
+    var showColorSlider by remember { mutableStateOf(showOnlyColorSlider) }
 
     Popup(
-        onDismissRequest = onDismissListener,
+        onDismissRequest = {
+            currentColor?.also { onAddToRecents(it.hueToColor()) }
+            onDismissListener()
+        },
         popupPositionProvider = AbovePositionProvider(
             IntOffset(
                 x = 0,
@@ -55,22 +59,11 @@ internal fun TextColorPicker(
             horizontalArrangement = Arrangement.spacedBy(dimensionResource(id = R.dimen.small_padding)),
         ) {
             if (showColorSlider) {
-                ColorSlider {
-                    currentColor = it
-                    onColorClicked(it)
-                }
-                Icons.Done(
-                    modifier = Modifier
-                        .padding(dimensionResource(id = R.dimen.tiny_padding))
-                        .size(dimensionResource(id = R.dimen.icon_size))
-                        .clickable(
-                            onClick = {
-                                showColorSlider = false
-                                onAddToRecents(currentColor)
-                            },
-                            role = Role.Button,
-                        ),
-                    tint = MaterialTheme.colors.onSecondary,
+                ColorSlider(
+                    onValueClicked = {
+                        currentColor = it
+                        onColorClicked(it.hueToColor())
+                    },
                 )
             } else {
                 recentColors.forEach {
@@ -101,26 +94,28 @@ internal fun TextColorPicker(
 }
 
 @Composable
-private fun ColorSlider(onValueChangeListener: (Color) -> Unit) {
+private fun ColorSlider(onValueClicked: (Float) -> Unit) {
     var currentColorHue by remember { mutableStateOf(0f) }
     val rainbowBrush = remember { Brush.horizontalGradient(getRainbowColors()) }
     val cornerRadius = dimensionResource(id = R.dimen.rounded_corners).toPx()
     val indicatorWidth = dimensionResource(id = R.dimen.size_10).toPx()
     val indicatorBorderWidth = dimensionResource(id = R.dimen.size_4).toPx()
+
     BoxWithConstraints(
         modifier = Modifier
             .width(dimensionResource(id = R.dimen.size_200))
             .height(dimensionResource(id = R.dimen.icon_button_size)),
     ) {
-        Canvas(modifier = Modifier
-            .fillMaxSize()
-            .onMove(
-                onMoved = { (x, _) ->
-                    currentColorHue = (x / maxWidth.toPx() * MAX_HUE_VALUE)
-                        .coerceIn(0f, MAX_HUE_VALUE.toFloat())
-                },
-                onUp = { onValueChangeListener(currentColorHue.hueToColor()) },
-            ),
+        Canvas(
+            modifier = Modifier
+                .fillMaxSize()
+                .onMove(
+                    onMoved = { (x, _) ->
+                        currentColorHue = (x / maxWidth.toPx() * MAX_HUE_VALUE)
+                            .coerceIn(0f, MAX_HUE_VALUE.toFloat())
+                    },
+                    onUp = { onValueClicked(currentColorHue) },
+                ),
         ) {
             drawRoundRect(
                 brush = rainbowBrush,

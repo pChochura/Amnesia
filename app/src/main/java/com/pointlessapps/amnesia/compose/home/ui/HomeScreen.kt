@@ -9,7 +9,6 @@ import androidx.compose.foundation.lazy.items
 import androidx.compose.foundation.rememberScrollState
 import androidx.compose.foundation.shape.CircleShape
 import androidx.compose.material.MaterialTheme
-import androidx.compose.material.Text
 import androidx.compose.runtime.Composable
 import androidx.compose.runtime.DisposableEffect
 import androidx.compose.runtime.LaunchedEffect
@@ -138,10 +137,11 @@ internal fun HomeScreen(
                             modifier = Modifier.size(dimensionResource(id = R.dimen.small_icon_size)),
                             tint = colorResource(id = R.color.grey),
                         )
-                        Text(
+                        AmnesiaText(
                             text = stringResource(id = R.string.pinned),
-                            style = MaterialTheme.typography.body1.copy(
-                                color = MaterialTheme.colors.secondaryVariant,
+                            textStyle = defaultAmnesiaTextStyle().copy(
+                                typography = MaterialTheme.typography.body1,
+                                textColor = MaterialTheme.colors.secondaryVariant,
                             ),
                         )
                     }
@@ -156,13 +156,14 @@ internal fun HomeScreen(
 
                 if (otherNotes.isNotEmpty()) {
                     item {
-                        Text(
+                        AmnesiaText(
                             modifier = Modifier.padding(
                                 top = dimensionResource(id = R.dimen.medium_padding),
                             ),
                             text = stringResource(id = R.string.other),
-                            style = MaterialTheme.typography.body1.copy(
-                                color = MaterialTheme.colors.secondaryVariant,
+                            textStyle = defaultAmnesiaTextStyle().copy(
+                                typography = MaterialTheme.typography.body1,
+                                textColor = MaterialTheme.colors.secondaryVariant,
                             ),
                         )
                     }
@@ -205,10 +206,11 @@ private fun TopBar() {
             )
         }
 
-        Text(
+        AmnesiaText(
             text = stringResource(id = R.string.app_name),
-            style = MaterialTheme.typography.h2.copy(
-                color = MaterialTheme.colors.onPrimary,
+            textStyle = defaultAmnesiaTextStyle().copy(
+                typography = MaterialTheme.typography.h2,
+                textColor = MaterialTheme.colors.onPrimary,
             ),
             modifier = Modifier.constrainAs(titleText) {
                 centerTo(parent)
@@ -250,7 +252,7 @@ private fun CategoriesRow(viewModel: HomeViewModel) {
         CategoryItem(
             category = CategoryModel(
                 name = stringResource(id = R.string.all),
-                color = colorResource(id = R.color.orange).toArgb(),
+                color = colorResource(id = R.color.orange).value,
             ),
             isSelected = viewModel.state.selectedCategory == null,
             onCategorySelected = { viewModel.onCategorySelected(null) },
@@ -275,7 +277,7 @@ private fun CategoryItem(
         text = category.name,
         chipModel = defaultAmnesiaChipModel().copy(
             backgroundColor = ComposeColor(category.color),
-            textStyle = MaterialTheme.typography.h3.copy(
+            typography = MaterialTheme.typography.h3.copy(
                 color = if (isSelected) {
                     MaterialTheme.colors.foregroundColor(
                         ComposeColor(category.color),

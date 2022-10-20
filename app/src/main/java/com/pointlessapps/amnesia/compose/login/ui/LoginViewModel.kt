@@ -10,14 +10,15 @@ import androidx.lifecycle.ViewModel
 import androidx.lifecycle.viewModelScope
 import com.google.android.gms.auth.api.signin.GoogleSignInResult
 import com.pointlessapps.amnesia.R
+import com.pointlessapps.amnesia.domain.auth.LinkWithWithGoogleUseCase
 import com.pointlessapps.amnesia.domain.auth.SignInAnonymouslyUseCase
-import com.pointlessapps.amnesia.domain.auth.SignInWithGoogleUseCase
+import kotlinx.coroutines.ExperimentalCoroutinesApi
 import kotlinx.coroutines.channels.Channel
 import kotlinx.coroutines.flow.*
 import kotlinx.coroutines.launch
 
 internal class LoginViewModel(
-    private val signInWithGoogleUseCase: SignInWithGoogleUseCase,
+    private val linkWithWithGoogleUseCase: LinkWithWithGoogleUseCase,
     private val signInAnonymouslyUseCase: SignInAnonymouslyUseCase,
 ) : ViewModel() {
 
@@ -27,16 +28,20 @@ internal class LoginViewModel(
     var state by mutableStateOf(State())
         private set
 
+    @OptIn(ExperimentalCoroutinesApi::class)
     fun onSignInWithGoogleClicked(intentLauncher: ActivityResultLauncher<Intent>) {
-        signInWithGoogleUseCase.prepare()
+        signInAnonymouslyUseCase.prepare()
             .take(1)
             .onStart {
                 state = state.copy(
                     isLoading = true,
                 )
             }
+            .mapLatest {
+                linkWithWithGoogleUseCase.prepare()
+            }
             .onEach {
-                it.launch(intentLauncher)
+                eventChannel.send(Event.NavigateToHome)
             }
             .catch {
                 eventChannel.send(Event.ShowMessage(R.string.default_error_message))

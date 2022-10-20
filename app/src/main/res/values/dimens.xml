@@ -27,4 +27,6 @@
 
 	<dimen name="dash_size">8dp</dimen>
 	<dimen name="dash_gap_size">8dp</dimen>
+
+	<dimen name="modal_elevation">2dp</dimen>
 </resources>

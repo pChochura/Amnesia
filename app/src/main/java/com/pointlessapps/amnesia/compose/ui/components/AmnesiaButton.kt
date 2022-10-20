@@ -9,7 +9,6 @@ import androidx.compose.material.Button
 import androidx.compose.material.ButtonDefaults.buttonColors
 import androidx.compose.material.Icon
 import androidx.compose.material.MaterialTheme
-import androidx.compose.material.Text
 import androidx.compose.runtime.Composable
 import androidx.compose.ui.Alignment
 import androidx.compose.ui.Modifier
@@ -58,10 +57,11 @@ internal fun AmnesiaButton(
             if (buttonModel.iconModel?.position == AmnesiaButtonIconModel.Position.LEFT) {
                 iconComposable()
             }
-            Text(
+            AmnesiaText(
                 text = text,
-                style = MaterialTheme.typography.button.copy(
-                    color = buttonModel.textColor,
+                textStyle = defaultAmnesiaTextStyle().copy(
+                    typography = MaterialTheme.typography.body1,
+                    textColor = buttonModel.textColor,
                 ),
             )
             if (buttonModel.iconModel?.position == AmnesiaButtonIconModel.Position.RIGHT) {

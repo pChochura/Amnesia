@@ -3,14 +3,18 @@ package com.pointlessapps.amnesia.compose.ui.components
 import androidx.compose.foundation.layout.Box
 import androidx.compose.foundation.layout.fillMaxSize
 import androidx.compose.foundation.text.BasicTextField
+import androidx.compose.foundation.text.KeyboardActionScope
+import androidx.compose.foundation.text.KeyboardActions
 import androidx.compose.foundation.text.KeyboardOptions
 import androidx.compose.material.MaterialTheme
-import androidx.compose.material.Text
 import androidx.compose.runtime.*
+import androidx.compose.ui.ExperimentalComposeUiApi
 import androidx.compose.ui.Modifier
 import androidx.compose.ui.graphics.Color
 import androidx.compose.ui.graphics.SolidColor
+import androidx.compose.ui.platform.LocalSoftwareKeyboardController
 import androidx.compose.ui.text.TextStyle
+import androidx.compose.ui.text.input.ImeAction
 import androidx.compose.ui.text.input.KeyboardCapitalization
 import androidx.compose.ui.text.input.TextFieldValue
 import androidx.compose.ui.text.input.VisualTransformation
@@ -22,6 +26,7 @@ internal fun AmnesiaTextField(
     value: String,
     onValueChange: (String) -> Unit,
     modifier: Modifier = Modifier,
+    onImeAction: ((ImeAction) -> Unit)? = null,
     textFieldModel: AmnesiaTextFieldModel = defaultAmnesiaTextFieldModel(),
 ) {
     var textFieldValueState by remember { mutableStateOf(TextFieldValue(text = value)) }
@@ -36,24 +41,30 @@ internal fun AmnesiaTextField(
             }
         },
         modifier = modifier,
+        onImeAction = onImeAction,
         textFieldModel = textFieldModel,
     )
 }
 
+@OptIn(ExperimentalComposeUiApi::class)
 @Composable
 internal fun AmnesiaTextField(
     value: TextFieldValue,
     onValueChange: (TextFieldValue) -> Unit,
     modifier: Modifier = Modifier,
+    onImeAction: ((ImeAction) -> Unit)? = null,
     textFieldModel: AmnesiaTextFieldModel = defaultAmnesiaTextFieldModel(),
 ) {
+    val keyboardController = LocalSoftwareKeyboardController.current
+
     Box(modifier = modifier) {
         if (value.text.isEmpty()) {
-            Text(
+            AmnesiaText(
                 modifier = Modifier.fillMaxSize(),
                 text = textFieldModel.placeholder,
-                style = textFieldModel.textStyle.copy(
-                    color = textFieldModel.placeholderColor,
+                textStyle = defaultAmnesiaTextStyle().copy(
+                    typography = textFieldModel.textStyle,
+                    textColor = textFieldModel.placeholderColor,
                 ),
             )
         }
@@ -62,6 +73,13 @@ internal fun AmnesiaTextField(
             value = value,
             onValueChange = onValueChange,
             keyboardOptions = textFieldModel.keyboardOptions,
+            keyboardActions = amnesiaTextFieldKeyboardActions {
+                defaultKeyboardAction(it)
+                onImeAction?.invoke(it)
+                if (it == ImeAction.Done) {
+                    keyboardController?.hide()
+                }
+            },
             visualTransformation = textFieldModel.visualTransformation,
             textStyle = textFieldModel.textStyle.copy(
                 textFieldModel.textColor,
@@ -70,6 +88,15 @@ internal fun AmnesiaTextField(
         )
     }
 }
+
+private fun amnesiaTextFieldKeyboardActions(onAny: KeyboardActionScope.(ImeAction) -> Unit) = KeyboardActions(
+    onDone = { onAny(ImeAction.Done) },
+    onGo = { onAny(ImeAction.Go) },
+    onNext = { onAny(ImeAction.Next) },
+    onPrevious = { onAny(ImeAction.Previous) },
+    onSearch = { onAny(ImeAction.Search) },
+    onSend = { onAny(ImeAction.Search) },
+)
 
 @Composable
 internal fun defaultAmnesiaTextFieldModel() = AmnesiaTextFieldModel(

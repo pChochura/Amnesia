@@ -5,7 +5,6 @@ import androidx.compose.foundation.border
 import androidx.compose.foundation.clickable
 import androidx.compose.foundation.layout.padding
 import androidx.compose.material.MaterialTheme
-import androidx.compose.material.Text
 import androidx.compose.runtime.Composable
 import androidx.compose.ui.Modifier
 import androidx.compose.ui.draw.clip
@@ -27,7 +26,7 @@ internal fun AmnesiaChip(
     onClick: () -> Unit = {},
     colored: Boolean = true,
 ) {
-    Text(
+    AmnesiaText(
         text = text,
         modifier = modifier
             .clip(chipModel.shape)
@@ -50,7 +49,10 @@ internal fun AmnesiaChip(
                 vertical = chipModel.verticalPadding,
                 horizontal = chipModel.horizontalPadding,
             ),
-        style = chipModel.textStyle,
+        textStyle = defaultAmnesiaTextStyle().copy(
+            typography = chipModel.typography,
+            textColor = MaterialTheme.colors.onPrimary,
+        ),
     )
 }
 
@@ -59,7 +61,7 @@ internal fun defaultAmnesiaChipModel() = AmnesiaChipModel(
     borderWidth = dimensionResource(id = R.dimen.border_size),
     borderColor = colorResource(id = android.R.color.transparent),
     backgroundColor = MaterialTheme.colors.secondary,
-    textStyle = MaterialTheme.typography.button.copy(
+    typography = MaterialTheme.typography.button.copy(
         color = MaterialTheme.colors.secondaryVariant,
     ),
     shape = MaterialTheme.shapes.medium,
@@ -71,7 +73,7 @@ internal data class AmnesiaChipModel(
     val borderWidth: Dp,
     val borderColor: Color,
     val backgroundColor: Color,
-    val textStyle: TextStyle,
+    val typography: TextStyle,
     val shape: Shape,
     val verticalPadding: Dp,
     val horizontalPadding: Dp,

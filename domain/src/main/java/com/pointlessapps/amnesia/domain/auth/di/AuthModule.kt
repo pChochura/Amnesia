@@ -27,4 +27,10 @@ internal val authModule = module {
             repository = get(),
         )
     }
+
+    factory {
+        LinkWithWithGoogleUseCase(
+            repository = get(),
+        )
+    }
 }

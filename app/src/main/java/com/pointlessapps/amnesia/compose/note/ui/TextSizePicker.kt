@@ -8,7 +8,6 @@ import androidx.compose.foundation.layout.Row
 import androidx.compose.foundation.layout.padding
 import androidx.compose.foundation.layout.size
 import androidx.compose.material.MaterialTheme
-import androidx.compose.material.Text
 import androidx.compose.runtime.Composable
 import androidx.compose.ui.Alignment
 import androidx.compose.ui.Modifier
@@ -19,6 +18,8 @@ import androidx.compose.ui.unit.IntOffset
 import androidx.compose.ui.window.Popup
 import androidx.compose.ui.window.PopupProperties
 import com.pointlessapps.amnesia.R
+import com.pointlessapps.amnesia.compose.ui.components.AmnesiaText
+import com.pointlessapps.amnesia.compose.ui.components.defaultAmnesiaTextStyle
 import com.pointlessapps.amnesia.compose.ui.theme.Icons
 import com.pointlessapps.amnesia.compose.utils.AbovePositionProvider
 import com.pointlessapps.amnesia.compose.utils.roundToPx
@@ -64,10 +65,11 @@ internal fun TextSizePicker(
                     MaterialTheme.colors.secondaryVariant
                 },
             )
-            Text(
+            AmnesiaText(
                 text = currentValue.toPercent(),
-                style = MaterialTheme.typography.h2.copy(
-                    color = MaterialTheme.colors.onSecondary,
+                textStyle = defaultAmnesiaTextStyle().copy(
+                    typography = MaterialTheme.typography.h2,
+                    textColor = MaterialTheme.colors.onSecondary,
                 ),
             )
             Icons.Plus(

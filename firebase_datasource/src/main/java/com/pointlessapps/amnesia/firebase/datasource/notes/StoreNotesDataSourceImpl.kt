@@ -15,7 +15,7 @@ internal class StoreNotesDataSourceImpl(
     private fun getUserCollection() = firestore
         .collection(USERS_COLLECTION)
         .document(
-            requireNotNull(auth.currentUser).uid,
+            requireNotNull(auth.currentUser) { "User have to be authenticated" }.uid,
         )
 
     private fun getNotesCollection() = getUserCollection()

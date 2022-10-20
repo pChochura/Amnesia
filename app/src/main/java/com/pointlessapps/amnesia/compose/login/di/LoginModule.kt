@@ -7,7 +7,7 @@ import org.koin.dsl.module
 internal val loginModule = module {
     viewModel {
         LoginViewModel(
-            signInWithGoogleUseCase = get(),
+            linkWithWithGoogleUseCase = get(),
             signInAnonymouslyUseCase = get(),
         )
     }

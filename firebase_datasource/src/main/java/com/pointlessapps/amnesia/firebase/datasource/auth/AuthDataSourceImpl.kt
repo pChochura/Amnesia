@@ -25,7 +25,9 @@ internal class AuthDataSourceImpl(
     }
 
     override suspend fun linkWithGoogle() {
-        requireNotNull(auth.currentUser).linkWithCredential(getGoogleAuthCredential()).await()
+        requireNotNull(auth.currentUser) {
+            "User have to be authenticated"
+        }.linkWithCredential(getGoogleAuthCredential()).await()
     }
 
     override suspend fun signInWithGoogle(): GoogleSignInClientDto {

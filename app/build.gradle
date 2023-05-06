@@ -7,12 +7,12 @@ plugins {
 }
 
 android {
-    compileSdk 32
+    compileSdk 33
 
     defaultConfig {
         applicationId "com.pointlessapps.amnesia"
         minSdk 24
-        targetSdk 32
+        targetSdk 33
         versionCode 1
         versionName "0.1"
 
@@ -68,21 +68,23 @@ android {
             excludes += '/META-INF/{AL2.0,LGPL2.1}'
         }
     }
+    namespace 'com.pointlessapps.amnesia'
 }
 
 dependencies {
-    implementation 'androidx.core:core-ktx:1.7.0'
-    implementation 'androidx.lifecycle:lifecycle-runtime-ktx:2.4.1'
-    implementation 'androidx.constraintlayout:constraintlayout-compose:1.0.0'
+    implementation 'androidx.core:core-ktx:1.10.0'
+    implementation 'androidx.lifecycle:lifecycle-runtime-ktx:2.6.1'
+    implementation 'androidx.constraintlayout:constraintlayout-compose:1.0.1'
     implementation "androidx.activity:activity-compose:$androix_version"
 
     implementation "dev.olshevski.navigation:reimagined:$nav_version"
 
-    implementation "androidx.compose.ui:ui:$compose_version"
-    implementation "androidx.compose.material:material:$compose_version"
-    implementation "androidx.compose.ui:ui-tooling-preview:$compose_version"
-    implementation "androidx.compose.foundation:foundation:$compose_version"
-    debugImplementation "androidx.compose.ui:ui-tooling:$compose_version"
+    implementation platform("androidx.compose:compose-bom:$compose_bom_version")
+    implementation "androidx.compose.ui:ui"
+    implementation "androidx.compose.material:material"
+    implementation "androidx.compose.ui:ui-tooling-preview"
+    implementation "androidx.compose.foundation:foundation"
+    debugImplementation "androidx.compose.ui:ui-tooling"
 
     implementation "io.insert-koin:koin-android:$koin_version"
     implementation "io.insert-koin:koin-android-compat:$koin_version"

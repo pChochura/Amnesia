@@ -28,8 +28,8 @@ internal fun AmnesiaBottomModal(
     var wasShowed by remember { mutableStateOf(false) }
     val coroutineScope = rememberCoroutineScope()
 
-    LaunchedEffect(sheetState.currentValue, sheetState.isAnimationRunning) {
-        if (sheetState.currentValue == ModalBottomSheetValue.Hidden && !sheetState.isAnimationRunning) {
+    LaunchedEffect(sheetState.currentValue) {
+        if (sheetState.currentValue == ModalBottomSheetValue.Hidden) {
             if (wasShowed) {
                 onDismissListener()
             }

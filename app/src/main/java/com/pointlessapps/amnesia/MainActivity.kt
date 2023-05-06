@@ -88,7 +88,7 @@ class MainActivity : ComponentActivity() {
     @OptIn(ExperimentalAnimationApi::class)
     @Composable
     private fun NavHost(navController: NavController<Route>) {
-        NavBackHandler(navController = navController)
+        NavBackHandler(controller = navController)
         AnimatedNavHost(controller = navController) {
             when (it) {
                 Route.Login -> LoginScreen(

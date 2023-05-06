@@ -4,11 +4,11 @@ plugins {
 }
 
 android {
-    compileSdk 32
+    compileSdk 33
 
     defaultConfig {
         minSdk 24
-        targetSdk 32
+        targetSdk 33
     }
     compileOptions {
         sourceCompatibility JavaVersion.VERSION_1_8
@@ -17,13 +17,14 @@ android {
     kotlinOptions {
         jvmTarget = JavaVersion.VERSION_1_8.toString()
     }
+    namespace 'com.pointlessapps.amnesia.firebase.datasource'
 }
 
 dependencies {
     implementation "io.insert-koin:koin-core:$koin_version"
     implementation "androidx.activity:activity-ktx:$androix_version"
 
-    implementation 'org.jetbrains.kotlinx:kotlinx-coroutines-play-services:1.6.0'
+    implementation 'org.jetbrains.kotlinx:kotlinx-coroutines-play-services:1.7.0'
 
     implementation platform("com.google.firebase:firebase-bom:$firebase_version")
     implementation 'com.google.firebase:firebase-firestore-ktx'

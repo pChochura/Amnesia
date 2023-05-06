@@ -2,12 +2,12 @@
 <project version="4">
   <component name="CompilerConfiguration">
     <bytecodeTargetLevel target="1.8">
-      <module name="Amnesia.app" target="11" />
-      <module name="Amnesia.dash_border" target="11" />
-      <module name="Amnesia.datasource" target="11" />
-      <module name="Amnesia.domain" target="11" />
-      <module name="Amnesia.firebase_datasource" target="11" />
-      <module name="Amnesia.tooltip" target="11" />
+      <module name="Amnesia.app" target="17" />
+      <module name="Amnesia.dash_border" target="17" />
+      <module name="Amnesia.datasource" target="17" />
+      <module name="Amnesia.domain" target="17" />
+      <module name="Amnesia.firebase_datasource" target="17" />
+      <module name="Amnesia.tooltip" target="17" />
     </bytecodeTargetLevel>
   </component>
 </project>
